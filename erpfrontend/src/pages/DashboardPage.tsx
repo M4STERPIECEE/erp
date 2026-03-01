@@ -311,14 +311,7 @@ export default function DashboardPage() {
       <Sidebar activePage="dashboard" />
       <Box as="main" flex={1} h="full" overflowY="auto" bg={bgPage} p={{ base: 4, lg: 8 }} sx={{ "&::-webkit-scrollbar": { width: "8px", height: "8px" }, "&::-webkit-scrollbar-track": { background: "transparent" }, "&::-webkit-scrollbar-thumb": { background: "#cbd5e1", borderRadius: "4px" }, "&::-webkit-scrollbar-thumb:hover": { background: "#94a3b8" },  }}>
         <Box maxW="1600px" mx="auto" w="full" display="flex" flexDir="column" gap={8}>
-          <Flex
-            as="header"
-            justify="space-between"
-            align="flex-end"
-            pb={4}
-            borderBottomWidth="1px"
-            borderColor={borderClr}
-          >
+          <Flex as="header" justify="space-between" align="flex-end" pb={4} borderBottomWidth="1px" borderColor={borderClr}>
             <Box>
               <Flex alignItems="center" gap={3} mb={1}>
                 <Heading as="h2" fontSize="3xl" fontWeight="bold" color={textMain} letterSpacing="tight">
@@ -339,54 +332,23 @@ export default function DashboardPage() {
                 Bonjour, {user?.username} — Aperçu général de votre entreprise
               </Text>
             </Box>
-
             <Flex gap={4}>
-              <IconButton
-                aria-label="Notifications"
-                icon={
+              <IconButton aria-label="Notifications" icon={
                   <Box as="span" className="material-symbols-outlined" lineHeight="1">
                     notifications
                   </Box>
-                }
-                variant="outline"
-                borderRadius="full"
-                bg="white"
-                borderColor={borderClr}
-                color="gray.600"
-                _hover={{ bg: "gray.50" }}
-                boxShadow="sm"
-              />
-              <Button
-                bg="#1E3A5F"
-                color="white"
-                px={5}
-                py={2.5}
-                rounded="lg"
-                fontSize="sm" fontWeight="medium" leftIcon={
+                } variant="outline" borderRadius="full" bg="white" borderColor={borderClr} color="gray.600" _hover={{ bg: "gray.50" }} boxShadow="sm"/>
+              <Button bg="#1E3A5F" color="white" px={5} py={2.5} rounded="lg" fontSize="sm" fontWeight="medium" leftIcon={
                   <Box as="span" className="material-symbols-outlined" fontSize="18px" lineHeight="1">
                     add
                   </Box> } _hover={{ bg: "rgba(30,58,95,0.9)" }} boxShadow="sm" transition="background 0.15s" >
                 Nouvel employé
               </Button>
-              {/* Admin-only: validate payslips */}
               {isAdmin && (
-                <Button
-                  bg="#7c3aed"
-                  color="white"
-                  px={5}
-                  py={2.5}
-                  rounded="lg"
-                  fontSize="sm"
-                  fontWeight="medium"
-                  leftIcon={
+                <Button bg="#7c3aed" color="white" px={5} py={2.5} rounded="lg" fontSize="sm" fontWeight="medium" leftIcon={
                     <Box as="span" className="material-symbols-outlined" fontSize="18px" lineHeight="1">
                       verified
-                    </Box>
-                  }
-                  _hover={{ bg: "rgba(124,58,237,0.9)" }}
-                  boxShadow="sm"
-                  transition="background 0.15s"
-                >
+                    </Box> } _hover={{ bg: "rgba(124,58,237,0.9)" }} boxShadow="sm" transition="background 0.15s"  >
                   Valider les fiches de paie
                 </Button>
               )}
@@ -403,7 +365,6 @@ export default function DashboardPage() {
             <UpcomingEvents />
           </SimpleGrid>
           <LeaveTable />
-
         </Box>
       </Box>
     </Flex>

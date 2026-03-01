@@ -3,6 +3,7 @@ import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
+import EmployesPage from "./pages/EmployesPage";
 import { ROLES } from "./types/auth";
 
 function App() {
@@ -16,7 +17,7 @@ function App() {
           {/* Protected – RH + ADMIN can access everything below */}
           <Route element={<ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.RH]} />}>
             <Route path="/"           element={<DashboardPage />} />
-            <Route path="/employes"   element={<DashboardPage />} />
+            <Route path="/employes"   element={<EmployesPage />} />
             <Route path="/departements" element={<DashboardPage />} />
             <Route path="/conges"     element={<DashboardPage />} />
             <Route path="/absences"   element={<DashboardPage />} />
