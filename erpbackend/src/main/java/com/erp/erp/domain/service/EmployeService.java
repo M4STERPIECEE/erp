@@ -1,19 +1,25 @@
 package com.erp.erp.domain.service;
 
 import com.erp.erp.application.command.CreateEmployeCommand;
+import com.erp.erp.application.result.EmployeListResult;
 import com.erp.erp.application.result.EmployeResult;
 import com.erp.erp.domain.model.Employe;
+import com.erp.erp.domain.model.PageResult;
 import com.erp.erp.domain.model.enums.StatutEmploye;
 import com.erp.erp.domain.model.enums.TypeContrat;
 import com.erp.erp.domain.port.in.employe.CreateEmployeUseCase;
+import com.erp.erp.domain.port.in.employe.ListEmployesUseCase;
 import com.erp.erp.domain.port.out.EmployeRepositoryPort;
+import com.erp.erp.domain.port.out.EmployeRepositoryPort.ContratInfo;
 import com.erp.erp.domain.port.out.KeycloakPort;
 
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
-public class EmployeService implements CreateEmployeUseCase {
+public class EmployeService implements CreateEmployeUseCase, ListEmployesUseCase {
 
     private final KeycloakPort keycloakPort;
     private final EmployeRepositoryPort employeRepositoryPort;
@@ -74,6 +80,36 @@ public class EmployeService implements CreateEmployeUseCase {
                 command.typeContrat(),
                 command.salaireBase()
         );
+    }
+
+    @Override
+    public PageResult<EmployeListResult> lister(String search, Long departementId, String statut, int page, int size) {
+        PageResult<Employe> pageResult = employeRepositoryPort.rechercherEmployes(search, departementId, statut, page, size);
+
+        List<Long> employeIds = pageResult.content().stream().map(Employe::getId).toList();
+        Map<Long, ContratInfo> contrats = employeRepositoryPort.trouverContratsPourEmployes(employeIds);
+
+        List<EmployeListResult> results = pageResult.content().stream().map(emp -> {
+            ContratInfo ci = contrats.get(emp.getId());
+            return new EmployeListResult(
+                    emp.getId(),
+                    emp.getKeycloakId(),
+                    emp.getMatricule(),
+                    emp.getNom(),
+                    emp.getPrenom(),
+                    emp.getEmail(),
+                    emp.getTelephone(),
+                    emp.getDateNaissance(),
+                    emp.getDateEmbauche(),
+                    emp.getPoste(),
+                    emp.getStatut() != null ? emp.getStatut().name() : null,
+                    emp.getDepartementId(),
+                    ci != null ? ci.type() : null,
+                    ci != null ? ci.salaireBase() : null
+            );
+        }).toList();
+
+        return new PageResult<>(results, pageResult.totalElements(), pageResult.totalPages(), pageResult.number(), pageResult.size());
     }
 
     private String generateMatricule() {

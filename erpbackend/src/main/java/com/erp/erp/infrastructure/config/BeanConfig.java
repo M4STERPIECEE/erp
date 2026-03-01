@@ -1,6 +1,8 @@
 package com.erp.erp.infrastructure.config;
 
 import com.erp.erp.adapter.out.keycloak.KeycloakAdapter;
+import com.erp.erp.domain.port.in.employe.CreateEmployeUseCase;
+import com.erp.erp.domain.port.in.employe.ListEmployesUseCase;
 import com.erp.erp.domain.port.out.EmployeRepositoryPort;
 import com.erp.erp.domain.port.out.KeycloakPort;
 import com.erp.erp.domain.service.EmployeService;
@@ -24,5 +26,15 @@ public class BeanConfig {
     public EmployeService employeService(KeycloakPort keycloakPort,
                                          EmployeRepositoryPort employeRepositoryPort) {
         return new EmployeService(keycloakPort, employeRepositoryPort);
+    }
+
+    @Bean
+    public CreateEmployeUseCase createEmployeUseCase(EmployeService employeService) {
+        return employeService;
+    }
+
+    @Bean
+    public ListEmployesUseCase listEmployesUseCase(EmployeService employeService) {
+        return employeService;
     }
 }
