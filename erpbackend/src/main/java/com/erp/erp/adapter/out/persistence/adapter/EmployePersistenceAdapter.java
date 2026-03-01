@@ -1,1 +1,59 @@
 package com.erp.erp.adapter.out.persistence.adapter;
+
+import com.erp.erp.adapter.out.persistence.entity.ContratJpaEntity;
+import com.erp.erp.adapter.out.persistence.entity.EmployeJpaEntity;
+import com.erp.erp.adapter.out.persistence.mapper.EmployeJpaMapper;
+import com.erp.erp.adapter.out.persistence.repository.ContratJpaRepository;
+import com.erp.erp.adapter.out.persistence.repository.EmployeJpaRepository;
+import com.erp.erp.domain.model.Employe;
+import com.erp.erp.domain.model.enums.TypeContrat;
+import com.erp.erp.domain.port.out.EmployeRepositoryPort;
+import org.springframework.stereotype.Component;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
+@Component
+public class EmployePersistenceAdapter implements EmployeRepositoryPort {
+
+    private final EmployeJpaRepository employeJpaRepository;
+    private final ContratJpaRepository contratJpaRepository;
+    private final EmployeJpaMapper mapper;
+
+    public EmployePersistenceAdapter(EmployeJpaRepository employeJpaRepository,
+                                     ContratJpaRepository contratJpaRepository,
+                                     EmployeJpaMapper mapper) {
+        this.employeJpaRepository = employeJpaRepository;
+        this.contratJpaRepository = contratJpaRepository;
+        this.mapper = mapper;
+    }
+
+    @Override
+    public Employe sauvegarder(Employe employe) {
+        EmployeJpaEntity entity = mapper.toEntity(employe);
+        EmployeJpaEntity saved = employeJpaRepository.save(entity);
+        return mapper.toDomain(saved);
+    }
+
+    @Override
+    public void sauvegarderContrat(Long employeId, TypeContrat type, BigDecimal salaireBase,
+                                   LocalDate dateDebut, LocalDate dateFin) {
+        ContratJpaEntity contrat = new ContratJpaEntity();
+        contrat.setEmployeId(employeId);
+        contrat.setType(type.name());
+        contrat.setSalaireBase(salaireBase);
+        contrat.setDateDebut(dateDebut);
+        contrat.setDateFin(dateFin);
+        contratJpaRepository.save(contrat);
+    }
+
+    @Override
+    public boolean existeParEmail(String email) {
+        return employeJpaRepository.existsByEmail(email);
+    }
+
+    @Override
+    public long compterEmployes() {
+        return employeJpaRepository.count();
+    }
+}
