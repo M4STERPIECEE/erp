@@ -17,4 +17,4 @@ keycloak:
     server-url: http://localhost:8180
     realm: erp
     client-id: erp-backend
-    client-secret: thYU3qTityB5AuEgQeUJG0zUc1qK2y1G
+    client-secret: ${KEYCLOAK_CLIENT_SECRET}

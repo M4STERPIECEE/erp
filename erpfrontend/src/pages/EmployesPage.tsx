@@ -13,8 +13,6 @@ import { deleteEmploye } from "../services/employe.service";
 import { DEPARTEMENTS, STATUT_TYPES } from "../types/employe.types";
 import type { ContratType, StatutType, EmployeeResponse } from "../types/employe.types";
 
-// ─── Style maps ─────────────────────────────────────────────────────────────
-
 const contratStyles: Record<ContratType, { bg: string; color: string }> = {
   CDI:       { bg: "#dbeafe", color: "#1d4ed8" },
   CDD:       { bg: "#ffedd5", color: "#c2410c" },
@@ -30,8 +28,6 @@ const statutStyles: Record<
   INACTIF:  { bg: "#f1f5f9", color: "#475569", borderColor: "#e2e8f0", dotColor: "#94a3b8" },
   SUSPENDU: { bg: "#fee2e2", color: "#b91c1c", borderColor: "#fecaca", dotColor: "#ef4444" },
 };
-
-// ─── Small components ───────────────────────────────────────────────────────
 
 function Cell({ value, bold }: { value: string | null | undefined; bold?: boolean }) {
   return (
@@ -68,7 +64,6 @@ function deptName(id: number | null | undefined): string {
   return DEPARTEMENTS.find((d) => d.id === id)?.nom ?? `#${id}`;
 }
 
-// ─── Skeleton rows while loading ────────────────────────────────────────────
 
 function SkeletonRows() {
   return (
@@ -84,7 +79,6 @@ function SkeletonRows() {
   );
 }
 
-// ─── Pagination ─────────────────────────────────────────────────────────────
 
 function Pagination({ page, totalPages, totalElements, size, employees, onPageChange }: {
   page: number; totalPages: number; totalElements: number; size: number;
@@ -92,8 +86,6 @@ function Pagination({ page, totalPages, totalElements, size, employees, onPageCh
 }) {
   const from = totalElements === 0 ? 0 : page * size + 1;
   const to   = page * size + employees.length;
-
-  // generate page numbers: show at most 5 pages around current
   const pages: (number | "...")[] = [];
   if (totalPages <= 7) {
     for (let i = 0; i < totalPages; i++) pages.push(i);
@@ -148,7 +140,6 @@ function Pagination({ page, totalPages, totalElements, size, employees, onPageCh
   );
 }
 
-// ─── Delete confirmation dialog ─────────────────────────────────────────────
 
 function DeleteDialog({ employee, isOpen, onClose, onConfirm, isDeleting }: {
   employee: EmployeeResponse | null; isOpen: boolean; onClose: () => void; onConfirm: () => void; isDeleting: boolean;
@@ -184,8 +175,6 @@ function DeleteDialog({ employee, isOpen, onClose, onConfirm, isDeleting }: {
     </AlertDialog>
   );
 }
-
-// ─── Main page ──────────────────────────────────────────────────────────────
 
 export default function EmployesPage() {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -249,8 +238,6 @@ export default function EmployesPage() {
       <Sidebar activePage="employes" />
       <Box as="main" flex={1} h="full" overflowY="auto" bg={bgPage} p={{ base: 4, lg: 8 }} sx={{ "&::-webkit-scrollbar": { width: "8px", height: "8px" }, "&::-webkit-scrollbar-track": { background: "transparent" }, "&::-webkit-scrollbar-thumb": { background: "#cbd5e1", borderRadius: "4px" }, "&::-webkit-scrollbar-thumb:hover": { background: "#94a3b8" } }}>
         <Box w="full" display="flex" flexDir="column" gap={6}>
-
-          {/* Header */}
           <Flex direction={{ base: "column", md: "row" }} align={{ md: "center" }} justify="space-between" gap={4}>
             <Box>
               <Heading as="h1" fontSize={{ base: "2xl", md: "3xl" }} fontWeight="bold" color="gray.900" letterSpacing="tight">
@@ -266,8 +253,6 @@ export default function EmployesPage() {
               Ajouter un employé
             </Button>
           </Flex>
-
-          {/* Filters */}
           <Box bg={surface} rounded="xl" borderWidth="1px" borderColor={borderClr} shadow="sm" p={4}>
             <SimpleGrid columns={{ base: 1, md: 12 }} gap={4} alignItems="center">
               <Box gridColumn={{ md: "span 4", lg: "span 5" }}>
@@ -301,16 +286,12 @@ export default function EmployesPage() {
               </Flex>
             </SimpleGrid>
           </Box>
-
-          {/* Error state */}
           {error && (
             <Alert status="error" rounded="xl" variant="left-accent">
               <AlertIcon />
               <Text fontSize="sm">{error}</Text>
             </Alert>
           )}
-
-          {/* Table */}
           <Box bg={surface} rounded="xl" borderWidth="1px" borderColor={borderClr} shadow="sm" overflow="hidden">
             <Box overflowX="auto">
               <Table variant="unstyled" size="md">
@@ -365,31 +346,14 @@ export default function EmployesPage() {
                 </Tbody>
               </Table>
             </Box>
-
-            {/* Pagination */}
             {!isLoading && totalElements > 0 && (
-              <Pagination
-                page={page}
-                totalPages={totalPages}
-                totalElements={totalElements}
-                size={size}
-                employees={employees}
-                onPageChange={setPage}
-              />
+              <Pagination page={page} totalPages={totalPages} totalElements={totalElements} size={size} employees={employees} onPageChange={setPage} />
             )}
           </Box>
         </Box>
       </Box>
-
-      {/* Modals */}
       <AddEmployeeModal isOpen={isOpen} onClose={onClose} onCreated={refresh} />
-      <DeleteDialog
-        employee={deleteTarget}
-        isOpen={isDeleteOpen}
-        onClose={onDeleteClose}
-        onConfirm={confirmDelete}
-        isDeleting={isDeleting}
-      />
+      <DeleteDialog employee={deleteTarget} isOpen={isDeleteOpen} onClose={onDeleteClose} onConfirm={confirmDelete} isDeleting={isDeleting}/>
     </Flex>
   );
 }
