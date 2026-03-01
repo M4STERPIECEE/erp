@@ -1,16 +1,18 @@
-import { useState } from "react";
+import { useForm } from "react-hook-form";
 import {
-  Box, Flex, Button,
+  Box, Flex, Button, Spinner, Text,
   Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalFooter, ModalCloseButton,
-  FormControl, FormLabel, Input, Select, Grid,
+  FormControl, FormLabel, FormErrorMessage, Input, Select, Grid,
 } from "@chakra-ui/react";
-
-type ContratType = "CDI" | "CDD" | "STAGE" | "FREELANCE";
-type StatutType = "ACTIF" | "INACTIF" | "SUSPENDU";
+import { useCreateEmploye } from "../hooks/useCreateEmploye";
+import { useAuth } from "../hooks/useAuth";
+import { CONTRAT_TYPES, DEPARTEMENTS, ROLE_TYPES } from "../types/employe.types";
+import type { CreateEmployeeRequest } from "../types/employe.types";
 
 interface AddEmployeeModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onCreated?: () => void;
 }
 
 const borderClr = "gray.200";
@@ -44,9 +46,19 @@ const customInput = {
   _focus: { borderColor: "#14b8a6", boxShadow: "0 0 0 3px rgba(20,184,166,0.15)" },
 } as const;
 
-function SelectWrapper({ children }: { children: React.ReactNode }) {
+const errorSelect = {
+  ...selectWrapperStyles,
+  borderColor: "red.300",
+};
+
+const errorInput = {
+  ...customInput,
+  borderColor: "red.300",
+};
+
+function SelectWrapper({ children, isInvalid }: { children: React.ReactNode; isInvalid?: boolean }) {
   return (
-    <Box {...selectWrapperStyles}>
+    <Box {...(isInvalid ? errorSelect : selectWrapperStyles)}>
       {children}
       <Box as="span" className="material-symbols-outlined" position="absolute" right={3} top="50%" transform="translateY(-50%)" fontSize="20px" color="gray.400" lineHeight="1" pointerEvents="none">
         keyboard_arrow_down
@@ -63,29 +75,66 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
-const emptyForm = {
-  nom: "",
-  prenom: "",
-  email: "",
-  telephone: "",
-  poste: "",
-  date_embauche: "",
-  departement: "",
-  contrat: "" as ContratType | "",
-  statut: "ACTIF" as StatutType,
-};
+interface FormValues {
+  nom: string;
+  prenom: string;
+  email: string;
+  telephone: string;
+  dateNaissance: string;
+  dateEmbauche: string;
+  poste: string;
+  departementId: string;
+  typeContrat: string;
+  salaireBase: string;
+  role: string;
+}
 
-export default function AddEmployeeModal({ isOpen, onClose }: AddEmployeeModalProps) {
-  const [form, setForm] = useState(emptyForm);
+export default function AddEmployeeModal({ isOpen, onClose, onCreated }: AddEmployeeModalProps) {
+  const { hasRole } = useAuth();
+  const isAdmin = hasRole("admin");
 
-  const field = (key: keyof typeof form) => ({
-    value: form[key],
-    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
-      setForm((f) => ({ ...f, [key]: e.target.value })),
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<FormValues>({
+    defaultValues: {
+      nom: "", prenom: "", email: "", telephone: "",
+      dateNaissance: "", dateEmbauche: "", poste: "",
+      departementId: "", typeContrat: "", salaireBase: "",
+      role: "employe",
+    },
   });
 
+  const { submit, isSubmitting } = useCreateEmploye(() => {
+    onCreated?.();
+  });
+
+  const onSubmit = async (values: FormValues) => {
+    const payload: CreateEmployeeRequest = {
+      nom: values.nom,
+      prenom: values.prenom,
+      email: values.email,
+      telephone: values.telephone || undefined,
+      dateNaissance: values.dateNaissance || undefined,
+      dateEmbauche: values.dateEmbauche,
+      poste: values.poste,
+      departementId: Number(values.departementId),
+      typeContrat: values.typeContrat,
+      salaireBase: Number(values.salaireBase),
+      role: values.role,
+    };
+
+    const ok = await submit(payload);
+    if (ok) {
+      reset();
+      onClose();
+    }
+  };
+
   const handleClose = () => {
-    setForm(emptyForm);
+    reset();
     onClose();
   };
 
@@ -98,88 +147,149 @@ export default function AddEmployeeModal({ isOpen, onClose }: AddEmployeeModalPr
           Ajouter un employé
         </ModalHeader>
         <ModalCloseButton top={5} right={5} color="gray.500" _hover={{ bg: "gray.100", color: "gray.700" }} />
-        <ModalBody px={7} pb={4} bg="white">
-          <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={4}>
-            <FormControl isRequired>
-              <FieldLabel>Nom</FieldLabel>
-              <Input {...field("nom")} placeholder="Martin" {...customInput} />
-            </FormControl>
-            <FormControl isRequired>
-              <FieldLabel>Prénom</FieldLabel>
-              <Input {...field("prenom")} placeholder="Sophie" {...customInput} />
-            </FormControl>
-            <FormControl isRequired>
-              <FieldLabel>Email</FieldLabel>
-              <Input {...field("email")} type="email" placeholder="sophie.m@xyz.com" {...customInput} />
-            </FormControl>
-            <FormControl>
-              <FieldLabel>Téléphone</FieldLabel>
-              <Input {...field("telephone")} placeholder="+33 6 12 34 56 78" {...customInput} />
-            </FormControl>
-            <FormControl isRequired>
-              <FieldLabel>Poste</FieldLabel>
-              <Input {...field("poste")} placeholder="Développeur Senior" {...customInput} />
-            </FormControl>
-            <FormControl isRequired>
-              <FieldLabel>Date d'embauche</FieldLabel>
-              <Input {...field("date_embauche")} type="date" {...customInput} />
-            </FormControl>
-            <FormControl isRequired>
-              <FieldLabel>Département</FieldLabel>
-              <SelectWrapper>
-                <Select {...field("departement")} {...customSelect}>
-                  <option value="">Sélectionner...</option>
-                  <option value="Informatique">Informatique</option>
-                  <option value="Ressources Humaines">Ressources Humaines</option>
-                  <option value="Marketing">Marketing</option>
-                  <option value="Finance">Finance</option>
-                </Select>
-              </SelectWrapper>
-            </FormControl>
-            <FormControl isRequired>
-              <FieldLabel>Type de contrat</FieldLabel>
-              <SelectWrapper>
-                <Select {...field("contrat")} {...customSelect}>
-                  <option value="">Sélectionner...</option>
-                  <option value="CDI">CDI</option>
-                  <option value="CDD">CDD</option>
-                  <option value="STAGE">Stage</option>
-                  <option value="FREELANCE">Freelance</option>
-                </Select>
-              </SelectWrapper>
-            </FormControl>
-            <FormControl isRequired>
-              <FieldLabel>Statut</FieldLabel>
-              <SelectWrapper>
-                <Select {...field("statut")} {...customSelect}>
-                  <option value="ACTIF">Actif</option>
-                  <option value="INACTIF">Inactif</option>
-                  <option value="SUSPENDU">Suspendu</option>
-                </Select>
-              </SelectWrapper>
-            </FormControl>
 
-          </Grid>
-        </ModalBody>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <ModalBody px={7} pb={4} bg="white">
+            <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={4}>
+              {/* Nom */}
+              <FormControl isRequired isInvalid={!!errors.nom}>
+                <FieldLabel>Nom</FieldLabel>
+                <Input placeholder="Martin" {...customInput} {...(errors.nom ? errorInput : {})}
+                  {...register("nom", { required: "Le nom est obligatoire" })} />
+                <FormErrorMessage fontSize="xs">{errors.nom?.message}</FormErrorMessage>
+              </FormControl>
 
-        <ModalFooter px={7} pt={2} pb={7} bg="white">
-          <Flex w="full" gap={3}>
-            <Button
-              flex={1} h="44px" bg="gray.100" color="gray.700"
-              fontWeight="600" fontSize="sm" rounded="xl"
-              _hover={{ bg: "gray.200" }}
-              onClick={handleClose}>
-              Annuler
-            </Button>
-            <Button flex={1} h="44px" bg="#14b8a6" color="white"
-              fontWeight="600" fontSize="sm" rounded="xl"
-              _hover={{ bg: "#0d9488", transform: "translateY(-1px)", boxShadow: "0 10px 15px -3px rgba(20,184,166,0.35)" }}
-              _active={{ transform: "translateY(0)" }}
-              transition="all 0.15s" leftIcon={<Box as="span" className="material-symbols-outlined" fontSize="18px" lineHeight="1">save</Box>}>
-              Enregistrer
-            </Button>
-          </Flex>
-        </ModalFooter>
+              {/* Prénom */}
+              <FormControl isRequired isInvalid={!!errors.prenom}>
+                <FieldLabel>Prénom</FieldLabel>
+                <Input placeholder="Sophie" {...customInput} {...(errors.prenom ? errorInput : {})}
+                  {...register("prenom", { required: "Le prénom est obligatoire" })} />
+                <FormErrorMessage fontSize="xs">{errors.prenom?.message}</FormErrorMessage>
+              </FormControl>
+
+              {/* Email */}
+              <FormControl isRequired isInvalid={!!errors.email}>
+                <FieldLabel>Email</FieldLabel>
+                <Input type="email" placeholder="sophie.m@xyz.com" {...customInput} {...(errors.email ? errorInput : {})}
+                  {...register("email", {
+                    required: "L'email est obligatoire",
+                    pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: "Email invalide" },
+                  })} />
+                <FormErrorMessage fontSize="xs">{errors.email?.message}</FormErrorMessage>
+              </FormControl>
+
+              {/* Téléphone */}
+              <FormControl>
+                <FieldLabel>Téléphone</FieldLabel>
+                <Input placeholder="+33 6 12 34 56 78" {...customInput} {...register("telephone")} />
+              </FormControl>
+
+              {/* Date de naissance */}
+              <FormControl>
+                <FieldLabel>Date de naissance</FieldLabel>
+                <Input type="date" {...customInput} {...register("dateNaissance")} />
+              </FormControl>
+
+              {/* Date d'embauche */}
+              <FormControl isRequired isInvalid={!!errors.dateEmbauche}>
+                <FieldLabel>Date d'embauche</FieldLabel>
+                <Input type="date" {...customInput} {...(errors.dateEmbauche ? errorInput : {})}
+                  {...register("dateEmbauche", { required: "La date d'embauche est obligatoire" })} />
+                <FormErrorMessage fontSize="xs">{errors.dateEmbauche?.message}</FormErrorMessage>
+              </FormControl>
+
+              {/* Poste */}
+              <FormControl isRequired isInvalid={!!errors.poste}>
+                <FieldLabel>Poste</FieldLabel>
+                <Input placeholder="Développeur Senior" {...customInput} {...(errors.poste ? errorInput : {})}
+                  {...register("poste", { required: "Le poste est obligatoire" })} />
+                <FormErrorMessage fontSize="xs">{errors.poste?.message}</FormErrorMessage>
+              </FormControl>
+
+              {/* Salaire de base */}
+              <FormControl isRequired isInvalid={!!errors.salaireBase}>
+                <FieldLabel>Salaire de base</FieldLabel>
+                <Input type="number" step="0.01" placeholder="3500.00" {...customInput} {...(errors.salaireBase ? errorInput : {})}
+                  {...register("salaireBase", {
+                    required: "Le salaire est obligatoire",
+                    min: { value: 0.01, message: "Le salaire doit être positif" },
+                  })} />
+                <FormErrorMessage fontSize="xs">{errors.salaireBase?.message}</FormErrorMessage>
+              </FormControl>
+
+              {/* Département */}
+              <FormControl isRequired isInvalid={!!errors.departementId}>
+                <FieldLabel>Département</FieldLabel>
+                <SelectWrapper isInvalid={!!errors.departementId}>
+                  <Select {...customSelect}
+                    {...register("departementId", { required: "Le département est obligatoire" })}>
+                    <option value="">Sélectionner...</option>
+                    {DEPARTEMENTS.map((d) => (
+                      <option key={d.id} value={d.id}>{d.nom}</option>
+                    ))}
+                  </Select>
+                </SelectWrapper>
+                <FormErrorMessage fontSize="xs">{errors.departementId?.message}</FormErrorMessage>
+              </FormControl>
+
+              {/* Type de contrat */}
+              <FormControl isRequired isInvalid={!!errors.typeContrat}>
+                <FieldLabel>Type de contrat</FieldLabel>
+                <SelectWrapper isInvalid={!!errors.typeContrat}>
+                  <Select {...customSelect}
+                    {...register("typeContrat", { required: "Le type de contrat est obligatoire" })}>
+                    <option value="">Sélectionner...</option>
+                    {CONTRAT_TYPES.map((c) => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </Select>
+                </SelectWrapper>
+                <FormErrorMessage fontSize="xs">{errors.typeContrat?.message}</FormErrorMessage>
+              </FormControl>
+
+              {/* Rôle (admin only) */}
+              {isAdmin && (
+                <FormControl isRequired isInvalid={!!errors.role}>
+                  <FieldLabel>Rôle Keycloak</FieldLabel>
+                  <SelectWrapper isInvalid={!!errors.role}>
+                    <Select {...customSelect}
+                      {...register("role", { required: "Le rôle est obligatoire" })}>
+                      {ROLE_TYPES.map((r) => (
+                        <option key={r} value={r}>{r}</option>
+                      ))}
+                    </Select>
+                  </SelectWrapper>
+                  <FormErrorMessage fontSize="xs">{errors.role?.message}</FormErrorMessage>
+                </FormControl>
+              )}
+            </Grid>
+          </ModalBody>
+
+          <ModalFooter px={7} pt={2} pb={7} bg="white">
+            <Flex w="full" gap={3}>
+              <Button
+                flex={1} h="44px" bg="gray.100" color="gray.700"
+                fontWeight="600" fontSize="sm" rounded="xl"
+                _hover={{ bg: "gray.200" }}
+                onClick={handleClose}
+                isDisabled={isSubmitting}>
+                Annuler
+              </Button>
+              <Button
+                type="submit"
+                flex={1} h="44px" bg="#14b8a6" color="white"
+                fontWeight="600" fontSize="sm" rounded="xl"
+                _hover={{ bg: "#0d9488", transform: "translateY(-1px)", boxShadow: "0 10px 15px -3px rgba(20,184,166,0.35)" }}
+                _active={{ transform: "translateY(0)" }}
+                transition="all 0.15s"
+                isLoading={isSubmitting}
+                spinner={<Spinner size="sm" />}
+                leftIcon={!isSubmitting ? <Box as="span" className="material-symbols-outlined" fontSize="18px" lineHeight="1">save</Box> : undefined}>
+                <Text>Enregistrer</Text>
+              </Button>
+            </Flex>
+          </ModalFooter>
+        </form>
       </ModalContent>
     </Modal>
   );
