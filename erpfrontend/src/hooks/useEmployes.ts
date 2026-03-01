@@ -3,10 +3,9 @@ import { getEmployes } from "../services/employe.service";
 import type {
   EmployeeResponse,
   GetEmployesParams,
-  PagedEmployeeResponse,
 } from "../types/employe.types";
 
-interface UseEmployesState {
+interface UseEmployesReturn {
   employees: EmployeeResponse[];
   totalElements: number;
   totalPages: number;
@@ -14,9 +13,6 @@ interface UseEmployesState {
   size: number;
   isLoading: boolean;
   error: string | null;
-}
-
-interface UseEmployesReturn extends UseEmployesState {
   search: string;
   departement: number | undefined;
   statut: string;
@@ -31,79 +27,124 @@ const PAGE_SIZE = 10;
 const DEBOUNCE_MS = 400;
 
 export function useEmployes(): UseEmployesReturn {
-  const [state, setState] = useState<UseEmployesState>({
-    employees: [],
-    totalElements: 0,
-    totalPages: 0,
-    page: 0,
-    size: PAGE_SIZE,
-    isLoading: true,
-    error: null,
-  });
+  const [employees, setEmployees] = useState<EmployeeResponse[]>([]);
+  const [totalElements, setTotalElements] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [page, setPageNum] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const [search, setSearch] = useState("");
-  const [departement, setDepartement] = useState<number | undefined>(undefined);
-  const [statut, setStatut] = useState("");
-
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [search, setSearchRaw] = useState("");
+  const [departement, setDepartementRaw] = useState<number | undefined>(undefined);
+  const [statut, setStatutRaw] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
 
-  // Debounce search input
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
       setDebouncedSearch(search);
+      setPageNum(0);
     }, DEBOUNCE_MS);
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
   }, [search]);
+  const setSearch = useCallback((v: string) => setSearchRaw(v), []);
+  const setDepartement = useCallback((v: number | undefined) => {
+    setDepartementRaw(v);
+    setPageNum(0);
+  }, []);
+  const setStatut = useCallback((v: string) => {
+    setStatutRaw(v);
+    setPageNum(0);
+  }, []);
+  const setPage = useCallback((p: number) => setPageNum(p), []);
 
-  // Reset page when filters change
+  const fetchIdRef = useRef(0);
   useEffect(() => {
-    setState((s) => ({ ...s, page: 0 }));
-  }, [debouncedSearch, departement, statut]);
+    const id = ++fetchIdRef.current;
+    const controller = new AbortController();
 
-  const fetchData = useCallback(async () => {
-    setState((s) => ({ ...s, isLoading: true, error: null }));
+    setIsLoading(true);
+    setError(null);
 
     const params: GetEmployesParams = {
-      page: state.page,
+      page,
       size: PAGE_SIZE,
       search: debouncedSearch || undefined,
       departement: departement || undefined,
       statut: statut || undefined,
     };
 
-    try {
-      const data: PagedEmployeeResponse = await getEmployes(params);
-      setState((s) => ({
-        ...s,
-        employees: data.content,
-        totalElements: data.totalElements,
-        totalPages: data.totalPages,
-        page: data.number,
-        size: data.size,
-        isLoading: false,
-      }));
-    } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : "Erreur lors du chargement";
-      setState((s) => ({ ...s, isLoading: false, error: message }));
-    }
-  }, [state.page, debouncedSearch, departement, statut]);
+    getEmployes(params).then(
+      (data) => {
+        if (controller.signal.aborted || id !== fetchIdRef.current) return;
+        setEmployees(data.content);
+        setTotalElements(data.totalElements);
+        setTotalPages(data.totalPages);
+        setPageNum(data.number);
+        setIsLoading(false);
+      },
+      (err: unknown) => {
+        if (controller.signal.aborted || id !== fetchIdRef.current) return;
+        const message =
+          err instanceof Error ? err.message : "Erreur lors du chargement";
+        setError(message);
+        setIsLoading(false);
+      },
+    );
+
+    return () => controller.abort();
+  }, [page, debouncedSearch, departement, statut]);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    if (refreshKey === 0) return;
+    const id = ++fetchIdRef.current;
 
-  const setPage = useCallback(
-    (p: number) => setState((s) => ({ ...s, page: p })),
-    [],
-  );
+    setIsLoading(true);
+    setError(null);
+
+    const params: GetEmployesParams = {
+      page,
+      size: PAGE_SIZE,
+      search: debouncedSearch || undefined,
+      departement: departement || undefined,
+      statut: statut || undefined,
+    };
+
+    getEmployes(params).then(
+      (data) => {
+        if (id !== fetchIdRef.current) return;
+        setEmployees(data.content);
+        setTotalElements(data.totalElements);
+        setTotalPages(data.totalPages);
+        setPageNum(data.number);
+        setIsLoading(false);
+      },
+      (err: unknown) => {
+        if (id !== fetchIdRef.current) return;
+        const message =
+          err instanceof Error ? err.message : "Erreur lors du chargement";
+        setError(message);
+        setIsLoading(false);
+      },
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refreshKey]);
+
+  const refresh = useCallback(() => setRefreshKey((k) => k + 1), []);
 
   return {
-    ...state,
+    employees,
+    totalElements,
+    totalPages,
+    page,
+    size: PAGE_SIZE,
+    isLoading,
+    error,
     search,
     departement,
     statut,
@@ -111,6 +152,6 @@ export function useEmployes(): UseEmployesReturn {
     setDepartement,
     setStatut,
     setPage,
-    refresh: fetchData,
+    refresh,
   };
 }
