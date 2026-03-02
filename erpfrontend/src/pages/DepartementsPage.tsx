@@ -234,9 +234,12 @@ function DepartementFormModal({
             </FormControl>
             <FormControl>
               <FormLabel fontSize="sm" fontWeight="medium" color="gray.700">Responsable</FormLabel>
-              <Select {...register("responsableId")} placeholder="Aucun responsable" bg="gray.50" color="gray.900" borderColor="gray.200" rounded="lg" fontSize="sm" _focus={{ borderColor: "#14b8a6", boxShadow: "0 0 0 3px rgba(20,184,166,0.12)" }}>
+              <Select {...register("responsableId")} placeholder="Aucun responsable" bg="gray.50" color="gray.900" borderColor="gray.200" rounded="lg" fontSize="sm"
+                _hover={{ borderColor: "gray.300" }}
+                _focus={{ borderColor: "#14b8a6", boxShadow: "0 0 0 3px rgba(20,184,166,0.12)" }}
+                sx={{ "& option": { bg: "#f9fafb", color: "#1a202c" } }}>
                 {employes.map((e) => (
-                  <option key={e.id} value={e.id}>
+                  <option key={e.id} value={e.id} style={{ backgroundColor: "#f9fafb", color: "#1a202c" }}>
                     {e.prenom} {e.nom} — {e.poste}
                   </option>
                 ))}
