@@ -1,15 +1,17 @@
 import {
-  Box, Flex, Text, Button, IconButton, SimpleGrid, Skeleton,
+  Box, Flex, Text, Heading, Button, IconButton, SimpleGrid, Skeleton,
   Alert, AlertIcon, Spinner, useDisclosure, useToast,
   Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalFooter, ModalCloseButton,
-  FormControl, FormLabel, Input, Textarea,
+  FormControl, FormLabel, Input, Textarea, Select,
   AlertDialog, AlertDialogBody, AlertDialogFooter, AlertDialogHeader, AlertDialogContent, AlertDialogOverlay,
 } from "@chakra-ui/react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import Sidebar from "../components/Sidebar";
 import { useDepartements } from "../hooks/useDepartements";
 import { createDepartement, updateDepartement, deleteDepartement } from "../services/departement.service";
+import { getEmployes } from "../services/employe.service";
+import type { EmployeeResponse } from "../types/employe.types";
 import type { DepartementResponse, CreateDepartementRequest } from "../types/departement.types";
 
 const CARD_THEMES = [
@@ -129,28 +131,8 @@ function DepartmentCard({
 }
 function AddNewCard({ onClick }: { onClick: () => void }) {
   return (
-    <Box
-      role="group"
-      as="button"
-      display="flex" flexDir="column"
-      alignItems="center" justifyContent="center"
-      bg="gray.50" rounded="xl"
-      borderWidth="2px" borderStyle="dashed" borderColor="gray.300"
-      _hover={{ borderColor: "#14b8a6", bg: "rgba(20,184,166,0.04)" }}
-      transition="all 0.2s"
-      minH="260px"
-      cursor="pointer"
-      onClick={onClick}
-    >
-      <Flex
-        w={16} h={16} rounded="full"
-        bg="gray.100"
-        _groupHover={{ bg: "rgba(20,184,166,0.15)", color: "teal.600" }}
-        alignItems="center" justifyContent="center"
-        color="gray.400"
-        transition="all 0.2s"
-        mb={4}
-      >
+    <Box role="group" as="button" display="flex" flexDir="column" alignItems="center" justifyContent="center" bg="gray.50" rounded="xl" borderWidth="2px" borderStyle="dashed" borderColor="gray.300" _hover={{ borderColor: "#14b8a6", bg: "rgba(20,184,166,0.04)" }} transition="all 0.2s" minH="260px" cursor="pointer" onClick={onClick}>
+      <Flex w={16} h={16} rounded="full" bg="gray.100" _groupHover={{ bg: "rgba(20,184,166,0.15)", color: "teal.600" }} alignItems="center" justifyContent="center" color="gray.400" transition="all 0.2s" mb={4}>
         <Box as="span" className="material-symbols-outlined" fontSize="36px" lineHeight="1"
           color="gray.400" _groupHover={{ color: "#0d9488" }}>
           add
@@ -197,18 +179,30 @@ function DepartementFormModal({
 }) {
   const { register, handleSubmit, reset, formState: { isSubmitting } } = useForm<CreateDepartementRequest>({
     defaultValues: editTarget
-      ? { nom: editTarget.nom, description: editTarget.description ?? "" }
-      : { nom: "", description: "" },
+      ? { nom: editTarget.nom, description: editTarget.description ?? "", responsableId: editTarget.responsableId ?? undefined }
+      : { nom: "", description: "", responsableId: undefined },
   });
   const toast = useToast();
+  const [employes, setEmployes] = useState<EmployeeResponse[]>([]);
+
+  useEffect(() => {
+    getEmployes({ size: 500 }).then(
+      (res) => setEmployes(res.content),
+      () => { /* ignore */ },
+    );
+  }, []);
 
   const onSubmit = async (values: CreateDepartementRequest) => {
+    const payload: CreateDepartementRequest = {
+      ...values,
+      responsableId: values.responsableId ? Number(values.responsableId) : null,
+    };
     try {
       if (editTarget) {
-        await updateDepartement(editTarget.id, values);
+        await updateDepartement(editTarget.id, payload);
         toast({ title: "Département modifié", status: "success", duration: 3000, isClosable: true, position: "top-right" });
       } else {
-        await createDepartement(values);
+        await createDepartement(payload);
         toast({ title: "Département créé", status: "success", duration: 3000, isClosable: true, position: "top-right" });
       }
       reset();
@@ -232,11 +226,21 @@ function DepartementFormModal({
           <ModalBody display="flex" flexDir="column" gap={4}>
             <FormControl isRequired>
               <FormLabel fontSize="sm" fontWeight="medium" color="gray.700">Nom</FormLabel>
-              <Input {...register("nom", { required: true })} placeholder="Ex: Ressources Humaines" bg="gray.50" borderColor="gray.200" rounded="lg" fontSize="sm" _focus={{ borderColor: "#14b8a6", boxShadow: "0 0 0 3px rgba(20,184,166,0.12)" }} />
+              <Input {...register("nom", { required: true })} placeholder="Ex: Ressources Humaines" bg="gray.50" color="gray.900" borderColor="gray.200" rounded="lg" fontSize="sm" _focus={{ borderColor: "#14b8a6", boxShadow: "0 0 0 3px rgba(20,184,166,0.12)" }} />
             </FormControl>
             <FormControl>
               <FormLabel fontSize="sm" fontWeight="medium" color="gray.700">Description</FormLabel>
-              <Textarea {...register("description")} placeholder="Description du département..." bg="gray.50" borderColor="gray.200" rounded="lg" fontSize="sm" rows={3} _focus={{ borderColor: "#14b8a6", boxShadow: "0 0 0 3px rgba(20,184,166,0.12)" }} />
+              <Textarea {...register("description")} placeholder="Description du département..." bg="gray.50" color="gray.900" borderColor="gray.200" rounded="lg" fontSize="sm" rows={3} _focus={{ borderColor: "#14b8a6", boxShadow: "0 0 0 3px rgba(20,184,166,0.12)" }} />
+            </FormControl>
+            <FormControl>
+              <FormLabel fontSize="sm" fontWeight="medium" color="gray.700">Responsable</FormLabel>
+              <Select {...register("responsableId")} placeholder="Aucun responsable" bg="gray.50" color="gray.900" borderColor="gray.200" rounded="lg" fontSize="sm" _focus={{ borderColor: "#14b8a6", boxShadow: "0 0 0 3px rgba(20,184,166,0.12)" }}>
+                {employes.map((e) => (
+                  <option key={e.id} value={e.id}>
+                    {e.prenom} {e.nom} — {e.poste}
+                  </option>
+                ))}
+              </Select>
             </FormControl>
           </ModalBody>
           <ModalFooter pb={6}>
@@ -332,33 +336,29 @@ export default function DepartementsPage() {
   return (
     <Flex h="100vh" w="full" overflow="hidden" fontFamily="'Inter', sans-serif">
       <Sidebar activePage="departements" />
-
-      <Box as="main" flex={1} h="full" overflowY="auto" bg={bgPage} p={{ base: 4, lg: 8 }}
-        sx={{
-          "&::-webkit-scrollbar": { width: "8px", height: "8px" },
-          "&::-webkit-scrollbar-track": { background: "transparent" },
-          "&::-webkit-scrollbar-thumb": { background: "#cbd5e1", borderRadius: "4px" },
-          "&::-webkit-scrollbar-thumb:hover": { background: "#94a3b8" },
-        }}
-      >
+      <Box as="main" flex={1} h="full" overflowY="auto" bg={bgPage} p={{ base: 4, lg: 8 }} sx={{ "&::-webkit-scrollbar": { width: "8px", height: "8px" }, "&::-webkit-scrollbar-track": { background: "transparent" }, "&::-webkit-scrollbar-thumb": { background: "#cbd5e1", borderRadius: "4px" }, "&::-webkit-scrollbar-thumb:hover": { background: "#94a3b8" }, }}>
         <Box w="full" display="flex" flexDir="column" gap={6}>
-          <Flex direction={{ base: "column", sm: "row" }} justify="space-between" alignItems={{ sm: "center" }} gap={4}>
-            <Flex alignItems="center" gap={2}>
-              <Text color="gray.500" fontSize="sm" fontWeight="medium">
-                <Text as="span" fontWeight="bold" color="gray.900">{departements.length}</Text>{" "}
-                Départements actifs
+          <Flex direction={{ base: "column", md: "row" }} align={{ md: "center" }} justify="space-between" gap={4}>
+            <Box className="text-init">
+              <Heading as="h1" fontSize={{ base: "2xl", md: "3xl" }} fontWeight="bold" color="gray.900" letterSpacing="tight">
+                Gestion des Départements
+              </Heading>
+              <Text color="gray.500" mt={1} fontSize="sm">
+                Organisez et gérez les départements de votre entreprise.
               </Text>
-            </Flex>
-            <Button
-              bg="#14b8a6" color="white" px={6} h="40px" rounded="lg"
-              fontSize="sm" fontWeight="medium"
-              boxShadow="sm" _hover={{ bg: "#0d9488", shadow: "md" }}
-              transition="all 0.15s"
-              onClick={openCreate}
-              leftIcon={<Box as="span" className="material-symbols-outlined" fontSize="20px" lineHeight="1">add</Box>}
-            >
+            </Box>
+            <Button bg="#14b8a6" color="white" px={5} py={2.5} h="auto" rounded="lg" fontSize="sm" fontWeight="medium" boxShadow="0 1px 3px 0 rgba(20,184,166,0.3)" _hover={{ bg: "#0d9488" }} _active={{ transform: "scale(0.95)" }} transition="all 0.15s" onClick={openCreate} leftIcon={
+              <Box as="span" className="material-symbols-outlined" fontSize="20px" lineHeight="1">add</Box>
+            }>
               Ajouter département
             </Button>
+          </Flex>
+          <Box borderBottomWidth="1px" borderColor="gray.200" />
+          <Flex direction={{ base: "column", sm: "row" }} justify="space-between" alignItems={{ sm: "center" }} gap={4}>
+            <Text color="gray.500" fontSize="sm" fontWeight="medium">
+              <Text as="span" fontWeight="bold" color="gray.900">{departements.length}</Text>{" "}
+              Départements actifs
+            </Text>
           </Flex>
           {error && (
             <Alert status="error" rounded="xl" variant="left-accent">
@@ -372,13 +372,7 @@ export default function DepartementsPage() {
             ) : (
               <>
                 {departements.map((dept, index) => (
-                  <DepartmentCard
-                    key={dept.id}
-                    dept={dept}
-                    index={index}
-                    onEdit={openEdit}
-                    onDelete={handleDelete}
-                  />
+                  <DepartmentCard key={dept.id} dept={dept} index={index} onEdit={openEdit} onDelete={handleDelete}/>
                 ))}
                 <AddNewCard onClick={openCreate} />
               </>
@@ -388,20 +382,10 @@ export default function DepartementsPage() {
       </Box>
       {isFormOpen && (
         <DepartementFormModal
-          isOpen={isFormOpen}
-          onClose={() => { onFormClose(); setEditTarget(null); }}
-          onSaved={refresh}
-          editTarget={editTarget}
+          isOpen={isFormOpen} onClose={() => { onFormClose(); setEditTarget(null); }} onSaved={refresh} editTarget={editTarget}
         />
       )}
-
-      <DeleteDepartementDialog
-        dept={deleteTarget}
-        isOpen={isDeleteOpen}
-        onClose={onDeleteClose}
-        onConfirm={confirmDelete}
-        isDeleting={isDeleting}
-      />
+      <DeleteDepartementDialog dept={deleteTarget} isOpen={isDeleteOpen} onClose={onDeleteClose} onConfirm={confirmDelete} isDeleting={isDeleting}/>
     </Flex>
   );
 }
