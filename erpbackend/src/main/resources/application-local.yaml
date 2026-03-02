@@ -2,7 +2,7 @@ spring:
   datasource:
     url: jdbc:oracle:thin:@//localhost:1521/FREEPDB1
     username: erp_user
-    password: ${ORACLE_USER_PASSWORD:erp_password}
+    password: ${ORACLE_USER_PASSWORD}
 
   security:
     oauth2:
