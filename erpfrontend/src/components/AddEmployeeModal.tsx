@@ -203,9 +203,9 @@ export default function AddEmployeeModal({ isOpen, onClose, onCreated }: AddEmpl
                 <SelectWrapper isInvalid={!!errors.departementId}>
                   <Select {...customSelect}
                     {...register("departementId", { required: "Le département est obligatoire" })}>
-                    <option value="">Sélectionner...</option>
+                    <option value="" style={{ backgroundColor: "#f9fafb", color: "#1a202c" }}>Sélectionner...</option>
                     {DEPARTEMENTS.map((d) => (
-                      <option key={d.id} value={d.id}>{d.nom}</option>
+                      <option key={d.id} value={d.id} style={{ backgroundColor: "#f9fafb", color: "#1a202c" }}>{d.nom}</option>
                     ))}
                   </Select>
                 </SelectWrapper>
@@ -216,9 +216,9 @@ export default function AddEmployeeModal({ isOpen, onClose, onCreated }: AddEmpl
                 <SelectWrapper isInvalid={!!errors.typeContrat}>
                   <Select {...customSelect}
                     {...register("typeContrat", { required: "Le type de contrat est obligatoire" })}>
-                    <option value="">Sélectionner...</option>
+                    <option value="" style={{ backgroundColor: "#f9fafb", color: "#1a202c" }}>Sélectionner...</option>
                     {CONTRAT_TYPES.map((c) => (
-                      <option key={c} value={c}>{c}</option>
+                      <option key={c} value={c} style={{ backgroundColor: "#f9fafb", color: "#1a202c" }}>{c}</option>
                     ))}
                   </Select>
                 </SelectWrapper>
@@ -231,7 +231,7 @@ export default function AddEmployeeModal({ isOpen, onClose, onCreated }: AddEmpl
                     <Select {...customSelect}
                       {...register("role", { required: "Le rôle est obligatoire" })}>
                       {ROLE_TYPES.map((r) => (
-                        <option key={r} value={r}>{r}</option>
+                        <option key={r} value={r} style={{ backgroundColor: "#f9fafb", color: "#1a202c" }}>{r}</option>
                       ))}
                     </Select>
                   </SelectWrapper>
