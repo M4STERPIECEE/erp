@@ -5,7 +5,7 @@ spring:
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:oracle:thin:@//localhost:1521/FREEPDB1}
     username: ${SPRING_DATASOURCE_USERNAME:erp_user}
-    password: ${SPRING_DATASOURCE_PASSWORD:zntPEGASUS77K}
+    password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: oracle.jdbc.OracleDriver
 
   jpa:
@@ -32,7 +32,7 @@ keycloak:
     server-url: ${KEYCLOAK_URL:http://localhost:8180}
     realm: ${KEYCLOAK_REALM:erp}
     client-id: ${KEYCLOAK_CLIENT_ID:erp-backend}
-    client-secret: ${KEYCLOAK_CLIENT_SECRET:changeme}
+    client-secret: ${KEYCLOAK_CLIENT_SECRET}
 
 server:
   port: 8080
