@@ -145,10 +145,9 @@ function AddNewCard({ onClick }: { onClick: () => void }) {
       <Flex
         w={16} h={16} rounded="full"
         bg="gray.100"
-        _groupHover={{ bg: "rgba(20,184,166,0.15)" }}
+        _groupHover={{ bg: "rgba(20,184,166,0.15)", color: "teal.600" }}
         alignItems="center" justifyContent="center"
         color="gray.400"
-        _groupHoverColor="teal.600"
         transition="all 0.2s"
         mb={4}
       >
