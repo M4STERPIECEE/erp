@@ -4,6 +4,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
 import EmployesPage from "./pages/EmployesPage";
+import DepartementsPage from "./pages/DepartementsPage";
 import { ROLES } from "./types/auth";
 
 function App() {
@@ -18,7 +19,7 @@ function App() {
           <Route element={<ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.RH]} />}>
             <Route path="/"           element={<DashboardPage />} />
             <Route path="/employes"   element={<EmployesPage />} />
-            <Route path="/departements" element={<DashboardPage />} />
+            <Route path="/departements" element={<DepartementsPage />} />
             <Route path="/conges"     element={<DashboardPage />} />
             <Route path="/absences"   element={<DashboardPage />} />
             <Route path="/paie"       element={<DashboardPage />} />

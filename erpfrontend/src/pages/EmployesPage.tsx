@@ -253,6 +253,7 @@ export default function EmployesPage() {
               Ajouter un employé
             </Button>
           </Flex>
+          <Box borderBottomWidth="1px" borderColor="gray.200" />
           <Box bg={surface} rounded="xl" borderWidth="1px" borderColor={borderClr} shadow="sm" p={4}>
             <SimpleGrid columns={{ base: 1, md: 12 }} gap={4} alignItems="center">
               <Box gridColumn={{ md: "span 4", lg: "span 5" }}>
