@@ -38,7 +38,8 @@ public class DepartementService {
     }
 
     public Departement creer(Departement departement) {
-        return repository.save(departement);
+        Departement saved = repository.save(departement);
+        return enrichir(saved);
     }
 
     public Departement modifier(Long id, String nom, String description, Long responsableId) {
@@ -47,10 +48,20 @@ public class DepartementService {
         existing.setNom(nom);
         existing.setDescription(description);
         existing.setResponsableId(responsableId);
-        return repository.save(existing);
+        Departement saved = repository.save(existing);
+        return enrichir(saved);
     }
 
     public void supprimer(Long id) {
         repository.deleteById(id);
+    }
+
+    private Departement enrichir(Departement d) {
+        d.setNombreEmployes(repository.countEmployesByDepartementId(d.getId()));
+        if (d.getResponsableId() != null) {
+            repository.findResponsableNomById(d.getResponsableId())
+                    .ifPresent(d::setResponsableNom);
+        }
+        return d;
     }
 }
