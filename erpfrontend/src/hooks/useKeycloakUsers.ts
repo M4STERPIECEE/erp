@@ -29,6 +29,8 @@ export function useKeycloakUsers(): UseKeycloakUsersReturn {
 
   const fetchIdRef = useRef(0);
 
+  const loadingRef = useRef(false);
+
   const setSearch = useCallback((s: string) => {
     setSearchValue(s);
     setPage(0);
@@ -37,7 +39,8 @@ export function useKeycloakUsers(): UseKeycloakUsersReturn {
   useEffect(() => {
     const id = ++fetchIdRef.current;
     const controller = new AbortController();
-    setIsLoading(true);
+    loadingRef.current = true;
+    setIsLoading(true);  // eslint-disable-line react-hooks/set-state-in-effect -- intentional: sync loading before async fetch
 
     getKeycloakUsers({ page, size, search: search || undefined }).then(
       (data) => {
