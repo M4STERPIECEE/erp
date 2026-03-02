@@ -81,6 +81,7 @@ services:
       KEYCLOAK_INTERNAL_URL: http://keycloak:8080
       KEYCLOAK_REALM: erp
       KEYCLOAK_CLIENT_ID: erp-fastapi
+      KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_FASTAPI_CLIENT_SECRET}
     ports:
       - "7000:7000"
     depends_on:
