@@ -17,13 +17,12 @@ export function useMyLeaves(): UseMyLeavesReturn {
   const [stats, setStats] = useState<LeaveStatsResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
   const fetchIdRef = useRef(0);
   const toast = useToast();
 
-  const fetch = useCallback(() => {
+  useEffect(() => {
     const id = ++fetchIdRef.current;
-    setIsLoading(true);
-    setError(null);
 
     Promise.all([getMyLeaves(), getLeaveStats()])
       .then(([congesData, statsData]) => {
@@ -40,11 +39,13 @@ export function useMyLeaves(): UseMyLeavesReturn {
       .finally(() => {
         if (id === fetchIdRef.current) setIsLoading(false);
       });
-  }, []);
+  }, [refreshKey]);
 
-  useEffect(() => {
-    fetch();
-  }, [fetch]);
+  const refresh = useCallback(() => {
+    setRefreshKey((k) => k + 1);
+    setIsLoading(true);
+    setError(null);
+  }, []);
 
   const annuler = useCallback(
     async (id: number): Promise<boolean> => {
@@ -57,7 +58,7 @@ export function useMyLeaves(): UseMyLeavesReturn {
           isClosable: true,
           position: "top-right",
         });
-        fetch();
+        refresh();
         return true;
       } catch (err: unknown) {
         let message = "Impossible d'annuler ce congé";
@@ -76,8 +77,8 @@ export function useMyLeaves(): UseMyLeavesReturn {
         return false;
       }
     },
-    [fetch, toast],
+    [refresh, toast],
   );
 
-  return { conges, stats, isLoading, error, annuler, refresh: fetch };
+  return { conges, stats, isLoading, error, annuler, refresh };
 }

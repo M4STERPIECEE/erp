@@ -15,17 +15,16 @@ interface UseMyAbsencesReturn {
 
 export function useMyAbsences(): UseMyAbsencesReturn {
   const now = new Date();
-  const [mois, setMois] = useState(now.getMonth() + 1);
-  const [annee, setAnnee] = useState(now.getFullYear());
+  const [mois, setMoisRaw] = useState(now.getMonth() + 1);
+  const [annee, setAnneeRaw] = useState(now.getFullYear());
   const [absences, setAbsences] = useState<AbsenceResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
   const fetchIdRef = useRef(0);
 
-  const fetch = useCallback(() => {
+  useEffect(() => {
     const id = ++fetchIdRef.current;
-    setIsLoading(true);
-    setError(null);
 
     getMyAbsences(mois, annee)
       .then((data) => {
@@ -39,11 +38,25 @@ export function useMyAbsences(): UseMyAbsencesReturn {
       .finally(() => {
         if (id === fetchIdRef.current) setIsLoading(false);
       });
-  }, [mois, annee]);
+  }, [mois, annee, refreshKey]);
 
-  useEffect(() => {
-    fetch();
-  }, [fetch]);
+  const setMois = useCallback((m: number) => {
+    setMoisRaw(m);
+    setIsLoading(true);
+    setError(null);
+  }, [setMoisRaw, setIsLoading, setError]);
 
-  return { absences, isLoading, error, mois, annee, setMois, setAnnee, refresh: fetch };
+  const setAnnee = useCallback((a: number) => {
+    setAnneeRaw(a);
+    setIsLoading(true);
+    setError(null);
+  }, [setAnneeRaw, setIsLoading, setError]);
+
+  const refresh = useCallback(() => {
+    setRefreshKey((k) => k + 1);
+    setIsLoading(true);
+    setError(null);
+  }, [setRefreshKey, setIsLoading, setError]);
+
+  return { absences, isLoading, error, mois, annee, setMois, setAnnee, refresh };
 }

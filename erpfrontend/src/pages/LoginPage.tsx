@@ -30,7 +30,7 @@ export default function LoginPage() {
   const [error,        setError]        = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { login, hasRole } = useAuth();
+  const { login } = useAuth();
   const navigate  = useNavigate();
   const location  = useLocation();
   const from      = (location.state as { from?: { pathname: string } })?.from?.pathname;

@@ -15,13 +15,12 @@ export function useMyPayslips(): UseMyPayslipsReturn {
   const [fiches, setFiches] = useState<PayslipResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
   const fetchIdRef = useRef(0);
   const toast = useToast();
 
-  const fetch = useCallback(() => {
+  useEffect(() => {
     const id = ++fetchIdRef.current;
-    setIsLoading(true);
-    setError(null);
 
     getMyPayslips()
       .then((data) => {
@@ -35,11 +34,13 @@ export function useMyPayslips(): UseMyPayslipsReturn {
       .finally(() => {
         if (id === fetchIdRef.current) setIsLoading(false);
       });
-  }, []);
+  }, [refreshKey]);
 
-  useEffect(() => {
-    fetch();
-  }, [fetch]);
+  const refresh = useCallback(() => {
+    setRefreshKey((k) => k + 1);
+    setIsLoading(true);
+    setError(null);
+  }, []);
 
   const telecharger = useCallback(
     async (id: number, mois: number, annee: number) => {
@@ -67,5 +68,5 @@ export function useMyPayslips(): UseMyPayslipsReturn {
     [toast],
   );
 
-  return { fiches, isLoading, error, telecharger, refresh: fetch };
+  return { fiches, isLoading, error, telecharger, refresh };
 }

@@ -13,12 +13,11 @@ export function useMyProfile(): UseMyProfileReturn {
   const [profil, setProfil] = useState<MyProfileResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
   const fetchIdRef = useRef(0);
 
-  const fetch = useCallback(() => {
+  useEffect(() => {
     const id = ++fetchIdRef.current;
-    setIsLoading(true);
-    setError(null);
 
     getMyProfile()
       .then((data) => {
@@ -34,11 +33,13 @@ export function useMyProfile(): UseMyProfileReturn {
       .finally(() => {
         if (id === fetchIdRef.current) setIsLoading(false);
       });
+  }, [refreshKey]);
+
+  const refresh = useCallback(() => {
+    setRefreshKey((k) => k + 1);
+    setIsLoading(true);
+    setError(null);
   }, []);
 
-  useEffect(() => {
-    fetch();
-  }, [fetch]);
-
-  return { profil, isLoading, error, refresh: fetch };
+  return { profil, isLoading, error, refresh };
 }
