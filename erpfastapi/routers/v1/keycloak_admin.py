@@ -355,13 +355,20 @@ async def reset_password(
     _user: Annotated[dict, RequireAdmin],
     settings: Annotated[Settings, Depends(get_settings)],
 ):
-    """Reset password to a temporary one (user will be forced to change)."""
+    """Reset password to a default one."""
     token = await _get_admin_token(settings)
+
     async with httpx.AsyncClient(timeout=10) as client:
         resp = await client.put(
             f"{_admin_url(settings)}/users/{user_id}/reset-password",
-            json={"type": "password", "value": "Changeme1!", "temporary": True},
+            json={"type": "password", "value": "Changeme1!", "temporary": False},
             headers={"Authorization": f"Bearer {token}"},
         )
     if resp.status_code not in (200, 204):
         raise HTTPException(status_code=resp.status_code, detail=resp.text)
+    async with httpx.AsyncClient(timeout=10) as client:
+        await client.put(
+            f"{_admin_url(settings)}/users/{user_id}",
+            json={"requiredActions": []},
+            headers={"Authorization": f"Bearer {token}"},
+        )
