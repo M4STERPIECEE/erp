@@ -3,9 +3,9 @@ package com.erp.erp.adapter.in.web.mapper;
 import com.erp.erp.adapter.in.web.dto.request.CreateEmployeeRequest;
 import com.erp.erp.adapter.in.web.dto.response.EmployeeResponse;
 import com.erp.erp.adapter.in.web.dto.response.PagedEmployeeResponse;
-import com.erp.erp.application.command.CreateEmployeCommand;
-import com.erp.erp.application.result.EmployeListResult;
-import com.erp.erp.application.result.EmployeResult;
+import com.erp.erp.application.command.CreateEmployeeCommand;
+import com.erp.erp.application.result.EmployeeListResult;
+import com.erp.erp.application.result.EmployeeResult;
 import com.erp.erp.domain.model.PageResult;
 import org.mapstruct.Mapper;
 
@@ -13,11 +13,11 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface EmployeeWebMapper {
-    CreateEmployeCommand toCommand(CreateEmployeeRequest request);
-    EmployeeResponse toResponse(EmployeResult result);
-    EmployeeResponse toResponseFromList(EmployeListResult result);
+    CreateEmployeeCommand toCommand(CreateEmployeeRequest request);
+    EmployeeResponse toResponse(EmployeeResult result);
+    EmployeeResponse toResponseFromList(EmployeeListResult result);
 
-    default PagedEmployeeResponse toPagedResponse(PageResult<EmployeListResult> page) {
+    default PagedEmployeeResponse toPagedResponse(PageResult<EmployeeListResult> page) {
         List<EmployeeResponse> content = page.content().stream()
                 .map(this::toResponseFromList)
                 .toList();

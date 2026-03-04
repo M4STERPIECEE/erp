@@ -30,7 +30,7 @@ public record CreateEmployeeRequest(
         Long departementId,
 
         @NotBlank
-        String typeContrat,
+        String contractType,
 
         @NotNull @Positive
         BigDecimal salaireBase,

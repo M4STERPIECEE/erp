@@ -1,0 +1,119 @@
+package com.erp.erp.domain.service;
+
+import com.erp.erp.application.command.CreateEmployeeCommand;
+import com.erp.erp.application.result.EmployeeListResult;
+import com.erp.erp.application.result.EmployeeResult;
+import com.erp.erp.domain.model.Employee;
+import com.erp.erp.domain.model.PageResult;
+import com.erp.erp.domain.model.enums.EmployeeStatus;
+import com.erp.erp.domain.model.enums.ContractType;
+import com.erp.erp.domain.port.in.employee.CreateEmployeeUseCase;
+import com.erp.erp.domain.port.in.employee.ListEmployeesUseCase;
+import com.erp.erp.domain.port.out.EmployeeRepositoryPort;
+import com.erp.erp.domain.port.out.EmployeeRepositoryPort.ContratInfo;
+import com.erp.erp.domain.port.out.KeycloakPort;
+
+import jakarta.transaction.Transactional;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+public class EmployeeService implements CreateEmployeeUseCase, ListEmployeesUseCase {
+
+    private final KeycloakPort keycloakPort;
+    private final EmployeeRepositoryPort employeeRepositoryPort;
+
+    public EmployeeService(KeycloakPort keycloakPort, EmployeeRepositoryPort employeeRepositoryPort) {
+        this.keycloakPort = keycloakPort;
+        this.employeeRepositoryPort = employeeRepositoryPort;
+    }
+
+    @Override
+    @Transactional
+    public EmployeeResult creer(CreateEmployeeCommand command) {
+        if (employeeRepositoryPort.existeParEmail(command.email())) {
+            throw new IllegalArgumentException("Un employé avec cet email existe déjà : " + command.email());
+        }
+
+        UUID keycloakId = keycloakPort.createUser(
+                command.email(), command.nom(), command.prenom(), command.role()
+        );
+
+        String matricule = generateMatricule();
+
+        Employee employee = new Employee();
+        employee.setKeycloakId(keycloakId);
+        employee.setMatricule(matricule);
+        employee.setNom(command.nom());
+        employee.setPrenom(command.prenom());
+        employee.setEmail(command.email());
+        employee.setTelephone(command.telephone());
+        employee.setDateNaissance(command.dateNaissance());
+        employee.setDateEmbauche(command.dateEmbauche());
+        employee.setPoste(command.poste());
+        employee.setStatut(EmployeeStatus.ACTIF);
+        employee.setDepartementId(command.departementId());
+
+        Employee saved = employeeRepositoryPort.sauvegarder(employee);
+
+        ContractType contractType = ContractType.valueOf(command.contractType());
+        LocalDate dateFin = contractType == ContractType.CDI ? null : command.dateEmbauche().plusYears(1);
+
+        employeeRepositoryPort.sauvegarderContrat(
+                saved.getId(), contractType, command.salaireBase(), command.dateEmbauche(), dateFin
+        );
+
+        return new EmployeeResult(
+                saved.getId(),
+                saved.getKeycloakId(),
+                saved.getMatricule(),
+                saved.getNom(),
+                saved.getPrenom(),
+                saved.getEmail(),
+                saved.getTelephone(),
+                saved.getDateNaissance(),
+                saved.getDateEmbauche(),
+                saved.getPoste(),
+                saved.getStatut().name(),
+                saved.getDepartementId(),
+                command.contractType(),
+                command.salaireBase()
+        );
+    }
+
+    @Override
+    public PageResult<EmployeeListResult> lister(String search, Long departementId, String statut, int page, int size) {
+        PageResult<Employee> pageResult = employeeRepositoryPort.rechercherEmployes(search, departementId, statut, page, size);
+
+        List<Long> employeIds = pageResult.content().stream().map(Employee::getId).toList();
+        Map<Long, ContratInfo> contrats = employeeRepositoryPort.trouverContratsPourEmployes(employeIds);
+
+        List<EmployeeListResult> results = pageResult.content().stream().map(emp -> {
+            ContratInfo ci = contrats.get(emp.getId());
+            return new EmployeeListResult(
+                    emp.getId(),
+                    emp.getKeycloakId(),
+                    emp.getMatricule(),
+                    emp.getNom(),
+                    emp.getPrenom(),
+                    emp.getEmail(),
+                    emp.getTelephone(),
+                    emp.getDateNaissance(),
+                    emp.getDateEmbauche(),
+                    emp.getPoste(),
+                    emp.getStatut() != null ? emp.getStatut().name() : null,
+                    emp.getDepartementId(),
+                    ci != null ? ci.type() : null,
+                    ci != null ? ci.salaireBase() : null
+            );
+        }).toList();
+
+        return new PageResult<>(results, pageResult.totalElements(), pageResult.totalPages(), pageResult.number(), pageResult.size());
+    }
+
+    private String generateMatricule() {
+        long count = employeeRepositoryPort.compterEmployes();
+        return String.format("EMP-%d-%04d", LocalDate.now().getYear(), count + 1);
+    }
+}

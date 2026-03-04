@@ -17,6 +17,6 @@ public record EmployeeResponse(
         String poste,
         String statut,
         Long departementId,
-        String typeContrat,
+        String contractType,
         BigDecimal salaireBase
 ) {}

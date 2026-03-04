@@ -1,13 +1,19 @@
 package com.erp.erp.infrastructure.config;
 
 import com.erp.erp.adapter.out.keycloak.KeycloakAdapter;
-import com.erp.erp.domain.port.in.employe.CreateEmployeUseCase;
-import com.erp.erp.domain.port.in.employe.ListEmployesUseCase;
-import com.erp.erp.domain.port.out.EmployeRepositoryPort;
-import com.erp.erp.domain.port.out.DepartementRepositoryPort;
+import com.erp.erp.domain.port.in.employee.CreateEmployeeUseCase;
+import com.erp.erp.domain.port.in.employee.ListEmployeesUseCase;
+import com.erp.erp.domain.port.out.AbsenceRepositoryPort;
+import com.erp.erp.domain.port.out.LeaveRepositoryPort;
+import com.erp.erp.domain.port.out.DepartmentRepositoryPort;
+import com.erp.erp.domain.port.out.EmployeeRepositoryPort;
+import com.erp.erp.domain.port.out.PayslipRepositoryPort;
 import com.erp.erp.domain.port.out.KeycloakPort;
-import com.erp.erp.domain.service.DepartementService;
-import com.erp.erp.domain.service.EmployeService;
+import com.erp.erp.domain.service.AbsenceService;
+import com.erp.erp.domain.service.LeaveService;
+import com.erp.erp.domain.service.DepartmentService;
+import com.erp.erp.domain.service.EmployeeService;
+import com.erp.erp.domain.service.PayrollService;
 import org.keycloak.admin.client.Keycloak;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -25,23 +31,38 @@ public class BeanConfig {
     }
 
     @Bean
-    public EmployeService employeService(KeycloakPort keycloakPort,
-                                         EmployeRepositoryPort employeRepositoryPort) {
-        return new EmployeService(keycloakPort, employeRepositoryPort);
+    public EmployeeService employeeService(KeycloakPort keycloakPort,
+                                         EmployeeRepositoryPort employeeRepositoryPort) {
+        return new EmployeeService(keycloakPort, employeeRepositoryPort);
     }
 
     @Bean
-    public CreateEmployeUseCase createEmployeUseCase(EmployeService employeService) {
-        return employeService;
+    public CreateEmployeeUseCase createEmployeeUseCase(EmployeeService employeeService) {
+        return employeeService;
     }
 
     @Bean
-    public ListEmployesUseCase listEmployesUseCase(EmployeService employeService) {
-        return employeService;
+    public ListEmployeesUseCase listEmployeesUseCase(EmployeeService employeeService) {
+        return employeeService;
     }
 
     @Bean
-    public DepartementService departementService(DepartementRepositoryPort departementRepositoryPort) {
-        return new DepartementService(departementRepositoryPort);
+    public DepartmentService departmentService(DepartmentRepositoryPort departmentRepositoryPort) {
+        return new DepartmentService(departmentRepositoryPort);
+    }
+
+    @Bean
+    public LeaveService leaveService(LeaveRepositoryPort leaveRepositoryPort) {
+        return new LeaveService(leaveRepositoryPort);
+    }
+
+    @Bean
+    public AbsenceService absenceService(AbsenceRepositoryPort absenceRepositoryPort) {
+        return new AbsenceService(absenceRepositoryPort);
+    }
+
+    @Bean
+    public PayrollService payrollService(PayslipRepositoryPort payslipRepositoryPort) {
+        return new PayrollService(payslipRepositoryPort);
     }
 }

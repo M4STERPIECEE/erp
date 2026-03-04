@@ -515,7 +515,6 @@ export default function KeycloakPage() {
           </Box>
         </Box>
       </Box>
-
       {isCreateOpen && (
         <CreateUserModal isOpen={isCreateOpen} onClose={onCreateClose} onSaved={refresh} />
       )}

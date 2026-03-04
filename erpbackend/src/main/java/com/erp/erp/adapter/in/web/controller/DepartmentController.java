@@ -1,8 +1,8 @@
 package com.erp.erp.adapter.in.web.controller;
 
 import com.erp.erp.adapter.in.web.dto.response.DepartmentResponse;
-import com.erp.erp.domain.model.Departement;
-import com.erp.erp.domain.service.DepartementService;
+import com.erp.erp.domain.model.Department;
+import com.erp.erp.domain.service.DepartmentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -14,16 +14,16 @@ import java.util.List;
 @RequestMapping("/api/departements")
 public class DepartmentController {
 
-    private final DepartementService departementService;
+    private final DepartmentService departmentService;
 
-    public DepartmentController(DepartementService departementService) {
-        this.departementService = departementService;
+    public DepartmentController(DepartmentService departmentService) {
+        this.departmentService = departmentService;
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('RH', 'ADMIN', 'EMPLOYE')")
+    @PreAuthorize("hasAnyRole('RH', 'ADMIN', 'Employee')")
     public ResponseEntity<List<DepartmentResponse>> lister() {
-        List<Departement> departements = departementService.listerTous();
+        List<Department> departements = departmentService.listerTous();
         List<DepartmentResponse> response = departements.stream()
                 .map(this::toResponse)
                 .toList();
@@ -31,9 +31,9 @@ public class DepartmentController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('RH', 'ADMIN', 'EMPLOYE')")
+    @PreAuthorize("hasAnyRole('RH', 'ADMIN', 'Employee')")
     public ResponseEntity<DepartmentResponse> trouverParId(@PathVariable Long id) {
-        return departementService.trouverParId(id)
+        return departmentService.trouverParId(id)
                 .map(d -> ResponseEntity.ok(toResponse(d)))
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -41,11 +41,11 @@ public class DepartmentController {
     @PostMapping
     @PreAuthorize("hasAnyRole('RH', 'ADMIN')")
     public ResponseEntity<DepartmentResponse> creer(@RequestBody CreateDepartementRequest request) {
-        Departement dept = new Departement();
+        Department dept = new Department();
         dept.setNom(request.nom());
         dept.setDescription(request.description());
         dept.setResponsableId(request.responsableId());
-        Departement saved = departementService.creer(dept);
+        Department saved = departmentService.creer(dept);
         return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(saved));
     }
 
@@ -53,18 +53,18 @@ public class DepartmentController {
     @PreAuthorize("hasAnyRole('RH', 'ADMIN')")
     public ResponseEntity<DepartmentResponse> modifier(@PathVariable Long id,
                                                        @RequestBody CreateDepartementRequest request) {
-        Departement updated = departementService.modifier(id, request.nom(), request.description(), request.responsableId());
+        Department updated = departmentService.modifier(id, request.nom(), request.description(), request.responsableId());
         return ResponseEntity.ok(toResponse(updated));
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('RH', 'ADMIN')")
     public ResponseEntity<Void> supprimer(@PathVariable Long id) {
-        departementService.supprimer(id);
+        departmentService.supprimer(id);
         return ResponseEntity.noContent().build();
     }
 
-    private DepartmentResponse toResponse(Departement d) {
+    private DepartmentResponse toResponse(Department d) {
         return new DepartmentResponse(
                 d.getId(), d.getNom(), d.getDescription(),
                 d.getResponsableId(), d.getResponsableNom(),

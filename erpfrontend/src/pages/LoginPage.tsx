@@ -33,7 +33,7 @@ export default function LoginPage() {
   const { login } = useAuth();
   const navigate  = useNavigate();
   const location  = useLocation();
-  const from      = (location.state as { from?: { pathname: string } })?.from?.pathname ?? "/";
+  const from      = (location.state as { from?: { pathname: string } })?.from?.pathname;
 
   const handleTogglePassword = () => setShowPassword(!showPassword);
 
@@ -44,7 +44,8 @@ export default function LoginPage() {
     setIsSubmitting(true);
     try {
       await login(email.trim(), password);
-      navigate(from, { replace: true });
+      const dest = from ?? "/";
+      navigate(dest, { replace: true });
     } catch (err: unknown) {
       setError((err as Error).message ?? "Échec de la connexion");
     } finally {
