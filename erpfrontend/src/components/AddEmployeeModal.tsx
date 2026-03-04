@@ -4,10 +4,10 @@ import {
   Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalFooter, ModalCloseButton,
   FormControl, FormLabel, FormErrorMessage, Input, Select, Grid,
 } from "@chakra-ui/react";
-import { useCreateEmploye } from "../hooks/useCreateEmploye";
+import { useCreateEmployee } from "../hooks/useCreateEmployee";
 import { useAuth } from "../hooks/useAuth";
-import { CONTRAT_TYPES, DEPARTEMENTS, ROLE_TYPES } from "../types/employe.types";
-import type { CreateEmployeeRequest } from "../types/employe.types";
+import { CONTRACT_TYPES, DEPARTMENTS, ROLE_TYPES } from "../types/employee.types";
+import type { CreateEmployeeRequest } from "../types/employee.types";
 
 interface AddEmployeeModalProps {
   isOpen: boolean;
@@ -82,7 +82,7 @@ interface FormValues {
   dateEmbauche: string;
   poste: string;
   departementId: string;
-  typeContrat: string;
+  contractType: string;
   salaireBase: string;
   role: string;
 }
@@ -100,12 +100,12 @@ export default function AddEmployeeModal({ isOpen, onClose, onCreated }: AddEmpl
     defaultValues: {
       nom: "", prenom: "", email: "", telephone: "",
       dateNaissance: "", dateEmbauche: "", poste: "",
-      departementId: "", typeContrat: "", salaireBase: "",
+      departementId: "", contractType: "", salaireBase: "",
       role: "employe",
     },
   });
 
-  const { submit, isSubmitting } = useCreateEmploye(() => {
+  const { submit, isSubmitting } = useCreateEmployee(() => {
     onCreated?.();
   });
 
@@ -119,7 +119,7 @@ export default function AddEmployeeModal({ isOpen, onClose, onCreated }: AddEmpl
       dateEmbauche: values.dateEmbauche,
       poste: values.poste,
       departementId: Number(values.departementId),
-      typeContrat: values.typeContrat,
+      contractType: values.contractType,
       salaireBase: Number(values.salaireBase),
       role: values.role,
     };
@@ -204,25 +204,25 @@ export default function AddEmployeeModal({ isOpen, onClose, onCreated }: AddEmpl
                   <Select {...customSelect}
                     {...register("departementId", { required: "Le département est obligatoire" })}>
                     <option value="" style={{ backgroundColor: "#f9fafb", color: "#1a202c" }}>Sélectionner...</option>
-                    {DEPARTEMENTS.map((d) => (
+                    {DEPARTMENTS.map((d) => (
                       <option key={d.id} value={d.id} style={{ backgroundColor: "#f9fafb", color: "#1a202c" }}>{d.nom}</option>
                     ))}
                   </Select>
                 </SelectWrapper>
                 <FormErrorMessage fontSize="xs">{errors.departementId?.message}</FormErrorMessage>
               </FormControl>
-              <FormControl isRequired isInvalid={!!errors.typeContrat}>
+              <FormControl isRequired isInvalid={!!errors.contractType}>
                 <FieldLabel>Type de contrat</FieldLabel>
-                <SelectWrapper isInvalid={!!errors.typeContrat}>
+                <SelectWrapper isInvalid={!!errors.contractType}>
                   <Select {...customSelect}
-                    {...register("typeContrat", { required: "Le type de contrat est obligatoire" })}>
+                    {...register("contractType", { required: "Le type de contrat est obligatoire" })}>
                     <option value="" style={{ backgroundColor: "#f9fafb", color: "#1a202c" }}>Sélectionner...</option>
-                    {CONTRAT_TYPES.map((c) => (
+                    {CONTRACT_TYPES.map((c) => (
                       <option key={c} value={c} style={{ backgroundColor: "#f9fafb", color: "#1a202c" }}>{c}</option>
                     ))}
                   </Select>
                 </SelectWrapper>
-                <FormErrorMessage fontSize="xs">{errors.typeContrat?.message}</FormErrorMessage>
+                <FormErrorMessage fontSize="xs">{errors.contractType?.message}</FormErrorMessage>
               </FormControl>
               {isAdmin && (
                 <FormControl isRequired isInvalid={!!errors.role}>

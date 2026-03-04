@@ -79,7 +79,7 @@ public class KeycloakAdapter implements KeycloakPort {
 
         List<RoleRepresentation> currentRoles = userResource.roles().realmLevel().listEffective();
         List<RoleRepresentation> appRoles = currentRoles.stream()
-                .filter(r -> List.of("employe", "rh", "admin").contains(r.getName()))
+                .filter(r -> List.of("Employee", "rh", "admin").contains(r.getName()))
                 .toList();
 
         if (!appRoles.isEmpty()) {

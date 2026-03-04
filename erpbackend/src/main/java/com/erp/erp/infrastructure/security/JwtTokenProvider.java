@@ -48,6 +48,6 @@ public class JwtTokenProvider {
 
     public boolean isAdmin()   { return hasRole("admin"); }
     public boolean isRh()      { return hasRole("rh"); }
-    public boolean isEmploye() { return hasRole("employe"); }
+    public boolean isEmploye() { return hasRole("Employee"); }
 }
 

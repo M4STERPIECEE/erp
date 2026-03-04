@@ -33,8 +33,8 @@ public class AuthController {
         return ResponseEntity.ok(buildUserInfo());
     }
 
-    @GetMapping("/employe/me")
-    @PreAuthorize("hasAnyRole('EMPLOYE', 'RH', 'ADMIN')")
+    @GetMapping("/Employee/me")
+    @PreAuthorize("hasAnyRole('Employee', 'RH', 'ADMIN')")
     public ResponseEntity<Map<String, Object>> meEmploye() {
         return ResponseEntity.ok(buildUserInfo());
     }
