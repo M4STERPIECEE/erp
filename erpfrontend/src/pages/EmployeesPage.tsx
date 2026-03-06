@@ -10,8 +10,9 @@ import Sidebar from "../components/Sidebar";
 import AddEmployeeModal from "../components/AddEmployeeModal";
 import { useEmployees } from "../hooks/useEmployees";
 import { deleteEmployee } from "../services/employee.service";
-import { DEPARTMENTS, STATUS_TYPES } from "../types/employee.types";
+import { STATUS_TYPES } from "../types/employee.types";
 import type { ContractType, StatusType, EmployeeResponse } from "../types/employee.types";
+import { useDepartments } from "../hooks/useDepartments";
 
 const contratStyles: Record<ContractType, { bg: string; color: string }> = {
   CDI:       { bg: "#dbeafe", color: "#1d4ed8" },
@@ -59,10 +60,7 @@ function StatutBadge({ statut }: { statut: StatusType }) {
   );
 }
 
-function deptName(id: number | null | undefined): string {
-  if (id == null) return "—";
-  return DEPARTMENTS.find((d) => d.id === id)?.nom ?? `#${id}`;
-}
+
 
 
 function SkeletonRows() {
@@ -195,6 +193,13 @@ export default function EmployeesPage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const toast = useToast();
 
+  const { departements } = useDepartments();
+
+  const deptName = (id: number | null | undefined): string => {
+    if (id == null) return "—";
+    return departements.find((d) => d.id === id)?.nom ?? `#${id}`;
+  };
+
   const bgPage    = "#f8fafc";
   const surface   = "white";
   const borderClr = "gray.200";
@@ -267,7 +272,7 @@ export default function EmployeesPage() {
               <Box gridColumn={{ md: "span 4", lg: "span 3" }} position="relative">
                 <Select bg="gray.50" borderColor="gray.200" rounded="lg" fontSize="sm" color="gray.900" pr={10} iconSize="0" _focus={{ borderColor: "#0f4c81", boxShadow: "0 0 0 3px rgba(15,76,129,0.12)" }} value={departement ?? ""} onChange={(e) => setDepartement(e.target.value ? Number(e.target.value) : undefined)}>
                   <option value="">Tous les départements</option>
-                  {DEPARTMENTS.map((d) => (
+                  {departements.map((d) => (
                     <option key={d.id} value={d.id}>{d.nom}</option>
                   ))}
                 </Select>
