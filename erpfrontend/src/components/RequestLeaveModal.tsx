@@ -1,4 +1,3 @@
-// RequestLeaveModal.tsx
 import { useForm, useWatch, Controller } from "react-hook-form";
 import {
   Box,
@@ -146,37 +145,10 @@ export default function RequestLeaveModal({ isOpen, onClose, onCreated }: Reques
                   rules={{ required: "Le type est obligatoire" }}
                   render={({ field }) => (
                     <Menu matchWidth>
-                      <MenuButton
-                        as={Button}
-                        w="full"
-                        h="40px"
-                        bg="gray.50"
-                        borderWidth="1px"
-                        borderColor={errors.type ? "red.300" : "gray.200"}
-                        rounded="lg"
-                        fontSize="sm"
-                        fontWeight="normal"
-                        color={field.value ? "gray.900" : "gray.400"}
-                        textAlign="left"
-                        rightIcon={
-                          <Box as="span" className="material-symbols-outlined" fontSize="20px" color="gray.400" lineHeight="1">
-                            keyboard_arrow_down
-                          </Box>
-                        }
-                        _hover={{ bg: "gray.100" }}
-                        _active={{ bg: "gray.50" }}
-                        _focus={{ borderColor: "#14b8a6", boxShadow: "0 0 0 3px rgba(20,184,166,0.15)" }}
-                      >
+                      <MenuButton as={Button} w="full" h="40px" bg="gray.50" borderWidth="1px" borderColor={errors.type ? "red.300" : "gray.200"} rounded="lg" fontSize="sm" fontWeight="normal" color={field.value ? "gray.900" : "gray.400"} textAlign="left" rightIcon={<Box as="span" className="material-symbols-outlined" fontSize="20px" color="gray.400" lineHeight="1">keyboard_arrow_down</Box>} _hover={{ bg: "gray.100" }} _active={{ bg: "gray.50" }} _focus={{ borderColor: "#14b8a6", boxShadow: "0 0 0 3px rgba(20,184,166,0.15)" }}>
                         {field.value ? TYPE_LABELS[field.value as LeaveType] : "Sélectionner..."}
                       </MenuButton>
-                      <MenuList
-                        minW="0"
-                        rounded="xl"
-                        shadow="lg"
-                        borderColor="gray.200"
-                        p={2}
-                        bg="white"
-                      >
+                      <MenuList minW="0" rounded="xl" shadow="lg" borderColor="gray.200" p={2} bg="white">
                         {LEAVE_TYPE_OPTIONS.map((t) => (
                           <MenuItem
                             key={t}
@@ -254,38 +226,10 @@ export default function RequestLeaveModal({ isOpen, onClose, onCreated }: Reques
 
           <ModalFooter px={7} pt={3} pb={7}>
             <Flex w="full" gap={3}>
-              <Button
-                flex={1}
-                height="44px"
-                bg="gray.100"
-                color="gray.700"
-                fontWeight="600"
-                fontSize="sm"
-                rounded="xl"
-                shadow="sm"
-                _hover={{ bg: "gray.200", color: "gray.800", shadow: "md" }}
-                _active={{ bg: "gray.300" }}
-                onClick={handleClose}
-                isDisabled={isSubmitting}
-              >
+              <Button flex={1} height="44px" bg="gray.100" color="gray.700" fontWeight="600" fontSize="sm" rounded="xl" shadow="sm" _hover={{ bg: "gray.200", color: "gray.800", shadow: "md" }} _active={{ bg: "gray.300" }} onClick={handleClose} isDisabled={isSubmitting}>
                 Annuler
               </Button>
-              <Button
-                flex={1}
-                height="44px"
-                bg="#1E3A5F"
-                color="white"
-                fontWeight="600"
-                fontSize="sm"
-                rounded="xl"
-                shadow="sm"
-                _hover={{ bg: "#16335a", transform: "translateY(-1px)", boxShadow: "0 10px 15px -3px rgba(30,58,95,0.4)" }}
-                _active={{ bg: "#12284a", transform: "translateY(0)" }}
-                type="submit"
-                isLoading={isSubmitting}
-                loadingText="Envoi..."
-                gap={2}
-              >
+              <Button flex={1} height="44px" bg="#1E3A5F" color="white" fontWeight="600" fontSize="sm" rounded="xl" shadow="sm" _hover={{ bg: "#16335a", transform: "translateY(-1px)", boxShadow: "0 10px 15px -3px rgba(30,58,95,0.4)" }} _active={{ bg: "#12284a", transform: "translateY(0)" }} type="submit" isLoading={isSubmitting} loadingText="Envoi..." gap={2}>
                 {isSubmitting ? <Spinner size="sm" /> : null}
                 Soumettre la demande
               </Button>

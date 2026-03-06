@@ -58,30 +58,12 @@ export default function MyAbsencesPage() {
           <Text color="gray.500" mt={1}>Consultez votre historique d'absences</Text>
         </Box>
         <Flex gap={3}>
-          <Select
-            value={mois}
-            onChange={(e) => setMois(Number(e.target.value))}
-            bg="white"
-            borderColor="gray.200"
-            rounded="lg"
-            fontSize="sm"
-            w="auto"
-            _focus={{ borderColor: "#0d9488", boxShadow: "0 0 0 1px #0d9488" }}
-          >
+          <Select value={mois} onChange={(e) => setMois(Number(e.target.value))} bg="white" borderColor="gray.200" rounded="lg" fontSize="sm" w="auto" _focus={{ borderColor: "#0d9488", boxShadow: "0 0 0 1px #0d9488" }}>
             {MOIS_LABELS.map((label, i) => (
               <option key={i} value={i + 1}>{label}</option>
             ))}
           </Select>
-          <Select
-            value={annee}
-            onChange={(e) => setAnnee(Number(e.target.value))}
-            bg="white"
-            borderColor="gray.200"
-            rounded="lg"
-            fontSize="sm"
-            w="auto"
-            _focus={{ borderColor: "#0d9488", boxShadow: "0 0 0 1px #0d9488" }}
-          >
+          <Select value={annee} onChange={(e) => setAnnee(Number(e.target.value))} bg="white" borderColor="gray.200" rounded="lg" fontSize="sm" w="auto" _focus={{ borderColor: "#0d9488", boxShadow: "0 0 0 1px #0d9488" }}>
             {years.map((y) => (
               <option key={y} value={y}>{y}</option>
             ))}
@@ -150,11 +132,7 @@ export default function MyAbsencesPage() {
                     <Td px={6} py={4} color="gray.900" fontWeight="medium" fontSize="sm">{formatDate(a.date)}</Td>
                     <Td px={6} py={4} color="gray.600" fontSize="sm">{a.motif ?? "—"}</Td>
                     <Td px={6} py={4}>
-                      <Badge
-                        px={2.5} py={0.5} borderRadius="full" fontSize="xs" fontWeight="medium"
-                        colorScheme={a.justifiee ? "green" : "red"}
-                        variant="subtle"
-                      >
+                      <Badge px={2.5} py={0.5} borderRadius="full" fontSize="xs" fontWeight="medium" colorScheme={a.justifiee ? "green" : "red"} variant="subtle">
                         {a.justifiee ? "Oui" : "Non"}
                       </Badge>
                     </Td>

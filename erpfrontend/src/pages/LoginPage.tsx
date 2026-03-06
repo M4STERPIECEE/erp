@@ -61,42 +61,12 @@ export default function LoginPage() {
 
   return (
     <Box minH="100vh" w="100vw" bg={bgLightDark} position="relative" fontFamily="'Inter', sans-serif" overflow="hidden" color={textMain} display="flex" alignItems="center"  justifyContent="center">
-      <Box
-        position="absolute"
-        inset="0"
-        bg="#1f3b61"
-        opacity={useColorModeValue(0.05, 0.1)}
-        pointerEvents="none"
-      />
-      <Box
-        position="absolute"
-        top="0"
-        left="0"
-        right="0"
-        h="256px"
-        bgGradient="linear(to-b, rgba(31,59,97,0.1), transparent)"
-        pointerEvents="none" />
+      <Box position="absolute" inset="0" bg="#1f3b61" opacity={useColorModeValue(0.05, 0.1)} pointerEvents="none" />
+      <Box position="absolute" top="0" left="0" right="0" h="256px" bgGradient="linear(to-b, rgba(31,59,97,0.1), transparent)" pointerEvents="none" />
       <Flex flexDir="column" alignItems="center" justifyContent="center" p={{ base: 4, sm: 6, lg: 8 }} zIndex="10" position="relative" w="full"  maxW="container.lg" >
-        <Box
-          w="full"
-          maxW="480px"
-          bg={cardBg}
-          shadow="xl"
-          rounded="xl"
-          borderWidth="1px"
-          borderColor={borderColor}
-          overflow="hidden"
-        >
+          <Box w="full" maxW="480px" bg={cardBg} shadow="xl" rounded="xl" borderWidth="1px" borderColor={borderColor} overflow="hidden">
           <Flex flexDir="column" alignItems="center" pt={10} pb={6} px={8} textAlign="center">
-            <Flex
-              boxSize={12}
-              bg="rgba(31,59,97,0.1)"
-              rounded="lg"
-              alignItems="center"
-              justifyContent="center"
-              mb={6}
-              color="#1f3b61"
-            >
+            <Flex boxSize={12} bg="rgba(31,59,97,0.1)" rounded="lg" alignItems="center" justifyContent="center" mb={6} color="#1f3b61">
               <Box as="span" className="material-symbols-outlined" fontSize="32px" lineHeight="1">
                 dataset
               </Box>
@@ -120,20 +90,7 @@ export default function LoginPage() {
                       mail
                     </Box>
                   </InputLeftElement>
-                  <Input
-                    type="email"
-                    placeholder="exemple@entreprise.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    isRequired
-                    bg={inputBg}
-                    borderWidth="1px"
-                    borderColor={useColorModeValue("gray.200", "gray.600")}
-                    color={textMain}
-                    _focus={{ borderColor: "#2d8a8a", boxShadow: "0 0 0 1px #2d8a8a" }}
-                    _placeholder={{ color: "gray.400" }}
-                    h="12" fontSize="sm" pl={10} rounded="lg"
-                  />
+                  <Input type="email" placeholder="exemple@entreprise.com" value={email} onChange={(e) => setEmail(e.target.value)} isRequired bg={inputBg} borderWidth="1px" borderColor={useColorModeValue("gray.200", "gray.600")} color={textMain} _focus={{ borderColor: "#2d8a8a", boxShadow: "0 0 0 1px #2d8a8a" }} _placeholder={{ color: "gray.400" }} h="12" fontSize="sm" pl={10} rounded="lg" />
                 </InputGroup>
               </FormControl>
               <FormControl>
@@ -148,29 +105,9 @@ export default function LoginPage() {
                       lock
                     </Box>
                   </InputLeftElement>
-                  <Input
-                    type={showPassword ? "text" : "password"}
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    isRequired
-                    bg={inputBg}
-                    borderWidth="1px"
-                    borderColor={useColorModeValue("gray.200", "gray.600")}
-                    color={textMain}
-                    _focus={{ borderColor: "#2d8a8a", boxShadow: "0 0 0 1px #2d8a8a" }}
-                    _placeholder={{ color: "gray.400" }}
-                    h="12" fontSize="sm" pl={10} pr={12} rounded="lg"
-                  />
+                  <Input type={showPassword ? "text" : "password"} placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} isRequired bg={inputBg} borderWidth="1px" borderColor={useColorModeValue("gray.200", "gray.600")} color={textMain} _focus={{ borderColor: "#2d8a8a", boxShadow: "0 0 0 1px #2d8a8a" }} _placeholder={{ color: "gray.400" }} h="12" fontSize="sm" pl={10} pr={12} rounded="lg" />
                   <InputRightElement h="12" display="flex" alignItems="center">
-                    <IconButton aria-label={showPassword ? "Cacher le mot de passe" : "Afficher le mot de passe"} variant="ghost" size="sm"
-                      icon={
-                        <Box as="span" className="material-symbols-outlined" fontSize="20px" lineHeight="1">
-                          {showPassword ? "visibility" : "visibility_off"}
-                        </Box>
-                      } color="gray.400" _hover={{ color: useColorModeValue("gray.600", "gray.200"), bg: "transparent" }}
-                      onClick={handleTogglePassword}
-                    />
+                    <IconButton aria-label={showPassword ? "Cacher le mot de passe" : "Afficher le mot de passe"} variant="ghost" size="sm" icon={<Box as="span" className="material-symbols-outlined" fontSize="20px" lineHeight="1">{showPassword ? "visibility" : "visibility_off"}</Box>} color="gray.400" _hover={{ color: useColorModeValue("gray.600", "gray.200"), bg: "transparent" }} onClick={handleTogglePassword} />
                   </InputRightElement>
                 </InputGroup>
               </FormControl>
@@ -190,21 +127,7 @@ export default function LoginPage() {
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
               )}
-              <Button
-                type="submit"
-                w="full" h="12"
-                bg="#2d8a8a"
-                color="white"
-                fontWeight="bold"
-                fontSize="sm"
-                isLoading={isSubmitting}
-                loadingText="Connexion…"
-                _hover={{ bg: "rgba(45,138,138,0.9)", transform: "translateY(-1px)" }}
-                _active={{ transform: "translateY(0)" }}
-                boxShadow="0 4px 6px -1px rgba(45,138,138,0.2), 0 2px 4px -1px rgba(45,138,138,0.1)"
-                transition="all 0.2s"
-                mt={2}
-              >
+              <Button type="submit" w="full" h="12" bg="#2d8a8a" color="white" fontWeight="bold" fontSize="sm" isLoading={isSubmitting} loadingText="Connexion…" _hover={{ bg: "rgba(45,138,138,0.9)", transform: "translateY(-1px)" }} _active={{ transform: "translateY(0)" }} boxShadow="0 4px 6px -1px rgba(45,138,138,0.2), 0 2px 4px -1px rgba(45,138,138,0.1)" transition="all 0.2s" mt={2}>
                 Se connecter
               </Button>
             </VStack>

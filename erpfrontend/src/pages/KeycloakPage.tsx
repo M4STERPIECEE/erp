@@ -27,12 +27,7 @@ const roleBadgeStyle: Record<string, { bg: string; color: string }> = {
 function RoleBadge({ role }: { role: string }) {
   const s = roleBadgeStyle[role] ?? { bg: "gray.100", color: "gray.600" };
   return (
-    <Box
-      as="span" display="inline-flex" alignItems="center"
-      px={2} py={0.5} rounded="full"
-      fontSize="xs" fontWeight="medium"
-      bg={s.bg} color={s.color}
-    >
+    <Box as="span" display="inline-flex" alignItems="center" px={2} py={0.5} rounded="full" fontSize="xs" fontWeight="medium" bg={s.bg} color={s.color}>
       {role}
     </Box>
   );
@@ -432,13 +427,7 @@ export default function KeycloakPage() {
           )}
           
           {/* === TABLEAU CORRIGÉ : lignes de séparation très claires (gray.100) === */}
-          <Box 
-            bg={surface} 
-            rounded="xl" 
-            borderWidth="1px" 
-            borderColor={borderClr} 
-            shadow="sm" 
-            overflowX="auto"
+          <Box bg={surface} rounded="xl" borderWidth="1px" borderColor={borderClr} shadow="sm" overflowX="auto"
             sx={{
               // Lignes entre les données → ultra claires (plus du tout noires/moches)
               "tbody tr td": {

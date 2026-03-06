@@ -239,14 +239,7 @@ function LeaveTable() {
                 <Td px={6} py={4} color={textMuted}>{row.days}</Td>
                 <Td px={6} py={4}>{statusBadge(row.status)}</Td>
                 <Td px={6} py={4} textAlign="right">
-                  <IconButton
-                    aria-label="Voir"
-                    variant="ghost"
-                    size="sm"
-                    icon={<Box as="span" className="material-symbols-outlined" fontSize="20px" lineHeight="1">visibility</Box>}
-                    color="gray.400"
-                    _hover={{ color: "#1E3A5F" }}
-                  />
+                  <IconButton aria-label="Voir" variant="ghost" size="sm" icon={<Box as="span" className="material-symbols-outlined" fontSize="20px" lineHeight="1">visibility</Box>} color="gray.400" _hover={{ color: "#1E3A5F" }} />
                 </Td>
               </Tr>
             ))} 
@@ -333,22 +326,12 @@ export default function DashboardPage() {
               </Text>
             </Box>
             <Flex gap={4}>
-              <IconButton aria-label="Notifications" icon={
-                  <Box as="span" className="material-symbols-outlined" lineHeight="1">
-                    notifications
-                  </Box>
-                } variant="outline" borderRadius="full" bg="white" borderColor={borderClr} color="gray.600" _hover={{ bg: "gray.50" }} boxShadow="sm"/>
-              <Button bg="#1E3A5F" color="white" px={5} py={2.5} rounded="lg" fontSize="sm" fontWeight="medium" leftIcon={
-                  <Box as="span" className="material-symbols-outlined" fontSize="18px" lineHeight="1">
-                    add
-                  </Box> } _hover={{ bg: "rgba(30,58,95,0.9)" }} boxShadow="sm" transition="background 0.15s" >
+              <IconButton aria-label="Notifications" icon={<Box as="span" className="material-symbols-outlined" lineHeight="1">notifications</Box>} variant="outline" borderRadius="full" bg="white" borderColor={borderClr} color="gray.600" _hover={{ bg: "gray.50" }} boxShadow="sm" />
+              <Button bg="#1E3A5F" color="white" px={5} py={2.5} rounded="lg" fontSize="sm" fontWeight="medium" leftIcon={<Box as="span" className="material-symbols-outlined" fontSize="18px" lineHeight="1">add</Box>} _hover={{ bg: "rgba(30,58,95,0.9)" }} boxShadow="sm" transition="background 0.15s">
                 Nouvel employé
               </Button>
               {isAdmin && (
-                <Button bg="#7c3aed" color="white" px={5} py={2.5} rounded="lg" fontSize="sm" fontWeight="medium" leftIcon={
-                    <Box as="span" className="material-symbols-outlined" fontSize="18px" lineHeight="1">
-                      verified
-                    </Box> } _hover={{ bg: "rgba(124,58,237,0.9)" }} boxShadow="sm" transition="background 0.15s"  >
+                <Button bg="#7c3aed" color="white" px={5} py={2.5} rounded="lg" fontSize="sm" fontWeight="medium" leftIcon={<Box as="span" className="material-symbols-outlined" fontSize="18px" lineHeight="1">verified</Box>} _hover={{ bg: "rgba(124,58,237,0.9)" }} boxShadow="sm" transition="background 0.15s">
                   Valider les fiches de paie
                 </Button>
               )}

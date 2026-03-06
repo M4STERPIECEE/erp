@@ -138,15 +138,7 @@ export default function MyPayslipsPage() {
                       </Badge>
                     </Td>
                     <Td px={6} py={4} textAlign="right">
-                      <IconButton
-                        aria-label="Télécharger PDF"
-                        variant="ghost"
-                        size="sm"
-                        icon={<Box as="span" className="material-symbols-outlined" fontSize="20px" lineHeight="1">download</Box>}
-                        color="#1E3A5F"
-                        _hover={{ bg: "blue.50" }}
-                        onClick={() => telecharger(f.id, f.mois, f.annee)}
-                      />
+                      <IconButton aria-label="Télécharger PDF" variant="ghost" size="sm" icon={<Box as="span" className="material-symbols-outlined" fontSize="20px" lineHeight="1">download</Box>} color="#1E3A5F" _hover={{ bg: "blue.50" }} onClick={() => telecharger(f.id, f.mois, f.annee)} />
                     </Td>
                   </Tr>
                 ))}
