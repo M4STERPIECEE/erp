@@ -1,8 +1,9 @@
-import { useForm, useWatch } from "react-hook-form";
+import { useForm, useWatch, Controller } from "react-hook-form";
 import {
   Box, Flex, Button, Spinner, Text,
   Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalFooter, ModalCloseButton,
-  FormControl, FormLabel, FormErrorMessage, Input, Select, Grid,
+  FormControl, FormLabel, FormErrorMessage, Input, Grid,
+  Menu, MenuButton, MenuList, MenuItem,
 } from "@chakra-ui/react";
 import { useCreateEmployee } from "../hooks/useCreateEmployee";
 import { useAuth } from "../hooks/useAuth";
@@ -16,24 +17,6 @@ interface AddEmployeeModalProps {
   onCreated?: () => void;
 }
 const borderClr = "gray.200";
-const customSelect = {
-  border: "none",
-  bg: "transparent",
-  color: "gray.900",
-  fontSize: "sm",
-  pr: 10,
-  iconSize: "0",
-  _focus: { boxShadow: "none", borderColor: "transparent" },
-} as const;
-
-const selectWrapperStyles = {
-  position: "relative" as const,
-  bg: "gray.50",
-  borderWidth: "1px",
-  borderColor: borderClr,
-  rounded: "lg",
-  _focusWithin: { borderColor: "#14b8a6", boxShadow: "0 0 0 3px rgba(20,184,166,0.15)" },
-};
 
 const customInput = {
   bg: "gray.50",
@@ -45,26 +28,52 @@ const customInput = {
   _focus: { borderColor: "#14b8a6", boxShadow: "0 0 0 3px rgba(20,184,166,0.15)" },
 } as const;
 
-const errorSelect = {
-  ...selectWrapperStyles,
-  borderColor: "red.300",
-};
-
 const errorInput = {
   ...customInput,
   borderColor: "red.300",
 };
 
-function SelectWrapper({ children, isInvalid }: { children: React.ReactNode; isInvalid?: boolean }) {
-  return (
-    <Box {...(isInvalid ? errorSelect : selectWrapperStyles)}>
-      {children}
-      <Box as="span" className="material-symbols-outlined" position="absolute" right={3} top="50%" transform="translateY(-50%)" fontSize="20px" color="gray.400" lineHeight="1" pointerEvents="none">
-        keyboard_arrow_down
-      </Box>
-    </Box>
-  );
+const menuButtonStyles = (isInvalid: boolean, hasValue: boolean) => ({
+  w: "full",
+  h: "40px",
+  bg: "gray.50",
+  borderWidth: "1px",
+  borderColor: isInvalid ? "red.300" : "gray.200",
+  rounded: "lg",
+  fontSize: "sm",
+  fontWeight: "normal",
+  color: hasValue ? "gray.900" : "gray.400",
+  textAlign: "left" as const,
+  _hover: { bg: "gray.100" },
+  _active: { bg: "gray.50" },
+  _focus: { borderColor: "#14b8a6", boxShadow: "0 0 0 3px rgba(20,184,166,0.15)" },
+});
+
+const menuListStyles = {
+  minW: "0",
+  rounded: "xl",
+  shadow: "lg",
+  borderColor: "gray.200",
+  p: 2,
+  bg: "white",
+};
+
+function menuItemStyles(selected: boolean) {
+  return {
+    rounded: "lg",
+    fontSize: "sm",
+    color: "gray.700",
+    bg: selected ? "teal.50" : "transparent",
+    fontWeight: selected ? "600" : "normal",
+    _hover: { bg: "gray.100" },
+  };
 }
+
+const chevron = (
+  <Box as="span" className="material-symbols-outlined" fontSize="20px" color="gray.400" lineHeight="1">
+    keyboard_arrow_down
+  </Box>
+);
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
@@ -208,28 +217,48 @@ export default function AddEmployeeModal({ isOpen, onClose, onCreated }: AddEmpl
               </FormControl>
               <FormControl isRequired isInvalid={!!errors.departementId}>
                 <FieldLabel>Département</FieldLabel>
-                <SelectWrapper isInvalid={!!errors.departementId}>
-                  <Select {...customSelect}
-                    {...register("departementId", { required: "Le département est obligatoire" })}>
-                    <option value="" style={{ backgroundColor: "#f9fafb", color: "#1a202c" }}>Sélectionner...</option>
-                    {departements.map((d) => (
-                      <option key={d.id} value={d.id} style={{ backgroundColor: "#f9fafb", color: "#1a202c" }}>{d.nom}</option>
-                    ))}
-                  </Select>
-                </SelectWrapper>
+                <Controller
+                  name="departementId"
+                  control={control}
+                  rules={{ required: "Le département est obligatoire" }}
+                  render={({ field }) => (
+                    <Menu matchWidth>
+                      <MenuButton as={Button} {...menuButtonStyles(!!errors.departementId, !!field.value)} rightIcon={chevron}>
+                        {field.value ? departements.find((d) => String(d.id) === field.value)?.nom ?? "Sélectionner..." : "Sélectionner..."}
+                      </MenuButton>
+                      <MenuList {...menuListStyles}>
+                        {departements.map((d) => (
+                          <MenuItem key={d.id} {...menuItemStyles(field.value === String(d.id))} onClick={() => field.onChange(String(d.id))}>
+                            {d.nom}
+                          </MenuItem>
+                        ))}
+                      </MenuList>
+                    </Menu>
+                  )}
+                />
                 <FormErrorMessage fontSize="xs">{errors.departementId?.message}</FormErrorMessage>
               </FormControl>
               <FormControl isRequired isInvalid={!!errors.contractType}>
                 <FieldLabel>Type de contrat</FieldLabel>
-                <SelectWrapper isInvalid={!!errors.contractType}>
-                  <Select {...customSelect}
-                    {...register("contractType", { required: "Le type de contrat est obligatoire" })}>
-                    <option value="" style={{ backgroundColor: "#f9fafb", color: "#1a202c" }}>Sélectionner...</option>
-                    {CONTRACT_TYPES.map((c) => (
-                      <option key={c} value={c} style={{ backgroundColor: "#f9fafb", color: "#1a202c" }}>{c}</option>
-                    ))}
-                  </Select>
-                </SelectWrapper>
+                <Controller
+                  name="contractType"
+                  control={control}
+                  rules={{ required: "Le type de contrat est obligatoire" }}
+                  render={({ field }) => (
+                    <Menu matchWidth>
+                      <MenuButton as={Button} {...menuButtonStyles(!!errors.contractType, !!field.value)} rightIcon={chevron}>
+                        {field.value || "Sélectionner..."}
+                      </MenuButton>
+                      <MenuList {...menuListStyles}>
+                        {CONTRACT_TYPES.map((c) => (
+                          <MenuItem key={c} {...menuItemStyles(field.value === c)} onClick={() => field.onChange(c)}>
+                            {c}
+                          </MenuItem>
+                        ))}
+                      </MenuList>
+                    </Menu>
+                  )}
+                />
                 <FormErrorMessage fontSize="xs">{errors.contractType?.message}</FormErrorMessage>
               </FormControl>
               {needsEndDate && (
@@ -245,14 +274,25 @@ export default function AddEmployeeModal({ isOpen, onClose, onCreated }: AddEmpl
               {isAdmin && (
                 <FormControl isRequired isInvalid={!!errors.role}>
                   <FieldLabel>Rôle Keycloak</FieldLabel>
-                  <SelectWrapper isInvalid={!!errors.role}>
-                    <Select {...customSelect}
-                      {...register("role", { required: "Le rôle est obligatoire" })}>
-                      {ROLE_TYPES.map((r) => (
-                        <option key={r} value={r} style={{ backgroundColor: "#f9fafb", color: "#1a202c" }}>{r}</option>
-                      ))}
-                    </Select>
-                  </SelectWrapper>
+                  <Controller
+                    name="role"
+                    control={control}
+                    rules={{ required: "Le rôle est obligatoire" }}
+                    render={({ field }) => (
+                      <Menu matchWidth>
+                        <MenuButton as={Button} {...menuButtonStyles(!!errors.role, true)} rightIcon={chevron}>
+                          {field.value || "Sélectionner..."}
+                        </MenuButton>
+                        <MenuList {...menuListStyles}>
+                          {ROLE_TYPES.map((r) => (
+                            <MenuItem key={r} {...menuItemStyles(field.value === r)} onClick={() => field.onChange(r)}>
+                              {r}
+                            </MenuItem>
+                          ))}
+                        </MenuList>
+                      </Menu>
+                    )}
+                  />
                   <FormErrorMessage fontSize="xs">{errors.role?.message}</FormErrorMessage>
                 </FormControl>
               )}
