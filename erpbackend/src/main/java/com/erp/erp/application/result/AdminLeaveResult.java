@@ -2,7 +2,7 @@ package com.erp.erp.application.result;
 
 import java.time.LocalDate;
 
-public record LeaveResult(
+public record AdminLeaveResult(
         Long id,
         String type,
         LocalDate dateDebut,
@@ -10,5 +10,8 @@ public record LeaveResult(
         int nombreJours,
         String statut,
         String motif,
-        LocalDate dateDemande
+        Long employeId,
+        String employeNom,
+        String employePrenom,
+        String employePoste
 ) {}

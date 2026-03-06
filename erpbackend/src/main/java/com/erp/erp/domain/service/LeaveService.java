@@ -40,6 +40,10 @@ public class LeaveService {
         return congeRepository.save(leave);
     }
 
+    public List<Leave> listAllLeaves() {
+        return congeRepository.findAll();
+    }
+
     public List<Leave> listEmployeeLeaves(Long employeId) {
         return congeRepository.findByEmployeeId(employeId);
     }
@@ -95,6 +99,22 @@ public class LeaveService {
 
     public int countPendingRequests(Long employeId) {
         return congeRepository.countPendingRequests(employeId);
+    }
+
+    public int countAllPending() {
+        return congeRepository.countAllPending();
+    }
+
+    public int countAllApproved() {
+        return congeRepository.countAllApproved();
+    }
+
+    public int countOnLeaveToday() {
+        return congeRepository.countOnLeaveToday();
+    }
+
+    public int countPlannedThisMonth() {
+        return congeRepository.countPlannedThisMonth();
     }
 
     private int calculateBusinessDays(LocalDate debut, LocalDate fin) {

@@ -27,7 +27,7 @@ export interface LeaveResponse {
   type: LeaveType;
   dateDebut: string;
   dateFin: string;
-  joursOuvrables: number;
+  nombreJours: number;
   motif: string | null;
   statut: LeaveStatus;
   dateDemande: string;

@@ -1,5 +1,6 @@
 package com.erp.erp.adapter.in.web.controller;
 
+import com.erp.erp.application.result.AdminLeaveResult;
 import com.erp.erp.application.result.LeaveResult;
 import com.erp.erp.domain.model.Leave;
 import com.erp.erp.domain.model.Employee;
@@ -17,6 +18,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/leaves")
@@ -45,6 +48,41 @@ public class LeaveController {
         return ResponseEntity.ok(results);
     }
 
+    @GetMapping
+    @PreAuthorize("hasAnyRole('RH', 'ADMIN')")
+    public ResponseEntity<List<AdminLeaveResult>> allLeaves() {
+        List<Leave> leaves = leaveService.listAllLeaves();
+
+        List<Long> employeIds = leaves.stream()
+                .map(Leave::getEmployeId).distinct().toList();
+        Map<Long, Employee> employeeMap = employeeRepositoryPort.findAllByIds(employeIds)
+                .stream().collect(Collectors.toMap(Employee::getId, Function.identity()));
+
+        List<AdminLeaveResult> results = leaves.stream().map(c -> {
+            Employee emp = employeeMap.get(c.getEmployeId());
+            return new AdminLeaveResult(
+                    c.getId(), c.getType().name(), c.getDateDebut(), c.getDateFin(),
+                    c.getNombreJours(), c.getStatut().name(), c.getMotif(),
+                    c.getEmployeId(),
+                    emp != null ? emp.getNom() : "Inconnu",
+                    emp != null ? emp.getPrenom() : "",
+                    emp != null ? emp.getPoste() : ""
+            );
+        }).toList();
+        return ResponseEntity.ok(results);
+    }
+
+    @GetMapping("/admin-stats")
+    @PreAuthorize("hasAnyRole('RH', 'ADMIN')")
+    public ResponseEntity<Map<String, Object>> adminStats() {
+        return ResponseEntity.ok(Map.of(
+                "pending", leaveService.countAllPending(),
+                "approved", leaveService.countAllApproved(),
+                "onLeaveToday", leaveService.countOnLeaveToday(),
+                "plannedThisMonth", leaveService.countPlannedThisMonth()
+        ));
+    }
+
     @PostMapping
     @PreAuthorize("hasAnyRole('EMPLOYE', 'RH', 'ADMIN')")
     public ResponseEntity<LeaveResult> requestLeave(@RequestBody RequestLeaveRequest request) {
@@ -70,16 +108,16 @@ public class LeaveController {
     @PutMapping("/{id}/approve")
     @PreAuthorize("hasAnyRole('RH', 'ADMIN')")
     public ResponseEntity<LeaveResult> approveLeave(@PathVariable Long id) {
-        Employee approbateur = getAuthenticatedEmployee();
-        Leave leave = leaveService.approveLeave(id, approbateur.getId());
+        Long approbateurId = findAuthenticatedEmployeeId();
+        Leave leave = leaveService.approveLeave(id, approbateurId);
         return ResponseEntity.ok(toResult(leave));
     }
 
     @PutMapping("/{id}/reject")
     @PreAuthorize("hasAnyRole('RH', 'ADMIN')")
     public ResponseEntity<LeaveResult> rejectLeave(@PathVariable Long id) {
-        Employee approbateur = getAuthenticatedEmployee();
-        Leave leave = leaveService.rejectLeave(id, approbateur.getId());
+        Long approbateurId = findAuthenticatedEmployeeId();
+        Leave leave = leaveService.rejectLeave(id, approbateurId);
         return ResponseEntity.ok(toResult(leave));
     }
 
@@ -116,10 +154,24 @@ public class LeaveController {
                 .orElseThrow(() -> new IllegalArgumentException("Profil employé introuvable"));
     }
 
+    private Long findAuthenticatedEmployeeId() {
+        String keycloakId = jwtTokenProvider.getCurrentUserId().orElse(null);
+        if (keycloakId == null) return null;
+        return employeeRepositoryPort.findByKeycloakId(keycloakId)
+                .or(() -> {
+                    String email = jwtTokenProvider.getCurrentEmail().orElse(null);
+                    if (email == null) return java.util.Optional.empty();
+                    return employeeRepositoryPort.findByEmail(email);
+                })
+                .map(Employee::getId)
+                .orElse(null);
+    }
+
     private LeaveResult toResult(Leave c) {
         return new LeaveResult(
                 c.getId(), c.getType().name(), c.getDateDebut(), c.getDateFin(),
-                c.getNombreJours(), c.getStatut().name(), c.getMotif()
+                c.getNombreJours(), c.getStatut().name(), c.getMotif(),
+                c.getCreatedAt() != null ? c.getCreatedAt().toLocalDate() : null
         );
     }
 

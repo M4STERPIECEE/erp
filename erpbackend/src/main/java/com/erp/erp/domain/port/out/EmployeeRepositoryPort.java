@@ -19,6 +19,8 @@ public interface EmployeeRepositoryPort {
     Map<Long, ContractInfo> findContractsForEmployees(List<Long> employeIds);
     Optional<Employee> findByKeycloakId(String keycloakId);
     Optional<Employee> findByEmail(String email);
+    Optional<Employee> findById(Long id);
+    List<Employee> findAllByIds(List<Long> ids);
     Optional<ContractInfo> findContractByEmployeeId(Long employeId);
 
     record ContractInfo(String type, BigDecimal salaireBase, LocalDate dateDebut, LocalDate dateFin) {}

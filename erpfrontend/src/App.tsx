@@ -5,6 +5,7 @@ import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
 import EmployeesPage from "./pages/EmployeesPage";
 import DepartmentsPage from "./pages/DepartmentsPage";
+import LeavesPage from "./pages/LeavesPage";
 import KeycloakPage from "./pages/KeycloakPage";
 import EmployeeLayout from "./components/EmployeeLayout";
 import EmployeeDashboardPage from "./pages/employee/EmployeeDashboardPage";
@@ -27,7 +28,7 @@ function App() {
           <Route element={<ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.RH]} />}>
             <Route path="/employees"    element={<EmployeesPage />} />
             <Route path="/departments"  element={<DepartmentsPage />} />
-            <Route path="/leaves"       element={<DashboardPage />} />
+            <Route path="/leaves"       element={<LeavesPage />} />
             <Route path="/absences"     element={<DashboardPage />} />
             <Route path="/payroll"      element={<DashboardPage />} />
             <Route path="/settings"     element={<DashboardPage />} />

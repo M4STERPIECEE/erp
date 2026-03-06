@@ -117,7 +117,7 @@ export default function EmployeeDashboardPage() {
                 <Flex key={c.id} align="center" justify="space-between" p={3} bg="gray.50" rounded="lg">
                   <Box>
                     <Text fontSize="sm" fontWeight="medium" color="gray.900">
-                      {c.type.replace("_", " ")} — {c.joursOuvrables} jour(s)
+                      {c.type.replace("_", " ")} — {c.nombreJours} jour(s)
                     </Text>
                     <Text fontSize="xs" color="gray.500">
                       {new Date(c.dateDebut).toLocaleDateString("fr-FR")} → {new Date(c.dateFin).toLocaleDateString("fr-FR")}

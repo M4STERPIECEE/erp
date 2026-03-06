@@ -53,6 +53,33 @@ public class LeavePersistenceAdapter implements LeaveRepositoryPort {
         return repository.countPending(employeId);
     }
 
+    @Override
+    public List<Leave> findAll() {
+        return repository.findAllByOrderByCreatedAtDesc()
+                .stream().map(this::toDomain).toList();
+    }
+
+    @Override
+    public int countAllPending() {
+        return repository.countAllPending();
+    }
+
+    @Override
+    public int countAllApproved() {
+        return repository.countAllApproved();
+    }
+
+    @Override
+    public int countOnLeaveToday() {
+        return repository.countOnLeaveToday(java.time.LocalDate.now());
+    }
+
+    @Override
+    public int countPlannedThisMonth() {
+        java.time.LocalDate now = java.time.LocalDate.now();
+        return repository.countPlannedThisMonth(now.getYear(), now.getMonthValue());
+    }
+
     private Leave toDomain(LeaveJpaEntity e) {
         Leave c = new Leave();
         c.setId(e.getId());
@@ -64,6 +91,7 @@ public class LeavePersistenceAdapter implements LeaveRepositoryPort {
         c.setNombreJours(e.getNombreJours());
         c.setStatut(LeaveStatus.valueOf(e.getStatut()));
         c.setMotif(e.getMotif());
+        c.setCreatedAt(e.getCreatedAt());
         return c;
     }
 
