@@ -60,9 +60,7 @@ export default function MyLeavesPage() {
           </Heading>
           <Text color="gray.500" mt={1}>Gérez vos demandes de congés</Text>
         </Box>
-        <Button bg="#1E3A5F" color="white" px={5} py={2.5} rounded="lg" fontSize="sm" fontWeight="medium" leftIcon={
-          <Box as="span" className="material-symbols-outlined" fontSize="18px" lineHeight="1">add</Box>
-        } _hover={{ bg: "rgba(30,58,95,0.9)" }} boxShadow="sm" onClick={onOpen}>
+        <Button bg="#1E3A5F" color="white" px={5} py={2.5} rounded="lg" fontSize="sm" fontWeight="medium" leftIcon={<Box as="span" className="material-symbols-outlined" fontSize="18px" lineHeight="1">add</Box>} _hover={{ bg: "rgba(30,58,95,0.9)" }} boxShadow="sm" onClick={onOpen}>
           Demander un congé
         </Button>
       </Flex>
@@ -144,15 +142,7 @@ export default function MyLeavesPage() {
                     <Td px={6} py={4} color="gray.500" fontSize="sm">{formatDate(c.dateDemande)}</Td>
                     <Td px={6} py={4} textAlign="right">
                       {c.statut === "EN_ATTENTE" && (
-                        <IconButton
-                          aria-label="Annuler"
-                          variant="ghost"
-                          size="sm"
-                          icon={<Box as="span" className="material-symbols-outlined" fontSize="20px" lineHeight="1">close</Box>}
-                          color="red.400"
-                          _hover={{ color: "red.600", bg: "red.50" }}
-                          onClick={() => annuler(c.id)}
-                        />
+                        <IconButton aria-label="Annuler" variant="ghost" size="sm" icon={<Box as="span" className="material-symbols-outlined" fontSize="20px" lineHeight="1">close</Box>} color="red.400" _hover={{ color: "red.600", bg: "red.50" }} onClick={() => annuler(c.id)} />
                       )}
                     </Td>
                   </Tr>
@@ -163,11 +153,7 @@ export default function MyLeavesPage() {
         )}
       </Box>
 
-      <RequestLeaveModal
-        isOpen={isOpen}
-        onClose={onClose}
-        onCreated={refresh}
-      />
+      <RequestLeaveModal isOpen={isOpen} onClose={onClose} onCreated={refresh} />
     </Box>
   );
 }

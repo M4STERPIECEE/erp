@@ -39,51 +39,19 @@ function DepartmentCard({
   const theme = getTheme(index);
 
   return (
-    <Box
-      role="group"
-      position="relative"
-      display="flex" flexDir="column"
-      bg="white" rounded="xl"
-      shadow="sm" borderWidth="1px" borderColor="gray.200"
-      _hover={{ shadow: "md" }}
-      transition="all 0.2s"
-      overflow="hidden"
-    >
-      <Box
-        h="96px" w="full"
-        position="absolute" top={0} left={0} zIndex={0}
-        bgGradient={theme.gradient}
-        opacity={0.1}
-      />
+    <Box role="group" position="relative" display="flex" flexDir="column" bg="white" rounded="xl" shadow="sm" borderWidth="1px" borderColor="gray.200" _hover={{ shadow: "md" }} transition="all 0.2s" overflow="hidden">
+      <Box h="96px" w="full" position="absolute" top={0} left={0} zIndex={0} bgGradient={theme.gradient} opacity={0.1} />
       <Box p={5} zIndex={10} display="flex" flexDir="column" h="full">
         <Flex justify="space-between" alignItems="flex-start" mb={4}>
-          <Flex
-            w={12} h={12} rounded="lg"
-            bg={theme.iconBg}
-            alignItems="center" justifyContent="center"
-          >
+          <Flex w={12} h={12} rounded="lg" bg={theme.iconBg} alignItems="center" justifyContent="center">
             <Box as="span" className="material-symbols-outlined" fontSize="30px" color={theme.iconColor} lineHeight="1">
               {theme.icon}
             </Box>
           </Flex>
 
           <Flex gap={1} opacity={0} _groupHover={{ opacity: 1 }} transition="opacity 0.2s">
-            <IconButton
-              aria-label="Modifier"
-              icon={<Box as="span" className="material-symbols-outlined" fontSize="18px" lineHeight="1">edit</Box>}
-              variant="ghost" size="sm" rounded="full"
-              color="gray.500"
-              _hover={{ bg: "gray.100", color: "#5c799d" }}
-              onClick={() => onEdit(dept)}
-            />
-            <IconButton
-              aria-label="Supprimer"
-              icon={<Box as="span" className="material-symbols-outlined" fontSize="18px" lineHeight="1">delete</Box>}
-              variant="ghost" size="sm" rounded="full"
-              color="gray.500"
-              _hover={{ bg: "red.50", color: "red.500" }}
-              onClick={() => onDelete(dept)}
-            />
+            <IconButton aria-label="Modifier" icon={<Box as="span" className="material-symbols-outlined" fontSize="18px" lineHeight="1">edit</Box>} variant="ghost" size="sm" rounded="full" color="gray.500" _hover={{ bg: "gray.100", color: "#5c799d" }} onClick={() => onEdit(dept)} />
+            <IconButton aria-label="Supprimer" icon={<Box as="span" className="material-symbols-outlined" fontSize="18px" lineHeight="1">delete</Box>} variant="ghost" size="sm" rounded="full" color="gray.500" _hover={{ bg: "red.50", color: "red.500" }} onClick={() => onDelete(dept)} />
           </Flex>
         </Flex>
         <Text fontSize="lg" fontWeight="bold" color="gray.900" mb={1}>
@@ -103,12 +71,7 @@ function DepartmentCard({
           </Flex>
           <Flex justify="space-between" alignItems="center">
             <Flex alignItems="center" gap={2}>
-              <Flex
-                boxSize={6} rounded="full"
-                bg="gray.200"
-                alignItems="center" justifyContent="center"
-                fontSize="9px" fontWeight="bold" color="gray.600"
-              >
+              <Flex boxSize={6} rounded="full" bg="gray.200" alignItems="center" justifyContent="center" fontSize="9px" fontWeight="bold" color="gray.600">
                 {dept.responsableNom ? dept.responsableNom.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2) : "—"}
               </Flex>
               <Text fontSize="sm" fontWeight="medium" color="gray.700">
@@ -234,10 +197,7 @@ function DepartementFormModal({
             </FormControl>
             <FormControl>
               <FormLabel fontSize="sm" fontWeight="medium" color="gray.700">Responsable</FormLabel>
-              <Select {...register("responsableId")} placeholder="Aucun responsable" bg="gray.50" color="gray.900" borderColor="gray.200" rounded="lg" fontSize="sm"
-                _hover={{ borderColor: "gray.300" }}
-                _focus={{ borderColor: "#14b8a6", boxShadow: "0 0 0 3px rgba(20,184,166,0.12)" }}
-                sx={{ "& option": { bg: "#f9fafb", color: "#1a202c" } }}>
+              <Select {...register("responsableId")} placeholder="Aucun responsable" bg="gray.50" color="gray.900" borderColor="gray.200" rounded="lg" fontSize="sm" _hover={{ borderColor: "gray.300" }} _focus={{ borderColor: "#14b8a6", boxShadow: "0 0 0 3px rgba(20,184,166,0.12)" }} sx={{ "& option": { bg: "#f9fafb", color: "#1a202c" } }}>
                 {employes.map((e) => (
                   <option key={e.id} value={e.id} style={{ backgroundColor: "#f9fafb", color: "#1a202c" }}>
                     {e.prenom} {e.nom} — {e.poste}
