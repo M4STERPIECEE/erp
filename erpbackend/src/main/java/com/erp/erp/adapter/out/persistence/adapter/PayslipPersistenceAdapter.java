@@ -20,13 +20,13 @@ public class PayslipPersistenceAdapter implements PayslipRepositoryPort {
     }
 
     @Override
-    public List<Payslip> trouverParEmployeId(Long employeId) {
+    public List<Payslip> findByEmployeeId(Long employeId) {
         return repository.findByEmployeIdOrderByAnneeDescMoisDesc(employeId)
                 .stream().map(this::toDomain).toList();
     }
 
     @Override
-    public Optional<Payslip> trouverParId(Long id) {
+    public Optional<Payslip> findById(Long id) {
         return repository.findById(id).map(this::toDomain);
     }
 

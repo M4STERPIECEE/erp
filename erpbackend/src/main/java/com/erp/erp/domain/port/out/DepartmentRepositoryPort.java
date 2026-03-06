@@ -10,6 +10,6 @@ public interface DepartmentRepositoryPort {
     Optional<Department> findById(Long id);
     Department save(Department department);
     void deleteById(Long id);
-    long countEmployesByDepartementId(Long departementId);
-    Optional<String> findResponsableNomById(Long responsableId);
+    long countEmployeesByDepartmentId(Long departementId);
+    Optional<String> findManagerNameById(Long responsableId);
 }

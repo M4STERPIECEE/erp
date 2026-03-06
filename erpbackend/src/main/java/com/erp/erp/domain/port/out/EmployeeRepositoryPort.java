@@ -11,14 +11,15 @@ import java.util.Map;
 import java.util.Optional;
 
 public interface EmployeeRepositoryPort {
-    Employee sauvegarder(Employee employee);
-    void sauvegarderContrat(Long employeId, ContractType type, BigDecimal salaireBase, LocalDate dateDebut, LocalDate dateFin);
-    boolean existeParEmail(String email);
-    long compterEmployes();
-    PageResult<Employee> rechercherEmployes(String search, Long departementId, String statut, int page, int size);
-    Map<Long, ContratInfo> trouverContratsPourEmployes(List<Long> employeIds);
-    Optional<Employee> trouverParKeycloakId(String keycloakId);
-    Optional<ContratInfo> trouverContratParEmployeId(Long employeId);
+    Employee save(Employee employee);
+    void saveContract(Long employeId, ContractType type, BigDecimal salaireBase, LocalDate dateDebut, LocalDate dateFin);
+    boolean existsByEmail(String email);
+    long countEmployees();
+    PageResult<Employee> searchEmployees(String search, Long departementId, String statut, int page, int size);
+    Map<Long, ContractInfo> findContractsForEmployees(List<Long> employeIds);
+    Optional<Employee> findByKeycloakId(String keycloakId);
+    Optional<Employee> findByEmail(String email);
+    Optional<ContractInfo> findContractByEmployeeId(Long employeId);
 
-    record ContratInfo(String type, BigDecimal salaireBase, LocalDate dateDebut, LocalDate dateFin) {}
+    record ContractInfo(String type, BigDecimal salaireBase, LocalDate dateDebut, LocalDate dateFin) {}
 }

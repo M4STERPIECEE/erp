@@ -18,14 +18,14 @@ public class AbsencePersistenceAdapter implements AbsenceRepositoryPort {
     }
 
     @Override
-    public List<Absence> trouverParEmployeIdEtMois(Long employeId, int mois, int annee) {
+    public List<Absence> findByEmployeeIdAndMonth(Long employeId, int mois, int annee) {
         return repository.findByEmployeIdAndMois(employeId, mois, annee)
                 .stream().map(this::toDomain).toList();
     }
 
     @Override
-    public int compterAbsencesMoisCourant(Long employeId, int mois, int annee) {
-        return repository.compterAbsences(employeId, mois, annee);
+    public int countAbsencesCurrentMonth(Long employeId, int mois, int annee) {
+        return repository.countAbsences(employeId, mois, annee);
     }
 
     private Absence toDomain(AbsenceJpaEntity e) {

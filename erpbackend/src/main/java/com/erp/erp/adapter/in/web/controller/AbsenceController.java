@@ -6,16 +6,21 @@ import com.erp.erp.domain.model.Employee;
 import com.erp.erp.domain.port.out.EmployeeRepositoryPort;
 import com.erp.erp.domain.service.AbsenceService;
 import com.erp.erp.infrastructure.security.JwtTokenProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/absences")
 public class AbsenceController {
+
+    private static final Logger log = LoggerFactory.getLogger(AbsenceController.class);
 
     private final AbsenceService absenceService;
     private final EmployeeRepositoryPort employeeRepositoryPort;
@@ -29,25 +34,37 @@ public class AbsenceController {
         this.jwtTokenProvider = jwtTokenProvider;
     }
 
-    @GetMapping("/mes-absences")
-    @PreAuthorize("hasAnyRole('Employee', 'RH', 'ADMIN')")
-    public ResponseEntity<List<AbsenceResult>> mesAbsences(
+    @GetMapping("/my-absences")
+    @PreAuthorize("hasAnyRole('EMPLOYE', 'RH', 'ADMIN')")
+    public ResponseEntity<List<AbsenceResult>> myAbsences(
             @RequestParam(required = false) Integer mois,
             @RequestParam(required = false) Integer annee) {
-        Employee employee = getEmployeConnecte();
+        Employee employee = getAuthenticatedEmployee();
 
         int m = mois != null ? mois : LocalDate.now().getMonthValue();
         int a = annee != null ? annee : LocalDate.now().getYear();
 
-        List<AbsenceResult> results = absenceService.listerAbsencesEmploye(employee.getId(), m, a)
+        List<AbsenceResult> results = absenceService.listEmployeeAbsences(employee.getId(), m, a)
                 .stream().map(this::toResult).toList();
         return ResponseEntity.ok(results);
     }
 
-    private Employee getEmployeConnecte() {
+    private Employee getAuthenticatedEmployee() {
         String keycloakId = jwtTokenProvider.getCurrentUserId()
                 .orElseThrow(() -> new IllegalArgumentException("Utilisateur non authentifié"));
-        return employeeRepositoryPort.trouverParKeycloakId(keycloakId)
+        return employeeRepositoryPort.findByKeycloakId(keycloakId)
+                .or(() -> {
+                    String email = jwtTokenProvider.getCurrentEmail().orElse(null);
+                    if (email == null) return java.util.Optional.empty();
+                    log.warn("Employee not found by keycloakId={}, trying email={}", keycloakId, email);
+                    return employeeRepositoryPort.findByEmail(email)
+                            .map(emp -> {
+                                emp.setKeycloakId(UUID.fromString(keycloakId));
+                                Employee synced = employeeRepositoryPort.save(emp);
+                                log.info("Auto-synced keycloakId={} for employee id={}", keycloakId, synced.getId());
+                                return synced;
+                            });
+                })
                 .orElseThrow(() -> new IllegalArgumentException("Profil employé introuvable"));
     }
 

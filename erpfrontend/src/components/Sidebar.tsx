@@ -105,18 +105,18 @@ export default function Sidebar({ activePage = "dashboard" }: SidebarProps) {
         </Flex>
         <Box as="nav" display="flex" flexDir="column" gap={2} mt={4}>
           <NavItem icon="dashboard"       label="Tableau de bord" to="/"             active={activePage === "dashboard"} />
-          <NavItem icon="group"           label="Employés"        to="/employes"      active={activePage === "employes"} />
-          <NavItem icon="domain"          label="Départements"    to="/departements"  active={activePage === "departements"} />
-          <NavItem icon="event_available" label="Congés"          to="/conges"        active={activePage === "conges"} />
+          <NavItem icon="group"           label="Employés"        to="/employees"     active={activePage === "employees"} />
+          <NavItem icon="domain"          label="Départements"    to="/departments"   active={activePage === "departments"} />
+          <NavItem icon="event_available" label="Congés"          to="/leaves"        active={activePage === "leaves"} />
           <NavItem icon="person_off"      label="Absences"        to="/absences"      active={activePage === "absences"} />
-          <NavItem icon="payments"        label="Paie"            to="/paie"          active={activePage === "paie"} />
+          <NavItem icon="payments"        label="Paie"            to="/payroll"       active={activePage === "payroll"} />
           {isAdmin && (
             <NavItem icon="manage_accounts" label="Comptes Keycloak" to="/admin/keycloak" active={activePage === "keycloak"} />
           )}
         </Box>
       </Box>
       <Box p={6}>
-        <NavItem icon="settings" label="Paramètres" to="/parametres" active={activePage === "parametres"} />
+        <NavItem icon="settings" label="Paramètres" to="/settings" active={activePage === "settings"} />
         <Divider borderColor="rgba(255,255,255,0.1)" mt={6} mb={4} />
         <Flex alignItems="center" justify="space-between" px={4}>
           <Flex alignItems="center" gap={3}>

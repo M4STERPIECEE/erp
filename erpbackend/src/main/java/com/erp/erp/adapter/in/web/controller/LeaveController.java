@@ -6,6 +6,8 @@ import com.erp.erp.domain.model.Employee;
 import com.erp.erp.domain.port.out.EmployeeRepositoryPort;
 import com.erp.erp.domain.service.LeaveService;
 import com.erp.erp.infrastructure.security.JwtTokenProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -14,10 +16,13 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/conges")
+@RequestMapping("/api/leaves")
 public class LeaveController {
+
+    private static final Logger log = LoggerFactory.getLogger(LeaveController.class);
 
     private final LeaveService leaveService;
     private final EmployeeRepositoryPort employeeRepositoryPort;
@@ -31,20 +36,20 @@ public class LeaveController {
         this.jwtTokenProvider = jwtTokenProvider;
     }
 
-    @GetMapping("/mes-conges")
-    @PreAuthorize("hasAnyRole('Employee', 'RH', 'ADMIN')")
-    public ResponseEntity<List<LeaveResult>> mesConges() {
-        Employee employee = getEmployeConnecte();
-        List<LeaveResult> results = leaveService.listerCongesEmploye(employee.getId())
+    @GetMapping("/my-leaves")
+    @PreAuthorize("hasAnyRole('EMPLOYE', 'RH', 'ADMIN')")
+    public ResponseEntity<List<LeaveResult>> myLeaves() {
+        Employee employee = getAuthenticatedEmployee();
+        List<LeaveResult> results = leaveService.listEmployeeLeaves(employee.getId())
                 .stream().map(this::toResult).toList();
         return ResponseEntity.ok(results);
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('Employee', 'RH', 'ADMIN')")
-    public ResponseEntity<LeaveResult> demanderConge(@RequestBody RequestLeaveRequest request) {
-        Employee employee = getEmployeConnecte();
-        Leave leave = leaveService.demanderConge(
+    @PreAuthorize("hasAnyRole('EMPLOYE', 'RH', 'ADMIN')")
+    public ResponseEntity<LeaveResult> requestLeave(@RequestBody RequestLeaveRequest request) {
+        Employee employee = getAuthenticatedEmployee();
+        Leave leave = leaveService.requestLeave(
                 employee.getId(),
                 request.type(),
                 request.dateDebut(),
@@ -55,47 +60,59 @@ public class LeaveController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('Employee', 'RH', 'ADMIN')")
-    public ResponseEntity<Void> annulerConge(@PathVariable Long id) {
-        Employee employee = getEmployeConnecte();
-        leaveService.annulerConge(id, employee.getId());
+    @PreAuthorize("hasAnyRole('EMPLOYE', 'RH', 'ADMIN')")
+    public ResponseEntity<Void> cancelLeave(@PathVariable Long id) {
+        Employee employee = getAuthenticatedEmployee();
+        leaveService.cancelLeave(id, employee.getId());
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/{id}/approuver")
+    @PutMapping("/{id}/approve")
     @PreAuthorize("hasAnyRole('RH', 'ADMIN')")
-    public ResponseEntity<LeaveResult> approuverConge(@PathVariable Long id) {
-        Employee approbateur = getEmployeConnecte();
-        Leave leave = leaveService.approuverConge(id, approbateur.getId());
+    public ResponseEntity<LeaveResult> approveLeave(@PathVariable Long id) {
+        Employee approbateur = getAuthenticatedEmployee();
+        Leave leave = leaveService.approveLeave(id, approbateur.getId());
         return ResponseEntity.ok(toResult(leave));
     }
 
-    @PutMapping("/{id}/rejeter")
+    @PutMapping("/{id}/reject")
     @PreAuthorize("hasAnyRole('RH', 'ADMIN')")
-    public ResponseEntity<LeaveResult> rejeterConge(@PathVariable Long id) {
-        Employee approbateur = getEmployeConnecte();
-        Leave leave = leaveService.rejeterConge(id, approbateur.getId());
+    public ResponseEntity<LeaveResult> rejectLeave(@PathVariable Long id) {
+        Employee approbateur = getAuthenticatedEmployee();
+        Leave leave = leaveService.rejectLeave(id, approbateur.getId());
         return ResponseEntity.ok(toResult(leave));
     }
 
     @GetMapping("/stats")
-    @PreAuthorize("hasAnyRole('Employee', 'RH', 'ADMIN')")
-    public ResponseEntity<Map<String, Object>> statsConges() {
-        Employee employee = getEmployeConnecte();
-        int joursPris = leaveService.compterJoursCongesPrisCetteAnnee(employee.getId());
-        int enAttente = leaveService.compterDemandesEnAttente(employee.getId());
-        int solde = 30 - joursPris;
+    @PreAuthorize("hasAnyRole('EMPLOYE', 'RH', 'ADMIN')")
+    public ResponseEntity<Map<String, Object>> leaveStats() {
+        Employee employee = getAuthenticatedEmployee();
+        int daysTaken = leaveService.countLeaveDaysTakenThisYear(employee.getId());
+        int pending = leaveService.countPendingRequests(employee.getId());
+        int balance = 30 - daysTaken;
         return ResponseEntity.ok(Map.of(
-                "joursPris", joursPris,
-                "enAttente", enAttente,
-                "soldeRestant", Math.max(solde, 0)
+                "daysTaken", daysTaken,
+                "pending", pending,
+                "remainingBalance", Math.max(balance, 0)
         ));
     }
 
-    private Employee getEmployeConnecte() {
+    private Employee getAuthenticatedEmployee() {
         String keycloakId = jwtTokenProvider.getCurrentUserId()
                 .orElseThrow(() -> new IllegalArgumentException("Utilisateur non authentifié"));
-        return employeeRepositoryPort.trouverParKeycloakId(keycloakId)
+        return employeeRepositoryPort.findByKeycloakId(keycloakId)
+                .or(() -> {
+                    String email = jwtTokenProvider.getCurrentEmail().orElse(null);
+                    if (email == null) return java.util.Optional.empty();
+                    log.warn("Employee not found by keycloakId={}, trying email={}", keycloakId, email);
+                    return employeeRepositoryPort.findByEmail(email)
+                            .map(emp -> {
+                                emp.setKeycloakId(UUID.fromString(keycloakId));
+                                Employee synced = employeeRepositoryPort.save(emp);
+                                log.info("Auto-synced keycloakId={} for employee id={}", keycloakId, synced.getId());
+                                return synced;
+                            });
+                })
                 .orElseThrow(() -> new IllegalArgumentException("Profil employé introuvable"));
     }
 

@@ -1,4 +1,4 @@
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import {
   Box,
   Flex,
@@ -121,10 +121,10 @@ function countBusinessDays(start: string, end: string): number {
 
 export default function RequestLeaveModal({ isOpen, onClose, onCreated }: RequestLeaveModalProps) {
   const {
+    control,
     register,
     handleSubmit,
     reset,
-    watch,
     formState: { errors },
   } = useForm<FormValues>({
     defaultValues: { type: "", dateDebut: "", dateFin: "", motif: "" },
@@ -134,8 +134,8 @@ export default function RequestLeaveModal({ isOpen, onClose, onCreated }: Reques
     onCreated?.();
   });
 
-  const dateDebut = watch("dateDebut");
-  const dateFin = watch("dateFin");
+  const dateDebut = useWatch({ control, name: "dateDebut" }) ?? "";
+  const dateFin = useWatch({ control, name: "dateFin" }) ?? "";
   const joursOuvrables = countBusinessDays(dateDebut, dateFin);
 
   const onSubmit = async (values: FormValues) => {

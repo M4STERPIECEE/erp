@@ -6,6 +6,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface PayslipRepositoryPort {
-    List<Payslip> trouverParEmployeId(Long employeId);
-    Optional<Payslip> trouverParId(Long id);
+    List<Payslip> findByEmployeeId(Long employeId);
+    Optional<Payslip> findById(Long id);
 }

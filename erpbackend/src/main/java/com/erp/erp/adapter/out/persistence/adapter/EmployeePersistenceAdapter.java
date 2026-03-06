@@ -37,14 +37,14 @@ public class EmployeePersistenceAdapter implements EmployeeRepositoryPort {
     }
 
     @Override
-    public Employee sauvegarder(Employee employee) {
+    public Employee save(Employee employee) {
         EmployeeJpaEntity entity = mapper.toEntity(employee);
         EmployeeJpaEntity saved = employeJpaRepository.save(entity);
         return mapper.toDomain(saved);
     }
 
     @Override
-    public void sauvegarderContrat(Long employeId, ContractType type, BigDecimal salaireBase,
+    public void saveContract(Long employeId, ContractType type, BigDecimal salaireBase,
                                    LocalDate dateDebut, LocalDate dateFin) {
         ContractJpaEntity contract = new ContractJpaEntity();
         contract.setEmployeId(employeId);
@@ -56,19 +56,19 @@ public class EmployeePersistenceAdapter implements EmployeeRepositoryPort {
     }
 
     @Override
-    public boolean existeParEmail(String email) {
+    public boolean existsByEmail(String email) {
         return employeJpaRepository.existsByEmail(email);
     }
 
     @Override
-    public long compterEmployes() {
+    public long countEmployees() {
         return employeJpaRepository.count();
     }
 
     @Override
-    public PageResult<Employee> rechercherEmployes(String search, Long departementId, String statut, int page, int size) {
+    public PageResult<Employee> searchEmployees(String search, Long departementId, String statut, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<EmployeeJpaEntity> jpaPage = employeJpaRepository.rechercher(search, departementId, statut, pageRequest);
+        Page<EmployeeJpaEntity> jpaPage = employeJpaRepository.search(search, departementId, statut, pageRequest);
 
         List<Employee> employes = jpaPage.getContent().stream()
                 .map(mapper::toDomain)
@@ -78,27 +78,32 @@ public class EmployeePersistenceAdapter implements EmployeeRepositoryPort {
     }
 
     @Override
-    public Map<Long, ContratInfo> trouverContratsPourEmployes(List<Long> employeIds) {
+    public Map<Long, ContractInfo> findContractsForEmployees(List<Long> employeIds) {
         if (employeIds.isEmpty()) return Map.of();
 
         List<ContractJpaEntity> contrats = contratJpaRepository.findByEmployeIdIn(employeIds);
         return contrats.stream()
                 .collect(Collectors.toMap(
                         ContractJpaEntity::getEmployeId,
-                        c -> new ContratInfo(c.getType(), c.getSalaireBase(), c.getDateDebut(), c.getDateFin()),
+                        c -> new ContractInfo(c.getType(), c.getSalaireBase(), c.getDateDebut(), c.getDateFin()),
                         (a, b) -> b
                 ));
     }
 
     @Override
-    public Optional<Employee> trouverParKeycloakId(String keycloakId) {
+    public Optional<Employee> findByKeycloakId(String keycloakId) {
         return employeJpaRepository.findByKeycloakId(keycloakId).map(mapper::toDomain);
     }
 
     @Override
-    public Optional<ContratInfo> trouverContratParEmployeId(Long employeId) {
+    public Optional<Employee> findByEmail(String email) {
+        return employeJpaRepository.findByEmail(email).map(mapper::toDomain);
+    }
+
+    @Override
+    public Optional<ContractInfo> findContractByEmployeeId(Long employeId) {
         List<ContractJpaEntity> contrats = contratJpaRepository.findByEmployeIdIn(List.of(employeId));
         return contrats.stream().findFirst()
-                .map(c -> new ContratInfo(c.getType(), c.getSalaireBase(), c.getDateDebut(), c.getDateFin()));
+                .map(c -> new ContractInfo(c.getType(), c.getSalaireBase(), c.getDateDebut(), c.getDateFin()));
     }
 }

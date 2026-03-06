@@ -21,36 +21,36 @@ public class LeavePersistenceAdapter implements LeaveRepositoryPort {
     }
 
     @Override
-    public Leave sauvegarder(Leave leave) {
+    public Leave save(Leave leave) {
         LeaveJpaEntity entity = toEntity(leave);
         LeaveJpaEntity saved = repository.save(entity);
         return toDomain(saved);
     }
 
     @Override
-    public Optional<Leave> trouverParId(Long id) {
+    public Optional<Leave> findById(Long id) {
         return repository.findById(id).map(this::toDomain);
     }
 
     @Override
-    public List<Leave> trouverParEmployeId(Long employeId) {
+    public List<Leave> findByEmployeeId(Long employeId) {
         return repository.findByEmployeIdOrderByCreatedAtDesc(employeId)
                 .stream().map(this::toDomain).toList();
     }
 
     @Override
-    public void supprimer(Long id) {
+    public void delete(Long id) {
         repository.deleteById(id);
     }
 
     @Override
-    public int compterJoursCongesApprouvesCetteAnnee(Long employeId, int annee) {
-        return repository.compterJoursApprouves(employeId, annee);
+    public int countApprovedLeaveDaysThisYear(Long employeId, int annee) {
+        return repository.countApprovedDays(employeId, annee);
     }
 
     @Override
-    public int compterDemandesEnAttente(Long employeId) {
-        return repository.compterEnAttente(employeId);
+    public int countPendingRequests(Long employeId) {
+        return repository.countPending(employeId);
     }
 
     private Leave toDomain(LeaveJpaEntity e) {

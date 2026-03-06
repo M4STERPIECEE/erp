@@ -23,17 +23,17 @@ api.interceptors.request.use((config) => {
 // ─── Employe endpoints ──────────────────────────────────────────────────────
 
 export async function getEmployees(params: GetEmployeesParams = {}): Promise<PagedEmployeeResponse> {
-  const { data } = await api.get<PagedEmployeeResponse>("/employes", { params });
+  const { data } = await api.get<PagedEmployeeResponse>("/employees", { params });
   return data;
 }
 
 export async function createEmployee(payload: CreateEmployeeRequest): Promise<EmployeeResponse> {
-  const { data } = await api.post<EmployeeResponse>("/employes", payload);
+  const { data } = await api.post<EmployeeResponse>("/employees", payload);
   return data;
 }
 
 export async function deleteEmployee(id: number): Promise<void> {
-  await api.delete(`/employes/${id}`);
+  await api.delete(`/employees/${id}`);
 }
 
 export default api;

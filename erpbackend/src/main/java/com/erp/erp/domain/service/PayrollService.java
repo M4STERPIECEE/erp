@@ -14,11 +14,11 @@ public class PayrollService {
         this.payslipRepository = payslipRepository;
     }
 
-    public List<Payslip> listerFichesEmploye(Long employeId) {
-        return payslipRepository.trouverParEmployeId(employeId);
+    public List<Payslip> listEmployeePayslips(Long employeId) {
+        return payslipRepository.findByEmployeeId(employeId);
     }
 
-    public Optional<Payslip> trouverParId(Long id) {
-        return payslipRepository.trouverParId(id);
+    public Optional<Payslip> findById(Long id) {
+        return payslipRepository.findById(id);
     }
 }

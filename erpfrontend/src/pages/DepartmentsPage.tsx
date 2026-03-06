@@ -338,7 +338,7 @@ export default function DepartmentsPage() {
 
   return (
     <Flex h="100vh" w="full" overflow="hidden" fontFamily="'Inter', sans-serif">
-      <Sidebar activePage="departements" />
+      <Sidebar activePage="departments" />
       <Box as="main" flex={1} h="full" overflowY="auto" bg={bgPage} p={{ base: 4, lg: 8 }} sx={{ "&::-webkit-scrollbar": { width: "8px", height: "8px" }, "&::-webkit-scrollbar-track": { background: "transparent" }, "&::-webkit-scrollbar-thumb": { background: "#cbd5e1", borderRadius: "4px" }, "&::-webkit-scrollbar-thumb:hover": { background: "#94a3b8" }, }}>
         <Box w="full" display="flex" flexDir="column" gap={6}>
           <Flex direction={{ base: "column", md: "row" }} align={{ md: "center" }} justify="space-between" gap={4}>

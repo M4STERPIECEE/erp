@@ -24,7 +24,7 @@ public interface AbsenceJpaRepository extends JpaRepository<AbsenceJpaEntity, Lo
            "WHERE a.employeId = :employeId " +
            "AND EXTRACT(MONTH FROM a.date) = :mois " +
            "AND EXTRACT(YEAR FROM a.date) = :annee")
-    int compterAbsences(@Param("employeId") Long employeId,
+    int countAbsences(@Param("employeId") Long employeId,
                         @Param("mois") int mois,
                         @Param("annee") int annee);
 }

@@ -25,30 +25,30 @@ function App() {
             <Route path="/" element={<HomeRedirect />} />
           </Route>
           <Route element={<ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.RH]} />}>
-            <Route path="/employes"   element={<EmployeesPage />} />
-            <Route path="/departements" element={<DepartmentsPage />} />
-            <Route path="/conges"     element={<DashboardPage />} />
-            <Route path="/absences"   element={<DashboardPage />} />
-            <Route path="/paie"       element={<DashboardPage />} />
-            <Route path="/parametres" element={<DashboardPage />} />
+            <Route path="/employees"    element={<EmployeesPage />} />
+            <Route path="/departments"  element={<DepartmentsPage />} />
+            <Route path="/leaves"       element={<DashboardPage />} />
+            <Route path="/absences"     element={<DashboardPage />} />
+            <Route path="/payroll"      element={<DashboardPage />} />
+            <Route path="/settings"     element={<DashboardPage />} />
           </Route>
           <Route element={<ProtectedRoute allowedRoles={[ROLES.ADMIN]} />}>
             <Route path="/admin/keycloak" element={<KeycloakPage />} />
           </Route>
           <Route element={<ProtectedRoute allowedRoles={[ROLES.EMPLOYE, ROLES.RH, ROLES.ADMIN]} />}>
-            <Route path="/mon-espace" element={<EmployeeLayout activePage="dashboard" />}>
+            <Route path="/my-space" element={<EmployeeLayout activePage="dashboard" />}>
               <Route index element={<EmployeeDashboardPage />} />
             </Route>
-            <Route path="/mon-espace/profil" element={<EmployeeLayout activePage="profil" />}>
+            <Route path="/my-space/profile" element={<EmployeeLayout activePage="profile" />}>
               <Route index element={<MyProfilePage />} />
             </Route>
-            <Route path="/mon-espace/conges" element={<EmployeeLayout activePage="conges" />}>
+            <Route path="/my-space/leaves" element={<EmployeeLayout activePage="leaves" />}>
               <Route index element={<MyLeavesPage />} />
             </Route>
-            <Route path="/mon-espace/absences" element={<EmployeeLayout activePage="absences" />}>
+            <Route path="/my-space/absences" element={<EmployeeLayout activePage="absences" />}>
               <Route index element={<MyAbsencesPage />} />
             </Route>
-            <Route path="/mon-espace/fiches-paie" element={<EmployeeLayout activePage="fiches-paie" />}>
+            <Route path="/my-space/payslips" element={<EmployeeLayout activePage="payslips" />}>
               <Route index element={<MyPayslipsPage />} />
             </Route>
           </Route>

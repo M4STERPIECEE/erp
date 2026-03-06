@@ -76,10 +76,10 @@ export default function EmployeeDashboardPage() {
       <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={6}>
         <KpiCard
           label="Congés restants"
-          value={stats?.joursRestants ?? 0}
+          value={stats?.remainingBalance ?? 0}
           icon="event_available"
           iconColor="#0d9488"
-          sub={`${stats?.joursUtilises ?? 0} jours utilisés`}
+          sub={`${stats?.daysTaken ?? 0} jours utilisés`}
         />
         <KpiCard
           label="En attente"

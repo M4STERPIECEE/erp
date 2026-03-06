@@ -16,6 +16,8 @@ public interface EmployeeJpaRepository extends JpaRepository<EmployeeJpaEntity, 
 
     Optional<EmployeeJpaEntity> findByKeycloakId(String keycloakId);
 
+    Optional<EmployeeJpaEntity> findByEmail(String email);
+
     @Query("SELECT e FROM EmployeeJpaEntity e WHERE " +
            "(:search IS NULL OR :search = '' OR " +
            "LOWER(e.nom) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
@@ -24,7 +26,7 @@ public interface EmployeeJpaRepository extends JpaRepository<EmployeeJpaEntity, 
            "LOWER(e.matricule) LIKE LOWER(CONCAT('%', :search, '%'))) " +
            "AND (:departementId IS NULL OR e.departementId = :departementId) " +
            "AND (:statut IS NULL OR :statut = '' OR e.statut = :statut)")
-    Page<EmployeeJpaEntity> rechercher(
+    Page<EmployeeJpaEntity> search(
             @Param("search") String search,
             @Param("departementId") Long departementId,
             @Param("statut") String statut,

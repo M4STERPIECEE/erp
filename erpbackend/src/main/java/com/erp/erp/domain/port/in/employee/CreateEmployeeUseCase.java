@@ -4,5 +4,5 @@ import com.erp.erp.application.command.CreateEmployeeCommand;
 import com.erp.erp.application.result.EmployeeResult;
 
 public interface CreateEmployeeUseCase {
-    EmployeeResult creer(CreateEmployeeCommand command);
+    EmployeeResult create(CreateEmployeeCommand command);
 }
