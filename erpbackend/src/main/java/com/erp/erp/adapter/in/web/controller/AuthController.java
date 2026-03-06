@@ -34,7 +34,7 @@ public class AuthController {
     }
 
     @GetMapping("/Employee/me")
-    @PreAuthorize("hasAnyRole('Employee', 'RH', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('EMPLOYE', 'RH', 'ADMIN')")
     public ResponseEntity<Map<String, Object>> meEmploye() {
         return ResponseEntity.ok(buildUserInfo());
     }

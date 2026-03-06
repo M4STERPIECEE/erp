@@ -41,13 +41,13 @@ public class DepartmentPersistenceAdapter implements DepartmentRepositoryPort {
     }
 
     @Override
-    public long countEmployesByDepartementId(Long departementId) {
-        return jpaRepository.countEmployesByDepartementId(departementId);
+    public long countEmployeesByDepartmentId(Long departementId) {
+        return jpaRepository.countEmployeesByDepartmentId(departementId);
     }
 
     @Override
-    public Optional<String> findResponsableNomById(Long responsableId) {
-        return jpaRepository.findEmployeNomCompletById(responsableId);
+    public Optional<String> findManagerNameById(Long responsableId) {
+        return jpaRepository.findEmployeeFullNameById(responsableId);
     }
 
     private Department toDomain(DepartmentJpaEntity entity) {

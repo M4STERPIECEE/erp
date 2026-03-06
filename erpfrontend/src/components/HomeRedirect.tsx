@@ -10,5 +10,5 @@ export default function HomeRedirect() {
     return <DashboardPage />;
   }
 
-  return <Navigate to="/mon-espace" replace />;
+  return <Navigate to="/my-space" replace />;
 }

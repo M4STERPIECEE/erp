@@ -24,8 +24,8 @@ function InfoRow({ label, value, icon }: { label: string; value: string; icon: s
   );
 }
 
-function formatAriary(amount: number | null): string {
-  if (amount === null) return "—";
+function formatAriary(amount: number | null | undefined): string {
+  if (amount == null) return "—";
   return amount.toLocaleString("fr-FR") + " Ar";
 }
 

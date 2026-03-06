@@ -13,11 +13,11 @@ public class AbsenceService {
         this.absenceRepository = absenceRepository;
     }
 
-    public List<Absence> listerAbsencesEmploye(Long employeId, int mois, int annee) {
-        return absenceRepository.trouverParEmployeIdEtMois(employeId, mois, annee);
+    public List<Absence> listEmployeeAbsences(Long employeId, int mois, int annee) {
+        return absenceRepository.findByEmployeeIdAndMonth(employeId, mois, annee);
     }
 
-    public int compterAbsencesMoisCourant(Long employeId, int mois, int annee) {
-        return absenceRepository.compterAbsencesMoisCourant(employeId, mois, annee);
+    public int countAbsencesCurrentMonth(Long employeId, int mois, int annee) {
+        return absenceRepository.countAbsencesCurrentMonth(employeId, mois, annee);
     }
 }

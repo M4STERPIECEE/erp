@@ -24,7 +24,7 @@ interface NavItemProps {
   to?: string;
 }
 
-function NavItem({ icon, label, active = false, to = "/mon-espace" }: NavItemProps) {
+function NavItem({ icon, label, active = false, to = "/my-space" }: NavItemProps) {
   return (
     <Link
       as={RouterLink}
@@ -94,11 +94,11 @@ export default function EmployeeLayout({ activePage = "dashboard" }: EmployeeLay
             </Text>
           </Flex>
           <Box as="nav" display="flex" flexDir="column" gap={2} mt={4}>
-            <NavItem icon="dashboard" label="Tableau de bord" to="/mon-espace" active={activePage === "dashboard"} />
-            <NavItem icon="badge" label="Mon Profil" to="/mon-espace/profil" active={activePage === "profil"} />
-            <NavItem icon="event_available" label="Mes Congés" to="/mon-espace/conges" active={activePage === "conges"} />
-            <NavItem icon="person_off" label="Mes Absences" to="/mon-espace/absences" active={activePage === "absences"} />
-            <NavItem icon="payments" label="Mes Fiches de Paie" to="/mon-espace/fiches-paie" active={activePage === "fiches-paie"} />
+            <NavItem icon="dashboard" label="Tableau de bord" to="/my-space" active={activePage === "dashboard"} />
+            <NavItem icon="badge" label="Mon Profil" to="/my-space/profile" active={activePage === "profile"} />
+            <NavItem icon="event_available" label="Mes Congés" to="/my-space/leaves" active={activePage === "leaves"} />
+            <NavItem icon="person_off" label="Mes Absences" to="/my-space/absences" active={activePage === "absences"} />
+            <NavItem icon="payments" label="Mes Fiches de Paie" to="/my-space/payslips" active={activePage === "payslips"} />
           </Box>
         </Box>
         <Box p={6}>

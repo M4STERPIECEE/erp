@@ -41,9 +41,9 @@ export interface LeaveRequest {
 }
 
 export interface LeaveStatsResponse {
-  joursUtilises: number;
-  joursRestants: number;
-  demandesEnAttente: number;
+  daysTaken: number;
+  remainingBalance: number;
+  pending: number;
 }
 
 export interface AbsenceResponse {

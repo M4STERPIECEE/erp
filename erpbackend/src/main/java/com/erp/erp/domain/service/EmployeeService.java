@@ -10,7 +10,7 @@ import com.erp.erp.domain.model.enums.ContractType;
 import com.erp.erp.domain.port.in.employee.CreateEmployeeUseCase;
 import com.erp.erp.domain.port.in.employee.ListEmployeesUseCase;
 import com.erp.erp.domain.port.out.EmployeeRepositoryPort;
-import com.erp.erp.domain.port.out.EmployeeRepositoryPort.ContratInfo;
+import com.erp.erp.domain.port.out.EmployeeRepositoryPort.ContractInfo;
 import com.erp.erp.domain.port.out.KeycloakPort;
 
 import jakarta.transaction.Transactional;
@@ -31,8 +31,8 @@ public class EmployeeService implements CreateEmployeeUseCase, ListEmployeesUseC
 
     @Override
     @Transactional
-    public EmployeeResult creer(CreateEmployeeCommand command) {
-        if (employeeRepositoryPort.existeParEmail(command.email())) {
+    public EmployeeResult create(CreateEmployeeCommand command) {
+        if (employeeRepositoryPort.existsByEmail(command.email())) {
             throw new IllegalArgumentException("Un employé avec cet email existe déjà : " + command.email());
         }
 
@@ -55,12 +55,12 @@ public class EmployeeService implements CreateEmployeeUseCase, ListEmployeesUseC
         employee.setStatut(EmployeeStatus.ACTIF);
         employee.setDepartementId(command.departementId());
 
-        Employee saved = employeeRepositoryPort.sauvegarder(employee);
+        Employee saved = employeeRepositoryPort.save(employee);
 
         ContractType contractType = ContractType.valueOf(command.contractType());
         LocalDate dateFin = contractType == ContractType.CDI ? null : command.dateEmbauche().plusYears(1);
 
-        employeeRepositoryPort.sauvegarderContrat(
+        employeeRepositoryPort.saveContract(
                 saved.getId(), contractType, command.salaireBase(), command.dateEmbauche(), dateFin
         );
 
@@ -83,14 +83,14 @@ public class EmployeeService implements CreateEmployeeUseCase, ListEmployeesUseC
     }
 
     @Override
-    public PageResult<EmployeeListResult> lister(String search, Long departementId, String statut, int page, int size) {
-        PageResult<Employee> pageResult = employeeRepositoryPort.rechercherEmployes(search, departementId, statut, page, size);
+    public PageResult<EmployeeListResult> list(String search, Long departementId, String statut, int page, int size) {
+        PageResult<Employee> pageResult = employeeRepositoryPort.searchEmployees(search, departementId, statut, page, size);
 
         List<Long> employeIds = pageResult.content().stream().map(Employee::getId).toList();
-        Map<Long, ContratInfo> contrats = employeeRepositoryPort.trouverContratsPourEmployes(employeIds);
+        Map<Long, ContractInfo> contrats = employeeRepositoryPort.findContractsForEmployees(employeIds);
 
         List<EmployeeListResult> results = pageResult.content().stream().map(emp -> {
-            ContratInfo ci = contrats.get(emp.getId());
+            ContractInfo ci = contrats.get(emp.getId());
             return new EmployeeListResult(
                     emp.getId(),
                     emp.getKeycloakId(),
@@ -113,7 +113,7 @@ public class EmployeeService implements CreateEmployeeUseCase, ListEmployeesUseC
     }
 
     private String generateMatricule() {
-        long count = employeeRepositoryPort.compterEmployes();
+        long count = employeeRepositoryPort.countEmployees();
         return String.format("EMP-%d-%04d", LocalDate.now().getYear(), count + 1);
     }
 }

@@ -54,7 +54,7 @@ export interface CreateEmployeeRequest {
   role: string;
 }
 
-// ─── Query params for GET /api/employes ─────────────────────────────────────
+// ─── Query params for GET /api/employees ─────────────────────────────────────────
 
 export interface GetEmployeesParams {
   page?: number;
@@ -64,7 +64,7 @@ export interface GetEmployeesParams {
   statut?: string;
 }
 
-// ─── Static departement list (until GET /api/departements exists) ───────────
+// ─── Static departement list (until GET /api/departments exists) ───────────
 
 export interface Department {
   id: number;

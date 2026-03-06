@@ -5,6 +5,6 @@ import com.erp.erp.domain.model.Absence;
 import java.util.List;
 
 public interface AbsenceRepositoryPort {
-    List<Absence> trouverParEmployeIdEtMois(Long employeId, int mois, int annee);
-    int compterAbsencesMoisCourant(Long employeId, int mois, int annee);
+    List<Absence> findByEmployeeIdAndMonth(Long employeId, int mois, int annee);
+    int countAbsencesCurrentMonth(Long employeId, int mois, int annee);
 }

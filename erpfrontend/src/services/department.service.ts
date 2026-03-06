@@ -16,25 +16,25 @@ api.interceptors.request.use((config) => {
 });
 
 export async function getDepartments(): Promise<DepartmentResponse[]> {
-  const { data } = await api.get<DepartmentResponse[]>("/departements");
+  const { data } = await api.get<DepartmentResponse[]>("/departments");
   return data;
 }
 
 export async function getDepartment(id: number): Promise<DepartmentResponse> {
-  const { data } = await api.get<DepartmentResponse>(`/departements/${id}`);
+  const { data } = await api.get<DepartmentResponse>(`/departments/${id}`);
   return data;
 }
 
 export async function createDepartment(payload: CreateDepartmentRequest): Promise<DepartmentResponse> {
-  const { data } = await api.post<DepartmentResponse>("/departements", payload);
+  const { data } = await api.post<DepartmentResponse>("/departments", payload);
   return data;
 }
 
 export async function updateDepartment(id: number, payload: CreateDepartmentRequest): Promise<DepartmentResponse> {
-  const { data } = await api.put<DepartmentResponse>(`/departements/${id}`, payload);
+  const { data } = await api.put<DepartmentResponse>(`/departments/${id}`, payload);
   return data;
 }
 
 export async function deleteDepartment(id: number): Promise<void> {
-  await api.delete(`/departements/${id}`);
+  await api.delete(`/departments/${id}`);
 }

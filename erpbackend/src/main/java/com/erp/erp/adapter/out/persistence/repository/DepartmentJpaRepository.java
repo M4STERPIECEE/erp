@@ -12,8 +12,8 @@ import java.util.Optional;
 public interface DepartmentJpaRepository extends JpaRepository<DepartmentJpaEntity, Long> {
 
     @Query("SELECT COUNT(e) FROM EmployeeJpaEntity e WHERE e.departementId = :deptId")
-    long countEmployesByDepartementId(@Param("deptId") Long deptId);
+    long countEmployeesByDepartmentId(@Param("deptId") Long deptId);
 
     @Query("SELECT CONCAT(e.prenom, ' ', e.nom) FROM EmployeeJpaEntity e WHERE e.id = :empId")
-    Optional<String> findEmployeNomCompletById(@Param("empId") Long empId);
+    Optional<String> findEmployeeFullNameById(@Param("empId") Long empId);
 }

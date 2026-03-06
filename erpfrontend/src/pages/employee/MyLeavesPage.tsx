@@ -75,7 +75,7 @@ export default function MyLeavesPage() {
             </Flex>
             <Box>
               <Text color="gray.500" fontSize="sm">Jours restants</Text>
-              <Heading as="h3" fontSize="2xl" fontWeight="bold" color="gray.900">{stats.joursRestants}</Heading>
+              <Heading as="h3" fontSize="2xl" fontWeight="bold" color="gray.900">{stats.remainingBalance}</Heading>
             </Box>
           </Box>
           <Box bg="white" rounded="xl" p={6} shadow="sm" borderWidth="1px" borderColor="gray.200" display="flex" alignItems="center" gap={4}>
@@ -84,7 +84,7 @@ export default function MyLeavesPage() {
             </Flex>
             <Box>
               <Text color="gray.500" fontSize="sm">Jours utilisés</Text>
-              <Heading as="h3" fontSize="2xl" fontWeight="bold" color="gray.900">{stats.joursUtilises}</Heading>
+              <Heading as="h3" fontSize="2xl" fontWeight="bold" color="gray.900">{stats.daysTaken}</Heading>
             </Box>
           </Box>
           <Box bg="white" rounded="xl" p={6} shadow="sm" borderWidth="1px" borderColor="gray.200" display="flex" alignItems="center" gap={4}>
@@ -93,7 +93,7 @@ export default function MyLeavesPage() {
             </Flex>
             <Box>
               <Text color="gray.500" fontSize="sm">En attente</Text>
-              <Heading as="h3" fontSize="2xl" fontWeight="bold" color="gray.900">{stats.demandesEnAttente}</Heading>
+              <Heading as="h3" fontSize="2xl" fontWeight="bold" color="gray.900">{stats.pending}</Heading>
             </Box>
           </Box>
         </SimpleGrid>

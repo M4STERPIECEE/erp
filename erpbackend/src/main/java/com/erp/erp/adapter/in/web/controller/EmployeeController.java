@@ -15,18 +15,20 @@ import com.erp.erp.domain.port.out.EmployeeRepositoryPort;
 import com.erp.erp.domain.service.DepartmentService;
 import com.erp.erp.infrastructure.security.JwtTokenProvider;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/employes")
+@RequestMapping("/api/employees")
 public class EmployeeController {
-
+    private static final Logger log = LoggerFactory.getLogger(EmployeeController.class);
     private final CreateEmployeeUseCase createEmployeeUseCase;
     private final ListEmployeesUseCase listEmployeesUseCase;
     private final EmployeeWebMapper mapper;
@@ -49,16 +51,29 @@ public class EmployeeController {
     }
 
     @GetMapping("/me")
-    @PreAuthorize("hasAnyRole('Employee', 'RH', 'ADMIN')")
-    public ResponseEntity<Map<String, Object>> monProfil() {
+    @PreAuthorize("hasAnyRole('EMPLOYE', 'RH', 'ADMIN')")
+    public ResponseEntity<Map<String, Object>> myProfile() {
         String keycloakId = jwtTokenProvider.getCurrentUserId()
-                .orElseThrow(() -> new IllegalArgumentException("Utilisateur non authentifié"));
+                .orElseThrow(() -> new IllegalArgumentException("Utilisateur non authentifié (aucun subject dans le JWT)"));
 
-        Employee employee = employeeRepositoryPort.trouverParKeycloakId(keycloakId)
-                .orElseThrow(() -> new IllegalArgumentException("Profil employé introuvable"));
+        Employee employee = employeeRepositoryPort.findByKeycloakId(keycloakId)
+                .or(() -> {
+                    String email = jwtTokenProvider.getCurrentEmail().orElse(null);
+                    if (email == null) return java.util.Optional.empty();
+                    log.warn("Employee not found by keycloakId={}, trying email={}", keycloakId, email);
+                    return employeeRepositoryPort.findByEmail(email)
+                            .map(emp -> {
+                                emp.setKeycloakId(UUID.fromString(keycloakId));
+                                Employee synced = employeeRepositoryPort.save(emp);
+                                log.info("Auto-synced keycloakId={} for employee id={} email={}", keycloakId, synced.getId(), email);
+                                return synced;
+                            });
+                })
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Profil employé introuvable pour keycloakId=" + keycloakId));
 
-        EmployeeRepositoryPort.ContratInfo contract = employeeRepositoryPort
-                .trouverContratParEmployeId(employee.getId()).orElse(null);
+        EmployeeRepositoryPort.ContractInfo contract = employeeRepositoryPort
+                .findContractByEmployeeId(employee.getId()).orElse(null);
 
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("id", employee.getId());
@@ -73,7 +88,7 @@ public class EmployeeController {
         result.put("statut", employee.getStatut() != null ? employee.getStatut().name() : null);
 
         if (employee.getDepartementId() != null) {
-            departmentService.trouverParId(employee.getDepartementId()).ifPresent(d -> {
+            departmentService.findById(employee.getDepartementId()).ifPresent(d -> {
                 Map<String, Object> dept = new LinkedHashMap<>();
                 dept.put("id", d.getId());
                 dept.put("nom", d.getNom());
@@ -95,24 +110,24 @@ public class EmployeeController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('RH', 'ADMIN', 'Employee')")
-    public ResponseEntity<PagedEmployeeResponse> lister(
+    @PreAuthorize("hasAnyRole('RH', 'ADMIN', 'EMPLOYE')")
+    public ResponseEntity<PagedEmployeeResponse> list(
             @RequestParam(defaultValue = "") String search,
             @RequestParam(required = false) Long department,
             @RequestParam(defaultValue = "") String statut,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
-        PageResult<EmployeeListResult> result = listEmployeesUseCase.lister(search, department, statut, page, size);
+        PageResult<EmployeeListResult> result = listEmployeesUseCase.list(search, department, statut, page, size);
         PagedEmployeeResponse response = mapper.toPagedResponse(result);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping
     @PreAuthorize("hasAnyRole('RH', 'ADMIN')")
-    public ResponseEntity<EmployeeResponse> creer(@Valid @RequestBody CreateEmployeeRequest request) {
+    public ResponseEntity<EmployeeResponse> create(@Valid @RequestBody CreateEmployeeRequest request) {
         CreateEmployeeCommand command = mapper.toCommand(request);
-        EmployeeResult result = createEmployeeUseCase.creer(command);
+        EmployeeResult result = createEmployeeUseCase.create(command);
         EmployeeResponse response = mapper.toResponse(result);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }

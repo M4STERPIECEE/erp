@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/departements")
+@RequestMapping("/api/departments")
 public class DepartmentController {
 
     private final DepartmentService departmentService;
@@ -21,9 +21,9 @@ public class DepartmentController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('RH', 'ADMIN', 'Employee')")
-    public ResponseEntity<List<DepartmentResponse>> lister() {
-        List<Department> departements = departmentService.listerTous();
+    @PreAuthorize("hasAnyRole('RH', 'ADMIN', 'EMPLOYE')")
+    public ResponseEntity<List<DepartmentResponse>> list() {
+        List<Department> departements = departmentService.listAll();
         List<DepartmentResponse> response = departements.stream()
                 .map(this::toResponse)
                 .toList();
@@ -31,36 +31,36 @@ public class DepartmentController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('RH', 'ADMIN', 'Employee')")
-    public ResponseEntity<DepartmentResponse> trouverParId(@PathVariable Long id) {
-        return departmentService.trouverParId(id)
+    @PreAuthorize("hasAnyRole('RH', 'ADMIN', 'EMPLOYE')")
+    public ResponseEntity<DepartmentResponse> findById(@PathVariable Long id) {
+        return departmentService.findById(id)
                 .map(d -> ResponseEntity.ok(toResponse(d)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
     @PreAuthorize("hasAnyRole('RH', 'ADMIN')")
-    public ResponseEntity<DepartmentResponse> creer(@RequestBody CreateDepartementRequest request) {
+    public ResponseEntity<DepartmentResponse> create(@RequestBody CreateDepartementRequest request) {
         Department dept = new Department();
         dept.setNom(request.nom());
         dept.setDescription(request.description());
         dept.setResponsableId(request.responsableId());
-        Department saved = departmentService.creer(dept);
+        Department saved = departmentService.create(dept);
         return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(saved));
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('RH', 'ADMIN')")
-    public ResponseEntity<DepartmentResponse> modifier(@PathVariable Long id,
+    public ResponseEntity<DepartmentResponse> update(@PathVariable Long id,
                                                        @RequestBody CreateDepartementRequest request) {
-        Department updated = departmentService.modifier(id, request.nom(), request.description(), request.responsableId());
+        Department updated = departmentService.update(id, request.nom(), request.description(), request.responsableId());
         return ResponseEntity.ok(toResponse(updated));
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('RH', 'ADMIN')")
-    public ResponseEntity<Void> supprimer(@PathVariable Long id) {
-        departmentService.supprimer(id);
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        departmentService.delete(id);
         return ResponseEntity.noContent().build();
     }
 
