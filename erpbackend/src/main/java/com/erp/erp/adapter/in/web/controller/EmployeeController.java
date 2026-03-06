@@ -71,7 +71,6 @@ public class EmployeeController {
                 })
                 .orElseThrow(() -> new IllegalArgumentException(
                         "Profil employé introuvable pour keycloakId=" + keycloakId));
-
         EmployeeRepositoryPort.ContractInfo contract = employeeRepositoryPort
                 .findContractByEmployeeId(employee.getId()).orElse(null);
 
@@ -88,24 +87,16 @@ public class EmployeeController {
         result.put("statut", employee.getStatut() != null ? employee.getStatut().name() : null);
 
         if (employee.getDepartementId() != null) {
-            departmentService.findById(employee.getDepartementId()).ifPresent(d -> {
-                Map<String, Object> dept = new LinkedHashMap<>();
-                dept.put("id", d.getId());
-                dept.put("nom", d.getNom());
-                dept.put("responsableNom", d.getResponsableNom());
-                result.put("department", dept);
-            });
+            departmentService.findById(employee.getDepartementId()).ifPresent(d ->
+                result.put("departement", d.getNom())
+            );
         }
-
         if (contract != null) {
-            Map<String, Object> contratMap = new LinkedHashMap<>();
-            contratMap.put("type", contract.type());
-            contratMap.put("dateDebut", contract.dateDebut());
-            contratMap.put("dateFin", contract.dateFin());
-            contratMap.put("salaireBase", contract.salaireBase());
-            result.put("contract", contratMap);
+            result.put("contractType", contract.type());
+            result.put("salaireBase", contract.salaireBase());
+            result.put("dateDebutContrat", contract.dateDebut());
+            result.put("dateFinContrat", contract.dateFin());
         }
-
         return ResponseEntity.ok(result);
     }
 

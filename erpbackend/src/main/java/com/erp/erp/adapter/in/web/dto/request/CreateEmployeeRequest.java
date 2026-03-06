@@ -35,6 +35,8 @@ public record CreateEmployeeRequest(
         @NotNull @Positive
         BigDecimal salaireBase,
 
+        LocalDate dateFinContrat,
+
         @NotBlank
         String role
 ) {

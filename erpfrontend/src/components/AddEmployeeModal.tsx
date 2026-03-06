@@ -1,4 +1,4 @@
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import {
   Box, Flex, Button, Spinner, Text,
   Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalFooter, ModalCloseButton,
@@ -84,6 +84,7 @@ interface FormValues {
   departementId: string;
   contractType: string;
   salaireBase: string;
+  dateFinContrat: string;
   role: string;
 }
 
@@ -92,6 +93,7 @@ export default function AddEmployeeModal({ isOpen, onClose, onCreated }: AddEmpl
   const isAdmin = hasRole("admin");
 
   const {
+    control,
     register,
     handleSubmit,
     reset,
@@ -101,9 +103,12 @@ export default function AddEmployeeModal({ isOpen, onClose, onCreated }: AddEmpl
       nom: "", prenom: "", email: "", telephone: "",
       dateNaissance: "", dateEmbauche: "", poste: "",
       departementId: "", contractType: "", salaireBase: "",
-      role: "employe",
+      dateFinContrat: "", role: "employe",
     },
   });
+
+  const selectedContractType = useWatch({ control, name: "contractType" });
+  const needsEndDate = selectedContractType !== "" && selectedContractType !== "CDI";
 
   const { submit, isSubmitting } = useCreateEmployee(() => {
     onCreated?.();
@@ -121,6 +126,7 @@ export default function AddEmployeeModal({ isOpen, onClose, onCreated }: AddEmpl
       departementId: Number(values.departementId),
       contractType: values.contractType,
       salaireBase: Number(values.salaireBase),
+      dateFinContrat: values.dateFinContrat || undefined,
       role: values.role,
     };
 
@@ -224,6 +230,16 @@ export default function AddEmployeeModal({ isOpen, onClose, onCreated }: AddEmpl
                 </SelectWrapper>
                 <FormErrorMessage fontSize="xs">{errors.contractType?.message}</FormErrorMessage>
               </FormControl>
+              {needsEndDate && (
+                <FormControl isRequired isInvalid={!!errors.dateFinContrat}>
+                  <FieldLabel>Date fin de contrat</FieldLabel>
+                  <Input type="date" {...customInput} {...(errors.dateFinContrat ? errorInput : {})}
+                    {...register("dateFinContrat", {
+                      required: needsEndDate ? "La date de fin est obligatoire pour ce type de contrat" : false,
+                    })} />
+                  <FormErrorMessage fontSize="xs">{errors.dateFinContrat?.message}</FormErrorMessage>
+                </FormControl>
+              )}
               {isAdmin && (
                 <FormControl isRequired isInvalid={!!errors.role}>
                   <FieldLabel>Rôle Keycloak</FieldLabel>

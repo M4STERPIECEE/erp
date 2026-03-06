@@ -58,7 +58,7 @@ public class EmployeeService implements CreateEmployeeUseCase, ListEmployeesUseC
         Employee saved = employeeRepositoryPort.save(employee);
 
         ContractType contractType = ContractType.valueOf(command.contractType());
-        LocalDate dateFin = contractType == ContractType.CDI ? null : command.dateEmbauche().plusYears(1);
+        LocalDate dateFin = contractType == ContractType.CDI ? null : command.dateFinContrat();
 
         employeeRepositoryPort.saveContract(
                 saved.getId(), contractType, command.salaireBase(), command.dateEmbauche(), dateFin
