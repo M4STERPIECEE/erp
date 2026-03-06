@@ -52,14 +52,3 @@ export interface GetEmployeesParams {
   statut?: string;
 }
 
-export interface Department {
-  id: number;
-  nom: string;
-}
-
-export const DEPARTMENTS: Department[] = [
-  { id: 1, nom: "Informatique" },
-  { id: 2, nom: "Ressources Humaines" },
-  { id: 3, nom: "Marketing" },
-  { id: 4, nom: "Finance" },
-];

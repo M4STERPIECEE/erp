@@ -6,8 +6,9 @@ import {
 } from "@chakra-ui/react";
 import { useCreateEmployee } from "../hooks/useCreateEmployee";
 import { useAuth } from "../hooks/useAuth";
-import { CONTRACT_TYPES, DEPARTMENTS, ROLE_TYPES } from "../types/employee.types";
+import { CONTRACT_TYPES, ROLE_TYPES } from "../types/employee.types";
 import type { CreateEmployeeRequest } from "../types/employee.types";
+import { useDepartments } from "../hooks/useDepartments";
 
 interface AddEmployeeModalProps {
   isOpen: boolean;
@@ -91,6 +92,7 @@ interface FormValues {
 export default function AddEmployeeModal({ isOpen, onClose, onCreated }: AddEmployeeModalProps) {
   const { hasRole } = useAuth();
   const isAdmin = hasRole("admin");
+  const { departements } = useDepartments();
 
   const {
     control,
@@ -210,7 +212,7 @@ export default function AddEmployeeModal({ isOpen, onClose, onCreated }: AddEmpl
                   <Select {...customSelect}
                     {...register("departementId", { required: "Le département est obligatoire" })}>
                     <option value="" style={{ backgroundColor: "#f9fafb", color: "#1a202c" }}>Sélectionner...</option>
-                    {DEPARTMENTS.map((d) => (
+                    {departements.map((d) => (
                       <option key={d.id} value={d.id} style={{ backgroundColor: "#f9fafb", color: "#1a202c" }}>{d.nom}</option>
                     ))}
                   </Select>
