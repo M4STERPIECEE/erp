@@ -51,52 +51,6 @@ const errorInput = {
   borderColor: "red.300",
 };
 
-const selectWrapperStyles = {
-  position: "relative" as const,
-  bg: "white", // ← changé pour un rendu plus propre en light mode
-  borderWidth: "1px",
-  borderColor: borderClr,
-  rounded: "lg",
-  _focusWithin: { borderColor: "#14b8a6", boxShadow: "0 0 0 3px rgba(20,184,166,0.15)" },
-};
-
-const errorSelect = {
-  ...selectWrapperStyles,
-  borderColor: "red.300",
-};
-
-const customSelect = {
-  border: "none",
-  bg: "transparent",
-  color: "gray.900",
-  fontSize: "sm",
-  pr: 10,
-  iconSize: "0",
-  _focus: { boxShadow: "none", borderColor: "transparent" },
-} as const;
-
-function SelectWrapper({ children, isInvalid }: { children: React.ReactNode; isInvalid?: boolean }) {
-  return (
-    <Box {...(isInvalid ? errorSelect : selectWrapperStyles)}>
-      {children}
-      <Box
-        as="span"
-        className="material-symbols-outlined"
-        position="absolute"
-        right={3}
-        top="50%"
-        transform="translateY(-50%)"
-        fontSize="20px"
-        color="gray.400"
-        lineHeight="1"
-        pointerEvents="none"
-      >
-        keyboard_arrow_down
-      </Box>
-    </Box>
-  );
-}
-
 function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
     <FormLabel fontSize="sm" fontWeight="medium" color="gray.700" mb={1}>
