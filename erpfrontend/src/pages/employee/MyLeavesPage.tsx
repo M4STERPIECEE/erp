@@ -132,7 +132,7 @@ export default function MyLeavesPage() {
                     </Td>
                     <Td px={6} py={4} color="gray.700" fontSize="sm">{formatDate(c.dateDebut)}</Td>
                     <Td px={6} py={4} color="gray.700" fontSize="sm">{formatDate(c.dateFin)}</Td>
-                    <Td px={6} py={4} color="gray.900" fontWeight="semibold" fontSize="sm">{c.joursOuvrables}</Td>
+                    <Td px={6} py={4} color="gray.900" fontWeight="semibold" fontSize="sm">{c.nombreJours}</Td>
                     <Td px={6} py={4} color="gray.600" fontSize="sm" maxW="200px" isTruncated>{c.motif ?? "—"}</Td>
                     <Td px={6} py={4}>
                       <Badge px={2.5} py={0.5} borderRadius="full" fontSize="xs" fontWeight="medium" colorScheme={statutColor(c.statut)} variant="subtle">

@@ -101,6 +101,17 @@ public class EmployeePersistenceAdapter implements EmployeeRepositoryPort {
     }
 
     @Override
+    public Optional<Employee> findById(Long id) {
+        return employeJpaRepository.findById(id).map(mapper::toDomain);
+    }
+
+    @Override
+    public List<Employee> findAllByIds(List<Long> ids) {
+        if (ids.isEmpty()) return List.of();
+        return employeJpaRepository.findAllById(ids).stream().map(mapper::toDomain).toList();
+    }
+
+    @Override
     public Optional<ContractInfo> findContractByEmployeeId(Long employeId) {
         List<ContractJpaEntity> contrats = contratJpaRepository.findByEmployeIdIn(List.of(employeId));
         return contrats.stream().findFirst()
