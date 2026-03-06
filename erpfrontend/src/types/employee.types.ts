@@ -1,16 +1,9 @@
-// ─── Enums ──────────────────────────────────────────────────────────────────
-
 export const CONTRACT_TYPES = ["CDI", "CDD", "STAGE", "FREELANCE"] as const;
 export type ContractType = (typeof CONTRACT_TYPES)[number];
-
 export const STATUS_TYPES = ["ACTIF", "INACTIF", "SUSPENDU"] as const;
 export type StatusType = (typeof STATUS_TYPES)[number];
-
 export const ROLE_TYPES = ["employe", "rh", "admin"] as const;
 export type RoleType = (typeof ROLE_TYPES)[number];
-
-// ─── API Response : single employee ─────────────────────────────────────────
-
 export interface EmployeeResponse {
   id: number;
   keycloakId: string;
@@ -19,8 +12,8 @@ export interface EmployeeResponse {
   prenom: string;
   email: string;
   telephone: string | null;
-  dateNaissance: string | null; // ISO date "YYYY-MM-DD"
-  dateEmbauche: string;         // ISO date
+  dateNaissance: string | null;
+  dateEmbauche: string;
   poste: string;
   statut: StatusType;
   departementId: number | null;
@@ -28,17 +21,13 @@ export interface EmployeeResponse {
   salaireBase: number | null;
 }
 
-// ─── API Response : paginated list ──────────────────────────────────────────
-
 export interface PagedEmployeeResponse {
   content: EmployeeResponse[];
   totalElements: number;
   totalPages: number;
-  number: number;   // current page (0-indexed)
+  number: number;
   size: number;
 }
-
-// ─── API Request : create employee ──────────────────────────────────────────
 
 export interface CreateEmployeeRequest {
   nom: string;
@@ -51,10 +40,9 @@ export interface CreateEmployeeRequest {
   departementId: number;
   contractType: string;
   salaireBase: number;
+  dateFinContrat?: string;
   role: string;
 }
-
-// ─── Query params for GET /api/employees ─────────────────────────────────────────
 
 export interface GetEmployeesParams {
   page?: number;
@@ -63,8 +51,6 @@ export interface GetEmployeesParams {
   departement?: number;
   statut?: string;
 }
-
-// ─── Static departement list (until GET /api/departments exists) ───────────
 
 export interface Department {
   id: number;

@@ -61,8 +61,8 @@ export default function MyProfilePage() {
         </Text>
       </Box>
 
-      <Flex gap={6} direction={{ base: "column", lg: "row" }}>
-        <Box bg="white" rounded="xl" shadow="sm" borderWidth="1px" borderColor="gray.200" p={8} flex={1} display="flex" flexDir="column" alignItems="center" gap={4} maxW={{ lg: "320px" }}>
+      <Flex gap={6} direction="column">
+        <Box bg="image-profile-section white" rounded="xl" shadow="sm" borderWidth="1px" borderColor="gray.200" p={8} display="flex" flexDir="column" alignItems="center" gap={4} w="full">
           <Flex boxSize={20} rounded="full" bg="#1E3A5F" alignItems="center" justifyContent="center" color="white" fontWeight="bold" fontSize="2xl">
             {profil.prenom[0]}{profil.nom[0]}
           </Flex>
@@ -95,8 +95,7 @@ export default function MyProfilePage() {
             </Flex>
           </Box>
         </Box>
-
-        <Box flex={1} display="flex" flexDir="column" gap={6}>
+        <Box display="flex" flexDir="column" gap={6} className="info-personal">
           <Box bg="white" rounded="xl" shadow="sm" borderWidth="1px" borderColor="gray.200" p={6}>
             <Heading as="h3" fontSize="lg" fontWeight="bold" color="gray.900" mb={4}>
               Informations personnelles

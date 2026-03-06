@@ -4,11 +4,9 @@ Uses the service-account of the erp-fastapi client to manage users & roles.
 """
 
 from typing import Annotated
-
 import httpx
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel
-
 from auth.keycloak import RequireAdmin
 from config import Settings, get_settings
 
@@ -23,7 +21,6 @@ async def _get_admin_token(settings: Settings) -> str:
     now = time.time()
     if _admin_token_cache["token"] and now < _admin_token_cache["expires_at"] - 30:
         return _admin_token_cache["token"]
-
     url = f"{settings.keycloak_internal_url}/realms/{settings.keycloak_realm}/protocol/openid-connect/token"
     async with httpx.AsyncClient(timeout=10) as client:
         resp = await client.post(url, data={
@@ -33,7 +30,6 @@ async def _get_admin_token(settings: Settings) -> str:
         })
     if resp.status_code != 200:
         raise HTTPException(status_code=502, detail=f"Cannot get Keycloak admin token: {resp.text}")
-
     data = resp.json()
     _admin_token_cache["token"] = data["access_token"]
     _admin_token_cache["expires_at"] = now + data.get("expires_in", 300)
@@ -53,7 +49,6 @@ class KeycloakUserOut(BaseModel):
     createdTimestamp: int | None = None
     roles: list[str] = []
 
-
 class CreateKeycloakUserIn(BaseModel):
     username: str
     email: str
@@ -62,7 +57,6 @@ class CreateKeycloakUserIn(BaseModel):
     password: str
     enabled: bool = True
     roles: list[str] = []
-
 
 class UpdateKeycloakUserIn(BaseModel):
     email: str | None = None
@@ -127,8 +121,6 @@ async def list_users(
     search: str = Query("", max_length=200),
 ):
     token = await _get_admin_token(settings)
-
-    # Keycloak count endpoint (excludes service accounts via search if needed)
     count_params: dict = {}
     list_params: dict = {"max": 500}
     if search:

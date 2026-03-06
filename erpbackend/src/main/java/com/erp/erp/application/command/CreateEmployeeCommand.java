@@ -14,5 +14,6 @@ public record CreateEmployeeCommand(
         Long departementId,
         String contractType,
         BigDecimal salaireBase,
+        LocalDate dateFinContrat,
         String role
 ) {}
