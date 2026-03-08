@@ -4,7 +4,7 @@ import com.erp.erp.domain.model.Leave;
 import com.erp.erp.domain.model.enums.LeaveStatus;
 import com.erp.erp.domain.model.enums.LeaveType;
 import com.erp.erp.domain.port.out.LeaveRepositoryPort;
-
+import com.erp.erp.infrastructure.exception.exceptions.LeaveNotFoundException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.List;
@@ -50,7 +50,7 @@ public class LeaveService {
 
     public void cancelLeave(Long congeId, Long employeId) {
         Leave leave = congeRepository.findById(congeId)
-                .orElseThrow(() -> new IllegalArgumentException("Congé introuvable"));
+                .orElseThrow(() -> new LeaveNotFoundException(congeId));
 
         if (!leave.getEmployeId().equals(employeId)) {
             throw new IllegalArgumentException("Ce congé ne vous appartient pas");

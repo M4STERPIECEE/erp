@@ -6,6 +6,7 @@ import com.erp.erp.domain.model.Leave;
 import com.erp.erp.domain.model.Employee;
 import com.erp.erp.domain.port.out.EmployeeRepositoryPort;
 import com.erp.erp.domain.service.LeaveService;
+import com.erp.erp.infrastructure.exception.exceptions.EmployeeNotFoundException;
 import com.erp.erp.infrastructure.security.JwtTokenProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -151,7 +152,7 @@ public class LeaveController {
                                 return synced;
                             });
                 })
-                .orElseThrow(() -> new IllegalArgumentException("Profil employé introuvable"));
+                .orElseThrow(() -> new EmployeeNotFoundException("Profil employé introuvable"));
     }
 
     private Long findAuthenticatedEmployeeId() {
