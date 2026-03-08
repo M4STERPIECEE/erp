@@ -1,5 +1,8 @@
 package com.erp.erp.adapter.in.web.exception;
 
+import com.erp.erp.infrastructure.exception.exceptions.EmployeeNotFoundException;
+import com.erp.erp.infrastructure.exception.exceptions.LeaveConflictException;
+import com.erp.erp.infrastructure.exception.exceptions.LeaveNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -17,6 +20,24 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
+    @ExceptionHandler(EmployeeNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleEmployeeNotFound(EmployeeNotFoundException ex) {
+        log.warn("Employee not found: {}", ex.getMessage());
+        return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
+    @ExceptionHandler(LeaveNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleLeaveNotFound(LeaveNotFoundException ex) {
+        log.warn("Leave not found: {}", ex.getMessage());
+        return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
+    @ExceptionHandler(LeaveConflictException.class)
+    public ResponseEntity<Map<String, Object>> handleLeaveConflict(LeaveConflictException ex) {
+        log.warn("Leave conflict: {}", ex.getMessage());
+        return buildResponse(HttpStatus.CONFLICT, ex.getMessage());
+    }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Map<String, Object>> handleIllegalArgument(IllegalArgumentException ex) {
