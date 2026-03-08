@@ -4,7 +4,6 @@ import com.erp.erp.domain.model.Leave;
 import com.erp.erp.domain.model.enums.LeaveStatus;
 import com.erp.erp.domain.model.enums.LeaveType;
 import com.erp.erp.domain.port.out.LeaveRepositoryPort;
-import com.erp.erp.infrastructure.exception.exceptions.LeaveConflictException;
 import com.erp.erp.infrastructure.exception.exceptions.LeaveNotFoundException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
