@@ -49,18 +49,18 @@ export default function ViewEmployeeModal({ employee, isOpen, onClose }: ViewEmp
           <Flex align="flex-start" justify="space-between" gap={3}>
             <Box>
               <Text fontSize="xl" fontWeight="700" color="gray.900">{employee.prenom} {employee.nom}</Text>
-              <Text fontSize="sm" color="gray.500" mt={0.5}>{employee.matricule} · {employee.poste}</Text>
-            </Box>
-            <Flex gap={2} flexShrink={0}>
-              <Badge colorScheme={statutColor[employee.statut] ?? "gray"} px={2.5} py={1} borderRadius="full" fontSize="xs" fontWeight="medium">
-                {employee.statut}
-              </Badge>
-              {employee.contractType && (
-                <Badge colorScheme={contratColor[employee.contractType] ?? "gray"} px={2.5} py={1} borderRadius="full" fontSize="xs" fontWeight="medium">
-                  {employee.contractType}
+              <Flex gap={2} mt={1.5} mb={0.5}>
+                <Badge colorScheme={statutColor[employee.statut] ?? "gray"} px={2} py={0.5} borderRadius="full" fontSize="10px" fontWeight="bold">
+                  {employee.statut}
                 </Badge>
-              )}
-            </Flex>
+                {employee.contractType && (
+                  <Badge colorScheme={contratColor[employee.contractType] ?? "gray"} px={2} py={0.5} borderRadius="full" fontSize="10px" fontWeight="bold">
+                    {employee.contractType}
+                  </Badge>
+                )}
+              </Flex>
+              <Text fontSize="sm" color="gray.500" mt={1}>{employee.matricule} · {employee.poste}</Text>
+            </Box>
           </Flex>
         </ModalHeader>
         <ModalCloseButton top={5} right={5} color="gray.500" _hover={{ bg: "gray.100", color: "gray.700" }} />
