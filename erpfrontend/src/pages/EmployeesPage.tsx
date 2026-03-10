@@ -8,6 +8,8 @@ import {
 import { useRef, useState } from "react";
 import Sidebar from "../components/Sidebar";
 import AddEmployeeModal from "../components/AddEmployeeModal";
+import ViewEmployeeModal from "../components/ViewEmployeeModal";
+import EditEmployeeModal from "../components/EditEmployeeModal";
 import { useEmployees } from "../hooks/useEmployees";
 import { deleteEmployee } from "../services/employee.service";
 import { STATUS_TYPES } from "../types/employee.types";
@@ -181,6 +183,16 @@ export default function EmployeesPage() {
     onOpen: onDeleteOpen,
     onClose: onDeleteClose,
   } = useDisclosure();
+  const {
+    isOpen: isViewOpen,
+    onOpen: onViewOpen,
+    onClose: onViewClose,
+  } = useDisclosure();
+  const {
+    isOpen: isEditOpen,
+    onOpen: onEditOpen,
+    onClose: onEditClose,
+  } = useDisclosure();
 
   const {
     employees, totalElements, totalPages, page, size,
@@ -191,6 +203,8 @@ export default function EmployeesPage() {
 
   const [deleteTarget, setDeleteTarget] = useState<EmployeeResponse | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [viewTarget, setViewTarget] = useState<EmployeeResponse | null>(null);
+  const [editTarget, setEditTarget] = useState<EmployeeResponse | null>(null);
   const toast = useToast();
 
   const { departements } = useDepartments();
@@ -207,6 +221,16 @@ export default function EmployeesPage() {
   const handleDelete = (emp: EmployeeResponse) => {
     setDeleteTarget(emp);
     onDeleteOpen();
+  };
+
+  const handleView = (emp: EmployeeResponse) => {
+    setViewTarget(emp);
+    onViewOpen();
+  };
+
+  const handleEdit = (emp: EmployeeResponse) => {
+    setEditTarget(emp);
+    onEditOpen();
   };
 
   const confirmDelete = async () => {
@@ -338,9 +362,11 @@ export default function EmployeesPage() {
                         <Td px={4} py={4} textAlign="right">
                           <Flex alignItems="center" justifyContent="flex-end" gap={1}>
                             <IconButton aria-label="Voir" variant="ghost" size="sm" rounded="md" color="gray.500" _hover={{ bg: "gray.100", color: "#0f4c81" }}
-                              icon={<Box as="span" className="material-symbols-outlined" fontSize="20px" lineHeight="1">visibility</Box>} />
+                              icon={<Box as="span" className="material-symbols-outlined" fontSize="20px" lineHeight="1">visibility</Box>}
+                              onClick={() => handleView(emp)} />
                             <IconButton aria-label="Modifier" variant="ghost" size="sm" rounded="md" color="gray.500" _hover={{ bg: "gray.100", color: "#2563eb" }}
-                              icon={<Box as="span" className="material-symbols-outlined" fontSize="20px" lineHeight="1">edit</Box>} />
+                              icon={<Box as="span" className="material-symbols-outlined" fontSize="20px" lineHeight="1">edit</Box>}
+                              onClick={() => handleEdit(emp)} />
                             <IconButton aria-label="Supprimer" variant="ghost" size="sm" rounded="md" color="gray.500" _hover={{ bg: "gray.100", color: "#dc2626" }}
                               icon={<Box as="span" className="material-symbols-outlined" fontSize="20px" lineHeight="1">delete</Box>}
                               onClick={() => handleDelete(emp)} />
@@ -360,6 +386,8 @@ export default function EmployeesPage() {
       </Box>
       <AddEmployeeModal isOpen={isOpen} onClose={onClose} onCreated={refresh} />
       <DeleteDialog employee={deleteTarget} isOpen={isDeleteOpen} onClose={onDeleteClose} onConfirm={confirmDelete} isDeleting={isDeleting}/>
+      <ViewEmployeeModal employee={viewTarget} isOpen={isViewOpen} onClose={onViewClose} />
+      <EditEmployeeModal employee={editTarget} isOpen={isEditOpen} onClose={onEditClose} onUpdated={refresh} />
     </Flex>
   );
 }

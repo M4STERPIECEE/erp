@@ -44,6 +44,20 @@ export interface CreateEmployeeRequest {
   role: string;
 }
 
+export interface UpdateEmployeeRequest {
+  nom: string;
+  prenom: string;
+  telephone?: string;
+  dateNaissance?: string;
+  dateEmbauche: string;
+  poste: string;
+  statut: string;
+  departementId: number;
+  contractType: string;
+  salaireBase: number;
+  dateFinContrat?: string;
+}
+
 export interface GetEmployeesParams {
   page?: number;
   size?: number;

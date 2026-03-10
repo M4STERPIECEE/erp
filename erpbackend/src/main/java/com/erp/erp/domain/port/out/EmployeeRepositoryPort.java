@@ -13,6 +13,7 @@ import java.util.Optional;
 public interface EmployeeRepositoryPort {
     Employee save(Employee employee);
     void saveContract(Long employeId, ContractType type, BigDecimal salaireBase, LocalDate dateDebut, LocalDate dateFin);
+    void updateContract(Long employeId, ContractType type, BigDecimal salaireBase, LocalDate dateFin);
     boolean existsByEmail(String email);
     long countEmployees();
     PageResult<Employee> searchEmployees(String search, Long departementId, String statut, int page, int size);

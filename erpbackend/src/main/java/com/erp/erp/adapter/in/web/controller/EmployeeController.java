@@ -1,6 +1,10 @@
 package com.erp.erp.adapter.in.web.controller;
 
 import com.erp.erp.adapter.in.web.dto.request.CreateEmployeeRequest;
+import com.erp.erp.adapter.in.web.dto.request.UpdateEmployeeRequest;
+import com.erp.erp.domain.model.enums.ContractType;
+import com.erp.erp.domain.model.enums.EmployeeStatus;
+import com.erp.erp.infrastructure.exception.exceptions.EmployeeNotFoundException;
 import com.erp.erp.adapter.in.web.dto.response.EmployeeResponse;
 import com.erp.erp.adapter.in.web.dto.response.PagedEmployeeResponse;
 import com.erp.erp.adapter.in.web.mapper.EmployeeWebMapper;
@@ -21,6 +25,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import java.time.LocalDate;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -121,5 +126,57 @@ public class EmployeeController {
         EmployeeResult result = createEmployeeUseCase.create(command);
         EmployeeResponse response = mapper.toResponse(result);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('RH', 'ADMIN')")
+    public ResponseEntity<EmployeeResponse> getById(@PathVariable Long id) {
+        Employee employee = employeeRepositoryPort.findById(id)
+                .orElseThrow(() -> new EmployeeNotFoundException("Employ\u00e9 introuvable : id=" + id));
+        EmployeeRepositoryPort.ContractInfo contract = employeeRepositoryPort.findContractByEmployeeId(id).orElse(null);
+        EmployeeListResult result = new EmployeeListResult(
+                employee.getId(), employee.getKeycloakId(), employee.getMatricule(),
+                employee.getNom(), employee.getPrenom(), employee.getEmail(),
+                employee.getTelephone(), employee.getDateNaissance(), employee.getDateEmbauche(),
+                employee.getPoste(), employee.getStatut() != null ? employee.getStatut().name() : null,
+                employee.getDepartementId(),
+                contract != null ? contract.type() : null,
+                contract != null ? contract.salaireBase() : null
+        );
+        return ResponseEntity.ok(mapper.toResponseFromList(result));
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('RH', 'ADMIN')")
+    public ResponseEntity<EmployeeResponse> update(@PathVariable Long id, @Valid @RequestBody UpdateEmployeeRequest request) {
+        Employee employee = employeeRepositoryPort.findById(id)
+                .orElseThrow(() -> new EmployeeNotFoundException("Employ\u00e9 introuvable : id=" + id));
+        employee.setNom(request.nom());
+        employee.setPrenom(request.prenom());
+        employee.setTelephone(request.telephone());
+        employee.setDateNaissance(request.dateNaissance());
+        employee.setDateEmbauche(request.dateEmbauche());
+        employee.setPoste(request.poste());
+        if (request.statut() != null) {
+            employee.setStatut(EmployeeStatus.valueOf(request.statut()));
+        }
+        employee.setDepartementId(request.departementId());
+        Employee saved = employeeRepositoryPort.save(employee);
+        if (request.contractType() != null && request.salaireBase() != null) {
+            ContractType contractType = ContractType.valueOf(request.contractType());
+            LocalDate dateFin = contractType == ContractType.CDI ? null : request.dateFinContrat();
+            employeeRepositoryPort.updateContract(id, contractType, request.salaireBase(), dateFin);
+        }
+        EmployeeRepositoryPort.ContractInfo contract = employeeRepositoryPort.findContractByEmployeeId(id).orElse(null);
+        EmployeeListResult result = new EmployeeListResult(
+                saved.getId(), saved.getKeycloakId(), saved.getMatricule(),
+                saved.getNom(), saved.getPrenom(), saved.getEmail(),
+                saved.getTelephone(), saved.getDateNaissance(), saved.getDateEmbauche(),
+                saved.getPoste(), saved.getStatut() != null ? saved.getStatut().name() : null,
+                saved.getDepartementId(),
+                contract != null ? contract.type() : null,
+                contract != null ? contract.salaireBase() : null
+        );
+        return ResponseEntity.ok(mapper.toResponseFromList(result));
     }
 }
