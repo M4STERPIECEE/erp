@@ -5,14 +5,11 @@ import com.erp.erp.adapter.out.persistence.repository.AbsenceJpaRepository;
 import com.erp.erp.domain.model.Absence;
 import com.erp.erp.domain.port.out.AbsenceRepositoryPort;
 import org.springframework.stereotype.Component;
-
 import java.util.List;
 
 @Component
 public class AbsencePersistenceAdapter implements AbsenceRepositoryPort {
-
     private final AbsenceJpaRepository repository;
-
     public AbsencePersistenceAdapter(AbsenceJpaRepository repository) {
         this.repository = repository;
     }

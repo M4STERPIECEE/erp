@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   Flex,
@@ -10,12 +10,17 @@ import {
   Tr,
   Th,
   Td,
+  Input,
+  InputGroup,
+  InputLeftElement,
   IconButton,
+  Select,
   Spinner,
   Button,
 } from "@chakra-ui/react";
 import Sidebar from "../components/Sidebar";
 import { useAllLeaves } from "../hooks/useAllLeaves";
+import { useDepartments } from "../hooks/useDepartments";
 import type { AdminLeaveResponse } from "../types/leave.types";
 import type { LeaveStatus, LeaveType } from "../types/employee-space.types";
 
@@ -49,13 +54,26 @@ function formatDateRange(debut: string, fin: string): string {
 const PAGE_SIZE = 8;
 
 export default function LeavesPage() {
-  const { leaves, stats, isLoading, error, approve, reject } = useAllLeaves();
-  const [tab, setTab] = useState<"all" | "pending">("all");
+  const [tab, setTab] = useState<"all" | "pending" | "calendar">("all");
   const [page, setPage] = useState(0);
+  const [statutFilter, setStatutFilter] = useState("");
+  const [deptFilter, setDeptFilter] = useState<number | undefined>();
+  const [searchInput, setSearchInput] = useState("");
+  const [search, setSearch] = useState("");
 
-  const filtered = tab === "pending" ? leaves.filter((l) => l.statut === "EN_ATTENTE") : leaves;
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const paginated = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+  useEffect(() => {
+    const t = setTimeout(() => setSearch(searchInput), 400);
+    return () => clearTimeout(t);
+  }, [searchInput]);
+
+  const effectiveStatut = tab === "pending" ? "EN_ATTENTE" : statutFilter || undefined;
+  const { leaves, stats, isLoading, error, approve, reject } = useAllLeaves(effectiveStatut, search || undefined, deptFilter);
+  const { departements } = useDepartments();
+
+  useEffect(() => { setPage(0); }, [effectiveStatut, search, deptFilter]);
+
+  const totalPages = Math.max(1, Math.ceil(leaves.length / PAGE_SIZE));
+  const paginated = leaves.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
 
   if (isLoading) {
     return (
@@ -105,7 +123,45 @@ export default function LeavesPage() {
             <Flex px={6} borderBottomWidth="1px" borderColor="gray.200" align="center">
               <TabButton label="Toutes les demandes" active={tab === "all"} onClick={() => { setTab("all"); setPage(0); }} />
               <TabButton label="En attente" active={tab === "pending"} onClick={() => { setTab("pending"); setPage(0); }} />
+              <TabButton label="Calendrier d'équipe" active={tab === "calendar"} onClick={() => { setTab("calendar"); setPage(0); }} />
             </Flex>
+            {/* Filter Controls */}
+            <Box px={4} py={3} borderBottomWidth="1px" borderColor="gray.200">
+              <Flex align="center" gap={3} flexWrap="wrap">
+                <Flex align="center" gap={2} flex={1} flexWrap="wrap">
+                  <Text fontSize="xs" fontWeight="semibold" color="gray.500" textTransform="uppercase" letterSpacing="wider" whiteSpace="nowrap">Filtrer par :</Text>
+                  <Select size="sm" rounded="md" bg="gray.100" border="none" color="gray.700" fontWeight="medium" fontSize="sm" w="auto" minW="150px"
+                    value={statutFilter} onChange={(e) => { setStatutFilter(e.target.value); setPage(0); }} isDisabled={tab === "pending"}>
+                    <option value="">Tous les statuts</option>
+                    <option value="EN_ATTENTE">En attente</option>
+                    <option value="APPROUVE">Approuvé</option>
+                    <option value="REJETE">Refusé</option>
+                  </Select>
+                  <Select size="sm" rounded="md" bg="white" borderColor="gray.200" color="gray.600" fontWeight="medium" fontSize="sm" w="auto" minW="150px"
+                    value={deptFilter ?? ""} onChange={(e) => { setDeptFilter(e.target.value ? Number(e.target.value) : undefined); setPage(0); }}>
+                    <option value="">Département</option>
+                    {departements.map((d) => <option key={d.id} value={d.id}>{d.nom}</option>)}
+                  </Select>
+                  <Button size="sm" variant="outline" borderColor="gray.200" bg="white" color="gray.500" fontSize="sm" rounded="md" isDisabled
+                    leftIcon={<Box as="span" className="material-symbols-outlined" fontSize="16px" lineHeight="1">calendar_month</Box>}>
+                    Période
+                  </Button>
+                </Flex>
+                <Flex align="center" gap={2}>
+                  <InputGroup size="sm">
+                    <InputLeftElement>
+                      <Box as="span" className="material-symbols-outlined" fontSize="18px" color="gray.400" lineHeight="1">search</Box>
+                    </InputLeftElement>
+                    <Input pl={8} w="240px" rounded="md" borderColor="gray.200" placeholder="Rechercher un employé..."
+                      fontSize="sm" value={searchInput} onChange={(e) => setSearchInput(e.target.value)} />
+                  </InputGroup>
+                  <IconButton aria-label="Réinitialiser" size="sm" variant="ghost" color="gray.500" _hover={{ color: "#1E3A5F" }}
+                    icon={<Box as="span" className="material-symbols-outlined" fontSize="20px" lineHeight="1">filter_list</Box>}
+                    onClick={() => { setStatutFilter(""); setDeptFilter(undefined); setSearchInput(""); setSearch(""); setPage(0); }}
+                  />
+                </Flex>
+              </Flex>
+            </Box>
             <Box overflowX="auto">
               <Table variant="unstyled" size="md">
                 <Thead>
@@ -137,9 +193,9 @@ export default function LeavesPage() {
             </Box>
             <Flex px={6} py={4} borderTopWidth="1px" borderColor="gray.200" align="center" justify="space-between">
               <Text fontSize="sm" color="gray.500">
-                Affichage de <Text as="span" fontWeight="medium" color="gray.900">{filtered.length === 0 ? 0 : page * PAGE_SIZE + 1}</Text> à{" "}
-                <Text as="span" fontWeight="medium" color="gray.900">{Math.min((page + 1) * PAGE_SIZE, filtered.length)}</Text> sur{" "}
-                <Text as="span" fontWeight="medium" color="gray.900">{filtered.length}</Text> résultats
+                Affichage de <Text as="span" fontWeight="medium" color="gray.900">{leaves.length === 0 ? 0 : page * PAGE_SIZE + 1}</Text> à{" "}
+                <Text as="span" fontWeight="medium" color="gray.900">{Math.min((page + 1) * PAGE_SIZE, leaves.length)}</Text> sur{" "}
+                <Text as="span" fontWeight="medium" color="gray.900">{leaves.length}</Text> résultats
               </Text>
               <Flex gap={1}>
                 <Button size="sm" variant="outline" borderColor="gray.200" color="gray.500" fontSize="sm" isDisabled={page === 0} onClick={() => setPage((p) => p - 1)}>Précédent</Button>

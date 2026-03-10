@@ -14,6 +14,9 @@ public interface LeaveJpaRepository extends JpaRepository<LeaveJpaEntity, Long> 
     List<LeaveJpaEntity> findByEmployeIdOrderByCreatedAtDesc(Long employeId);
     List<LeaveJpaEntity> findAllByOrderByCreatedAtDesc();
 
+    @Query("SELECT c FROM LeaveJpaEntity c WHERE (:statut IS NULL OR c.statut = :statut) ORDER BY c.createdAt DESC")
+    List<LeaveJpaEntity> findFiltered(@Param("statut") String statut);
+
     @Query("SELECT COALESCE(SUM(c.nombreJours), 0) FROM LeaveJpaEntity c " +
            "WHERE c.employeId = :employeId AND c.statut = 'APPROUVE' " +
            "AND EXTRACT(YEAR FROM c.dateDebut) = :annee")

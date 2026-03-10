@@ -18,7 +18,7 @@ interface UseAllLeavesReturn {
   refresh: () => void;
 }
 
-export function useAllLeaves(): UseAllLeavesReturn {
+export function useAllLeaves(statut?: string, search?: string, departementId?: number): UseAllLeavesReturn {
   const [leaves, setLeaves] = useState<AdminLeaveResponse[]>([]);
   const [stats, setStats] = useState<AdminLeaveStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -29,8 +29,10 @@ export function useAllLeaves(): UseAllLeavesReturn {
 
   useEffect(() => {
     const id = ++fetchIdRef.current;
+    setIsLoading(true);
+    const params = { statut, search, departementId };
 
-    Promise.all([getAllLeaves(), getAdminLeaveStats()])
+    Promise.all([getAllLeaves(params), getAdminLeaveStats()])
       .then(([leavesData, statsData]) => {
         if (id === fetchIdRef.current) {
           setLeaves(leavesData);
@@ -45,7 +47,7 @@ export function useAllLeaves(): UseAllLeavesReturn {
       .finally(() => {
         if (id === fetchIdRef.current) setIsLoading(false);
       });
-  }, [refreshKey]);
+  }, [refreshKey, statut, search, departementId]);
 
   const refresh = useCallback(() => {
     setRefreshKey((k) => k + 1);

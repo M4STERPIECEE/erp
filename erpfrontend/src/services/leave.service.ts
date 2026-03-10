@@ -1,8 +1,8 @@
 import api from "./employee.service";
 import type { AdminLeaveResponse, AdminLeaveStats } from "../types/leave.types";
 
-export async function getAllLeaves(): Promise<AdminLeaveResponse[]> {
-  const { data } = await api.get<AdminLeaveResponse[]>("/leaves");
+export async function getAllLeaves(params?: { statut?: string; search?: string; departementId?: number }): Promise<AdminLeaveResponse[]> {
+  const { data } = await api.get<AdminLeaveResponse[]>("/leaves", { params });
   return data;
 }
 

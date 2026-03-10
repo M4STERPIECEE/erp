@@ -51,25 +51,42 @@ public class LeaveController {
 
     @GetMapping
     @PreAuthorize("hasAnyRole('RH', 'ADMIN')")
-    public ResponseEntity<List<AdminLeaveResult>> allLeaves() {
-        List<Leave> leaves = leaveService.listAllLeaves();
+    public ResponseEntity<List<AdminLeaveResult>> allLeaves(
+            @RequestParam(required = false) String statut,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) Long departementId) {
+
+        List<Leave> leaves = leaveService.listAllLeavesFiltered(statut);
 
         List<Long> employeIds = leaves.stream()
                 .map(Leave::getEmployeId).distinct().toList();
         Map<Long, Employee> employeeMap = employeeRepositoryPort.findAllByIds(employeIds)
                 .stream().collect(Collectors.toMap(Employee::getId, Function.identity()));
 
-        List<AdminLeaveResult> results = leaves.stream().map(c -> {
-            Employee emp = employeeMap.get(c.getEmployeId());
-            return new AdminLeaveResult(
-                    c.getId(), c.getType().name(), c.getDateDebut(), c.getDateFin(),
-                    c.getNombreJours(), c.getStatut().name(), c.getMotif(),
-                    c.getEmployeId(),
-                    emp != null ? emp.getNom() : "Inconnu",
-                    emp != null ? emp.getPrenom() : "",
-                    emp != null ? emp.getPoste() : ""
-            );
-        }).toList();
+        List<AdminLeaveResult> results = leaves.stream()
+                .filter(c -> {
+                    Employee emp = employeeMap.get(c.getEmployeId());
+                    if (departementId != null) {
+                        if (emp == null || !departementId.equals(emp.getDepartementId())) return false;
+                    }
+                    if (search != null && !search.isBlank()) {
+                        if (emp == null) return false;
+                        String s = search.toLowerCase();
+                        return emp.getNom().toLowerCase().contains(s) || emp.getPrenom().toLowerCase().contains(s);
+                    }
+                    return true;
+                })
+                .map(c -> {
+                    Employee emp = employeeMap.get(c.getEmployeId());
+                    return new AdminLeaveResult(
+                            c.getId(), c.getType().name(), c.getDateDebut(), c.getDateFin(),
+                            c.getNombreJours(), c.getStatut().name(), c.getMotif(),
+                            c.getEmployeId(),
+                            emp != null ? emp.getNom() : "Inconnu",
+                            emp != null ? emp.getPrenom() : "",
+                            emp != null ? emp.getPoste() : ""
+                    );
+                }).toList();
         return ResponseEntity.ok(results);
     }
 
