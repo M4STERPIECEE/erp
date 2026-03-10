@@ -9,6 +9,7 @@ public interface LeaveRepositoryPort {
     Leave save(Leave leave);
     Optional<Leave> findById(Long id);
     List<Leave> findAll();
+    List<Leave> findAllFiltered(String statut);
     List<Leave> findByEmployeeId(Long employeId);
     void delete(Long id);
     int countApprovedLeaveDaysThisYear(Long employeId, int annee);

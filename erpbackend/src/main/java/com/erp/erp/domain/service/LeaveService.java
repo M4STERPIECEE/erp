@@ -44,6 +44,10 @@ public class LeaveService {
         return congeRepository.findAll();
     }
 
+    public List<Leave> listAllLeavesFiltered(String statut) {
+        return congeRepository.findAllFiltered(statut);
+    }
+
     public List<Leave> listEmployeeLeaves(Long employeId) {
         return congeRepository.findByEmployeeId(employeId);
     }

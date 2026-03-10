@@ -60,6 +60,11 @@ public class LeavePersistenceAdapter implements LeaveRepositoryPort {
     }
 
     @Override
+    public List<Leave> findAllFiltered(String statut) {
+        return repository.findFiltered(statut).stream().map(this::toDomain).toList();
+    }
+
+    @Override
     public int countAllPending() {
         return repository.countAllPending();
     }
