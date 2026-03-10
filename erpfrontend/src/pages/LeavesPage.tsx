@@ -62,15 +62,13 @@ export default function LeavesPage() {
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    const t = setTimeout(() => setSearch(searchInput), 400);
+    const t = setTimeout(() => { setSearch(searchInput); setPage(0); }, 400);
     return () => clearTimeout(t);
   }, [searchInput]);
 
   const effectiveStatut = tab === "pending" ? "EN_ATTENTE" : statutFilter || undefined;
   const { leaves, stats, isLoading, error, approve, reject } = useAllLeaves(effectiveStatut, search || undefined, deptFilter);
   const { departements } = useDepartments();
-
-  useEffect(() => { setPage(0); }, [effectiveStatut, search, deptFilter]);
 
   const totalPages = Math.max(1, Math.ceil(leaves.length / PAGE_SIZE));
   const paginated = leaves.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);

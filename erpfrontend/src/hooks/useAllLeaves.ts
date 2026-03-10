@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import { useToast } from "@chakra-ui/react";
 import {
   getAllLeaves,
@@ -18,42 +18,46 @@ interface UseAllLeavesReturn {
   refresh: () => void;
 }
 
+type FetchState = { leaves: AdminLeaveResponse[]; stats: AdminLeaveStats | null; isLoading: boolean; error: string | null };
+type FetchAction =
+  | { type: "FETCH_START" }
+  | { type: "FETCH_SUCCESS"; leaves: AdminLeaveResponse[]; stats: AdminLeaveStats }
+  | { type: "FETCH_ERROR"; error: string };
+
+function fetchReducer(state: FetchState, action: FetchAction): FetchState {
+  switch (action.type) {
+    case "FETCH_START":   return { ...state, isLoading: true, error: null };
+    case "FETCH_SUCCESS": return { leaves: action.leaves, stats: action.stats, isLoading: false, error: null };
+    case "FETCH_ERROR":   return { ...state, isLoading: false, error: action.error };
+    default: return state;
+  }
+}
+
 export function useAllLeaves(statut?: string, search?: string, departementId?: number): UseAllLeavesReturn {
-  const [leaves, setLeaves] = useState<AdminLeaveResponse[]>([]);
-  const [stats, setStats] = useState<AdminLeaveStats | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [{ leaves, stats, isLoading, error }, dispatch] = useReducer(fetchReducer, {
+    leaves: [], stats: null, isLoading: true, error: null,
+  });
   const [refreshKey, setRefreshKey] = useState(0);
   const fetchIdRef = useRef(0);
   const toast = useToast();
 
   useEffect(() => {
     const id = ++fetchIdRef.current;
-    setIsLoading(true);
+    dispatch({ type: "FETCH_START" });
     const params = { statut, search, departementId };
 
     Promise.all([getAllLeaves(params), getAdminLeaveStats()])
       .then(([leavesData, statsData]) => {
-        if (id === fetchIdRef.current) {
-          setLeaves(leavesData);
-          setStats(statsData);
-        }
+        if (id === fetchIdRef.current)
+          dispatch({ type: "FETCH_SUCCESS", leaves: leavesData, stats: statsData });
       })
       .catch((err) => {
-        if (id === fetchIdRef.current) {
-          setError(err?.response?.data?.message ?? "Impossible de charger les congés");
-        }
-      })
-      .finally(() => {
-        if (id === fetchIdRef.current) setIsLoading(false);
+        if (id === fetchIdRef.current)
+          dispatch({ type: "FETCH_ERROR", error: err?.response?.data?.message ?? "Impossible de charger les congés" });
       });
   }, [refreshKey, statut, search, departementId]);
 
-  const refresh = useCallback(() => {
-    setRefreshKey((k) => k + 1);
-    setIsLoading(true);
-    setError(null);
-  }, []);
+  const refresh = useCallback(() => setRefreshKey((k) => k + 1), []);
 
   const approve = useCallback(
     async (id: number): Promise<boolean> => {
