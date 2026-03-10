@@ -14,7 +14,10 @@ import {
   InputGroup,
   InputLeftElement,
   IconButton,
-  Select,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
   Spinner,
   Button,
 } from "@chakra-ui/react";
@@ -73,18 +76,6 @@ export default function LeavesPage() {
   const totalPages = Math.max(1, Math.ceil(leaves.length / PAGE_SIZE));
   const paginated = leaves.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
 
-  if (isLoading) {
-    return (
-      <Flex h="100vh" fontFamily="'Inter', sans-serif">
-        <Sidebar activePage="leaves" />
-        <Flex flex={1} align="center" justify="center" direction="column" gap={4}>
-          <Spinner size="xl" color="#1E3A5F" thickness="3px" />
-          <Text color="gray.500" fontSize="sm">Chargement des congés…</Text>
-        </Flex>
-      </Flex>
-    );
-  }
-
   if (error) {
     return (
       <Flex h="100vh" fontFamily="'Inter', sans-serif">
@@ -117,29 +108,54 @@ export default function LeavesPage() {
             </Flex>
           )}
           <Box bg="white" rounded="xl" borderWidth="1px" borderColor="gray.200" shadow="sm">
-            {/* Tabs */}
             <Flex px={6} borderBottomWidth="1px" borderColor="gray.200" align="center">
               <TabButton label="Toutes les demandes" active={tab === "all"} onClick={() => { setTab("all"); setPage(0); }} />
               <TabButton label="En attente" active={tab === "pending"} onClick={() => { setTab("pending"); setPage(0); }} />
               <TabButton label="Calendrier d'équipe" active={tab === "calendar"} onClick={() => { setTab("calendar"); setPage(0); }} />
             </Flex>
-            {/* Filter Controls */}
             <Box px={4} py={3} borderBottomWidth="1px" borderColor="gray.200">
               <Flex align="center" gap={3} flexWrap="wrap">
                 <Flex align="center" gap={2} flex={1} flexWrap="wrap">
                   <Text fontSize="xs" fontWeight="semibold" color="gray.500" textTransform="uppercase" letterSpacing="wider" whiteSpace="nowrap">Filtrer par :</Text>
-                  <Select size="sm" rounded="md" bg="gray.100" border="none" color="gray.700" fontWeight="medium" fontSize="sm" w="auto" minW="150px"
-                    value={statutFilter} onChange={(e) => { setStatutFilter(e.target.value); setPage(0); }} isDisabled={tab === "pending"}>
-                    <option value="">Tous les statuts</option>
-                    <option value="EN_ATTENTE">En attente</option>
-                    <option value="APPROUVE">Approuvé</option>
-                    <option value="REJETE">Refusé</option>
-                  </Select>
-                  <Select size="sm" rounded="md" bg="white" borderColor="gray.200" color="gray.600" fontWeight="medium" fontSize="sm" w="auto" minW="150px"
-                    value={deptFilter ?? ""} onChange={(e) => { setDeptFilter(e.target.value ? Number(e.target.value) : undefined); setPage(0); }}>
-                    <option value="">Département</option>
-                    {departements.map((d) => <option key={d.id} value={d.id}>{d.nom}</option>)}
-                  </Select>
+                  <Menu>
+                    <MenuButton as={Button} size="sm" rounded="md" bg="gray.100" border="none" color="gray.700" fontWeight="medium" fontSize="sm" minW="150px"
+                      textAlign="left" _hover={{ bg: "gray.200" }} _active={{ bg: "gray.100" }} isDisabled={tab === "pending"}
+                      rightIcon={<Box as="span" className="material-symbols-outlined" fontSize="16px" color="gray.500" lineHeight="1">keyboard_arrow_down</Box>}>
+                      {statutFilter === "" ? "Tous les statuts" : statutFilter === "EN_ATTENTE" ? "En attente" : statutFilter === "APPROUVE" ? "Approuvé" : "Refusé"}
+                    </MenuButton>
+                    <MenuList rounded="xl" shadow="lg" borderColor="gray.200" p={2} bg="white" minW="0">
+                      {([{value: "", label: "Tous les statuts"}, {value: "EN_ATTENTE", label: "En attente"}, {value: "APPROUVE", label: "Approuvé"}, {value: "REJETE", label: "Refusé"}] as const).map((opt) => (
+                        <MenuItem key={opt.value} rounded="lg" fontSize="sm" color="gray.700"
+                          bg={statutFilter === opt.value ? "teal.50" : "transparent"}
+                          fontWeight={statutFilter === opt.value ? "600" : "normal"}
+                          _hover={{ bg: "gray.100" }}
+                          onClick={() => { setStatutFilter(opt.value); setPage(0); }}>
+                          {opt.label}
+                        </MenuItem>
+                      ))}
+                    </MenuList>
+                  </Menu>
+                  <Menu>
+                    <MenuButton as={Button} size="sm" rounded="md" bg="white" borderWidth="1px" borderColor="gray.200" color="gray.600" fontWeight="medium" fontSize="sm" minW="150px"
+                      textAlign="left" _hover={{ bg: "gray.50" }} _active={{ bg: "white" }}
+                      rightIcon={<Box as="span" className="material-symbols-outlined" fontSize="16px" color="gray.500" lineHeight="1">keyboard_arrow_down</Box>}>
+                      {deptFilter ? (departements.find((d) => d.id === deptFilter)?.nom ?? "Département") : "Département"}
+                    </MenuButton>
+                    <MenuList rounded="xl" shadow="lg" borderColor="gray.200" p={2} bg="white" minW="0">
+                      <MenuItem rounded="lg" fontSize="sm" color="gray.700"
+                        bg={!deptFilter ? "teal.50" : "transparent"} fontWeight={!deptFilter ? "600" : "normal"}
+                        _hover={{ bg: "gray.100" }} onClick={() => { setDeptFilter(undefined); setPage(0); }}>
+                        Tous les départements
+                      </MenuItem>
+                      {departements.map((d) => (
+                        <MenuItem key={d.id} rounded="lg" fontSize="sm" color="gray.700"
+                          bg={deptFilter === d.id ? "teal.50" : "transparent"} fontWeight={deptFilter === d.id ? "600" : "normal"}
+                          _hover={{ bg: "gray.100" }} onClick={() => { setDeptFilter(d.id); setPage(0); }}>
+                          {d.nom}
+                        </MenuItem>
+                      ))}
+                    </MenuList>
+                  </Menu>
                   <Button size="sm" variant="outline" borderColor="gray.200" bg="white" color="gray.500" fontSize="sm" rounded="md" isDisabled
                     leftIcon={<Box as="span" className="material-symbols-outlined" fontSize="16px" lineHeight="1">calendar_month</Box>}>
                     Période
@@ -172,7 +188,16 @@ export default function LeavesPage() {
                   </Tr>
                 </Thead>
                 <Tbody>
-                  {paginated.length === 0 ? (
+                  {isLoading ? (
+                    <Tr>
+                      <Td colSpan={7} textAlign="center" py={16}>
+                        <Flex direction="column" align="center" gap={3}>
+                          <Spinner size="lg" color="#1E3A5F" thickness="3px" />
+                          <Text color="gray.400" fontSize="sm">Chargement des congés…</Text>
+                        </Flex>
+                      </Td>
+                    </Tr>
+                  ) : paginated.length === 0 ? (
                     <Tr>
                       <Td colSpan={7} textAlign="center" py={12}>
                         <Flex direction="column" align="center" gap={3}>
