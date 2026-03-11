@@ -3,8 +3,9 @@ import type {
   DepartmentResponse,
   CreateDepartmentRequest,
 } from "../types/department.types";
+import { API_BASE_URL } from "../config/api.config";
 
-const api = axios.create({ baseURL: "/api" });
+const api = axios.create({ baseURL: API_BASE_URL });
 const TOKEN_KEY = "erp_access_token";
 
 api.interceptors.request.use((config) => {

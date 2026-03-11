@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/v1/auth")
+@RequestMapping("/api/${version.path}/auth")
 public class AuthController {
     private final JwtTokenProvider jwtTokenProvider;
     public AuthController(JwtTokenProvider jwtTokenProvider) {

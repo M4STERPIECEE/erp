@@ -31,7 +31,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/employees")
+@RequestMapping("/api/${version.path}/employees")
 public class EmployeeController {
     private static final Logger log = LoggerFactory.getLogger(EmployeeController.class);
     private final CreateEmployeeUseCase createEmployeeUseCase;
