@@ -54,7 +54,9 @@ public class LeaveController {
     public ResponseEntity<List<AdminLeaveResult>> allLeaves(
             @RequestParam(required = false) String statut,
             @RequestParam(required = false) String search,
-            @RequestParam(required = false) Long departementId) {
+            @RequestParam(required = false) Long departementId,
+            @RequestParam(required = false) String dateDebut,
+            @RequestParam(required = false) String dateFin) {
 
         List<Leave> leaves = leaveService.listAllLeavesFiltered(statut);
 
@@ -63,8 +65,14 @@ public class LeaveController {
         Map<Long, Employee> employeeMap = employeeRepositoryPort.findAllByIds(employeIds)
                 .stream().collect(Collectors.toMap(Employee::getId, Function.identity()));
 
+        final LocalDate parsedDateDebut = (dateDebut != null && !dateDebut.isBlank()) ? LocalDate.parse(dateDebut) : null;
+        final LocalDate parsedDateFin   = (dateFin   != null && !dateFin.isBlank())   ? LocalDate.parse(dateFin)   : null;
+
         List<AdminLeaveResult> results = leaves.stream()
                 .filter(c -> {
+                    // Date overlap: keep leaves that overlap with the selected period
+                    if (parsedDateDebut != null && c.getDateFin().isBefore(parsedDateDebut)) return false;
+                    if (parsedDateFin   != null && c.getDateDebut().isAfter(parsedDateFin))  return false;
                     Employee emp = employeeMap.get(c.getEmployeId());
                     if (departementId != null) {
                         if (emp == null || !departementId.equals(emp.getDepartementId())) return false;
