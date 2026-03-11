@@ -22,7 +22,6 @@ import {
   PopoverTrigger,
   PopoverContent,
   PopoverBody,
-  PopoverArrow,
   Spinner,
   Button,
 } from "@chakra-ui/react";
@@ -60,7 +59,7 @@ function formatDateRange(debut: string, fin: string): string {
 }
 
 function fmtShortDate(s: string): string {
-  return new Date(s + "T00:00:00").toLocaleDateString("fr-FR", { day: "2-digit", month: "short" });
+  return new Date(s + "T00:00:00").toLocaleDateString("fr-FR");
 }
 
 const PAGE_SIZE = 8;
@@ -175,31 +174,37 @@ export default function LeavesPage() {
                         color={dateFrom || dateTo ? "teal.600" : "gray.500"}
                         fontSize="sm" rounded="md"
                         leftIcon={<Box as="span" className="material-symbols-outlined" fontSize="16px" lineHeight="1">calendar_month</Box>}>
-                        {dateFrom && dateTo
-                          ? `${fmtShortDate(dateFrom)} – ${fmtShortDate(dateTo)}`
-                          : dateFrom ? `Depuis ${fmtShortDate(dateFrom)}`
-                          : dateTo ? `Avant ${fmtShortDate(dateTo)}`
-                          : "Période"}
+                        {dateFrom && dateTo ? (
+                          <Flex direction="column" align="flex-start" lineHeight="1.1">
+                            <Text fontSize="xs" color="gray.600">Du {fmtShortDate(dateFrom)}</Text>
+                            <Text fontSize="xs" color="gray.600">Au {fmtShortDate(dateTo)}</Text>
+                          </Flex>
+                        ) : dateFrom ? (
+                          `Du ${fmtShortDate(dateFrom)}`
+                        ) : dateTo ? (
+                          `Au ${fmtShortDate(dateTo)}`
+                        ) : (
+                          "Période"
+                        )}
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent w="260px" rounded="xl" shadow="lg" borderColor="gray.200" _focus={{ outline: "none" }}>
-                      <PopoverArrow />
+                    <PopoverContent w="260px" rounded="xl" shadow="md" borderColor="gray.100" bg="white" _focus={{ outline: "none" }}>
                       <PopoverBody p={4}>
                         <Flex direction="column" gap={3}>
                           <Box>
-                            <Text fontSize="xs" fontWeight="semibold" color="gray.500" mb={1} textTransform="uppercase" letterSpacing="wider">Du</Text>
-                            <Input type="date" size="sm" rounded="md" borderColor="gray.200" fontSize="sm"
+                            <Text fontSize="xs" fontWeight="semibold" color="gray.900" mb={1} textTransform="uppercase" letterSpacing="wider">Du</Text>
+                            <Input type="date" size="sm" rounded="md" borderColor="gray.200" bg="gray.50" fontSize="sm" color="gray.900"
                               value={dateFrom} max={dateTo || undefined}
                               onChange={(e) => { setDateFrom(e.target.value); setPage(0); }} />
                           </Box>
                           <Box>
-                            <Text fontSize="xs" fontWeight="semibold" color="gray.500" mb={1} textTransform="uppercase" letterSpacing="wider">Au</Text>
-                            <Input type="date" size="sm" rounded="md" borderColor="gray.200" fontSize="sm"
+                            <Text fontSize="xs" fontWeight="semibold" color="gray.900" mb={1} textTransform="uppercase" letterSpacing="wider">Au</Text>
+                            <Input type="date" size="sm" rounded="md" borderColor="gray.200" bg="gray.50" fontSize="sm" color="gray.900"
                               value={dateTo} min={dateFrom || undefined}
                               onChange={(e) => { setDateTo(e.target.value); setPage(0); }} />
                           </Box>
                           {(dateFrom || dateTo) && (
-                            <Button size="xs" variant="ghost" color="gray.400" fontSize="xs"
+                            <Button size="xs" variant="ghost" color="gray.900" fontSize="xs" _hover={{ bg: "gray.50", color: "#1E3A5F" }}
                               onClick={() => { setDateFrom(""); setDateTo(""); setPage(0); }}>
                               Effacer les dates
                             </Button>
@@ -214,7 +219,8 @@ export default function LeavesPage() {
                     <InputLeftElement>
                       <Box as="span" className="material-symbols-outlined" fontSize="18px" color="gray.400" lineHeight="1">search</Box>
                     </InputLeftElement>
-                    <Input pl={8} w="240px" rounded="md" borderColor="gray.200" placeholder="Rechercher un employé..."
+                    <Input pl={8} w="240px" rounded="md" borderColor="gray.200" color="gray.900" placeholder="Rechercher un employé..."
+                      _placeholder={{ color: "gray.500" }}
                       fontSize="sm" value={searchInput} onChange={(e) => setSearchInput(e.target.value)} />
                   </InputGroup>
                   <IconButton aria-label="Réinitialiser" size="sm" variant="ghost" color="gray.500" _hover={{ color: "#1E3A5F" }}
