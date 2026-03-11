@@ -33,7 +33,7 @@ function fetchReducer(state: FetchState, action: FetchAction): FetchState {
   }
 }
 
-export function useAllLeaves(statut?: string, search?: string, departementId?: number): UseAllLeavesReturn {
+export function useAllLeaves(statut?: string, search?: string, departementId?: number, dateDebut?: string, dateFin?: string): UseAllLeavesReturn {
   const [{ leaves, stats, isLoading, error }, dispatch] = useReducer(fetchReducer, {
     leaves: [], stats: null, isLoading: true, error: null,
   });
@@ -44,7 +44,7 @@ export function useAllLeaves(statut?: string, search?: string, departementId?: n
   useEffect(() => {
     const id = ++fetchIdRef.current;
     dispatch({ type: "FETCH_START" });
-    const params = { statut, search, departementId };
+    const params = { statut, search, departementId, dateDebut, dateFin };
 
     Promise.all([getAllLeaves(params), getAdminLeaveStats()])
       .then(([leavesData, statsData]) => {
@@ -55,7 +55,7 @@ export function useAllLeaves(statut?: string, search?: string, departementId?: n
         if (id === fetchIdRef.current)
           dispatch({ type: "FETCH_ERROR", error: err?.response?.data?.message ?? "Impossible de charger les congés" });
       });
-  }, [refreshKey, statut, search, departementId]);
+  }, [refreshKey, statut, search, departementId, dateDebut, dateFin]);
 
   const refresh = useCallback(() => setRefreshKey((k) => k + 1), []);
 
