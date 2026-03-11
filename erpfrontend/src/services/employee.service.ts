@@ -44,4 +44,14 @@ export async function updateEmployee(id: number, payload: UpdateEmployeeRequest)
   return data;
 }
 
+export interface EmployeeStats {
+  totalEmployees: number;
+  contractDistribution: Record<string, number>;
+}
+
+export async function getEmployeeStats(): Promise<EmployeeStats> {
+  const { data } = await api.get<EmployeeStats>("/employees/stats");
+  return data;
+}
+
 export default api;

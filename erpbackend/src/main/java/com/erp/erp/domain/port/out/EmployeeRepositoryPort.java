@@ -16,6 +16,7 @@ public interface EmployeeRepositoryPort {
     void updateContract(Long employeId, ContractType type, BigDecimal salaireBase, LocalDate dateFin);
     boolean existsByEmail(String email);
     long countEmployees();
+    Map<ContractType, Long> countByContractType();
     PageResult<Employee> searchEmployees(String search, Long departementId, String statut, int page, int size);
     Map<Long, ContractInfo> findContractsForEmployees(List<Long> employeIds);
     Optional<Employee> findByKeycloakId(String keycloakId);

@@ -78,6 +78,18 @@ public class EmployeePersistenceAdapter implements EmployeeRepositoryPort {
     }
 
     @Override
+    public Map<ContractType, Long> countByContractType() {
+        List<Object[]> rows = contratJpaRepository.countByContractType();
+        Map<ContractType, Long> result = new java.util.EnumMap<>(ContractType.class);
+        for (Object[] row : rows) {
+            ContractType type = ContractType.valueOf((String) row[0]);
+            Long count = (Long) row[1];
+            result.put(type, count);
+        }
+        return result;
+    }
+
+    @Override
     public PageResult<Employee> searchEmployees(String search, Long departementId, String statut, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<EmployeeJpaEntity> jpaPage = employeJpaRepository.search(search, departementId, statut, pageRequest);

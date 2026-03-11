@@ -16,9 +16,12 @@ import {
   SimpleGrid,
   Tag,
 } from "@chakra-ui/react";
+import { useState, useEffect } from "react";
 import Sidebar from "../components/Sidebar";
 import { useAuth } from "../hooks/useAuth";
 import { ROLES } from "../types/auth";
+import { getEmployeeStats, type EmployeeStats } from "../services/employee.service";
+import { getAdminLeaveStats } from "../services/leave.service";
 interface KpiCardProps {
   label: string;
   value: string | number;
@@ -101,17 +104,38 @@ function BarChart() {
     </Box>
   );
 }
-const contractLegend = [
-  { label: "CDI",      pct: "65%", color: "#1E3A5F" },
-  { label: "CDD",      pct: "20%", color: "#0d9488" },
-  { label: "Stage",    pct: "10%", color: "#fbbf24" },
-  { label: "Freelance",pct: "5%",  color: "#ef4444" },
-];
+const CONTRACT_COLORS: Record<string, string> = {
+  CDI:      "#1E3A5F",
+  CDD:      "#0d9488",
+  STAGE:    "#fbbf24",
+  FREELANCE:"#ef4444",
+};
 
-function DonutChart() {
+interface DonutChartProps {
+  distribution: Record<string, number>;
+  total: number;
+}
+
+function DonutChart({ distribution, total }: DonutChartProps) {
   const cardBg    = "white";
   const borderClr = "gray.200";
   const innerBg   = "white";
+
+  const entries = Object.entries(distribution);
+  let cumulative = 0;
+  const segments = entries.map(([type, count]) => {
+    const pct = total > 0 ? (count / total) * 100 : 0;
+    const seg = { type, count, pct, start: cumulative };
+    cumulative += pct;
+    return seg;
+  });
+
+  const gradient = segments.length > 0
+    ? segments.map((s) => {
+        const color = CONTRACT_COLORS[s.type] ?? "#94a3b8";
+        return `${color} ${s.start.toFixed(1)}% ${(s.start + s.pct).toFixed(1)}%`;
+      }).join(", ")
+    : "#e2e8f0 0% 100%";
 
   return (
     <Box bg={cardBg} rounded="xl" p={6} shadow="sm" borderWidth="1px" borderColor={borderClr} display="flex" flexDir="column" >
@@ -119,10 +143,10 @@ function DonutChart() {
         Types de contrats
       </Heading>
       <Flex flex={1} alignItems="center" justifyContent="center">
-        <Box w="192px" h="192px" borderRadius="full" position="relative" display="flex" alignItems="center" justifyContent="center" sx={{ background: `conic-gradient(#1E3A5F 0% 65%, #0d9488 65% 85%, #fbbf24 85% 95%, #ef4444 95% 100%)`, }}>
+        <Box w="192px" h="192px" borderRadius="full" position="relative" display="flex" alignItems="center" justifyContent="center" sx={{ background: `conic-gradient(${gradient})` }}>
           <Box w="128px" h="128px" borderRadius="full" bg={innerBg} display="flex" flexDir="column" alignItems="center" justifyContent="center" zIndex={1} boxShadow="inner" >
             <Heading as="span" fontSize="3xl" fontWeight="bold" color="gray.900">
-              152
+              {total}
             </Heading>
             <Text fontSize="xs" color="gray.500" fontWeight="medium" textTransform="uppercase">
               Total
@@ -131,12 +155,12 @@ function DonutChart() {
         </Box>
       </Flex>
       <SimpleGrid columns={2} spacing={4} mt={6}>
-        {contractLegend.map(({ label, pct, color }) => (
-          <Flex key={label} alignItems="center" gap={2}>
-            <Box boxSize={3} borderRadius="full" bg={color} flexShrink={0} />
+        {segments.map(({ type, pct }) => (
+          <Flex key={type} alignItems="center" gap={2}>
+            <Box boxSize={3} borderRadius="full" bg={CONTRACT_COLORS[type] ?? "#94a3b8"} flexShrink={0} />
             <Box>
-              <Text fontSize="xs" fontWeight="semibold" color="gray.900">{label}</Text>
-              <Text fontSize="xs" color="gray.500">{pct}</Text>
+              <Text fontSize="xs" fontWeight="semibold" color="gray.900">{type}</Text>
+              <Text fontSize="xs" color="gray.500">{total > 0 ? `${pct.toFixed(0)}%` : "0%"}</Text>
             </Box>
           </Flex>
         ))}
@@ -268,17 +292,29 @@ export default function DashboardPage() {
   const isAdmin = hasRole(ROLES.ADMIN);
   const isRh    = hasRole(ROLES.RH);
 
+  const [employeeStats, setEmployeeStats] = useState<EmployeeStats | null>(null);
+  const [pendingLeaves, setPendingLeaves] = useState<number | null>(null);
+
+  useEffect(() => {
+    getEmployeeStats().then(setEmployeeStats).catch(() => {});
+    getAdminLeaveStats().then((s) => setPendingLeaves(s.pending)).catch(() => {});
+  }, []);
+
+  const totalEmployees = employeeStats?.totalEmployees ?? "—";
+  const contractDistribution = employeeStats?.contractDistribution ?? {};
+  const contractTotal = Object.values(contractDistribution).reduce((a, b) => a + b, 0);
+
   const kpiCards: KpiCardProps[] = [
     {
       label: "Total Employés",
-      value: 152,
+      value: totalEmployees,
       icon: "groups",
       iconColor: "#1E3A5F",
       trend: { icon: "trending_up", text: "+3% ce mois", color: "var(--chakra-colors-green-600)" },
     },
     {
       label: "Congés en attente",
-      value: 8,
+      value: pendingLeaves ?? "—",
       icon: "pending_actions",
       iconColor: "#f97316",
       trend: { icon: "warning", text: "Action requise", color: "var(--chakra-colors-orange-600)" },
@@ -292,7 +328,7 @@ export default function DashboardPage() {
     },
     {
       label: "Fiches de paie",
-      value: 152,
+      value: totalEmployees,
       icon: "receipt_long",
       iconColor: "#0d9488",
       trend: { icon: "check_circle", text: "Envoyées à 100%", color: "var(--chakra-colors-green-600)" },
@@ -327,9 +363,6 @@ export default function DashboardPage() {
             </Box>
             <Flex gap={4}>
               <IconButton aria-label="Notifications" icon={<Box as="span" className="material-symbols-outlined" lineHeight="1">notifications</Box>} variant="outline" borderRadius="full" bg="white" borderColor={borderClr} color="gray.600" _hover={{ bg: "gray.50" }} boxShadow="sm" />
-              <Button bg="#1E3A5F" color="white" px={5} py={2.5} rounded="lg" fontSize="sm" fontWeight="medium" leftIcon={<Box as="span" className="material-symbols-outlined" fontSize="18px" lineHeight="1">add</Box>} _hover={{ bg: "rgba(30,58,95,0.9)" }} boxShadow="sm" transition="background 0.15s">
-                Nouvel employé
-              </Button>
               {isAdmin && (
                 <Button bg="#7c3aed" color="white" px={5} py={2.5} rounded="lg" fontSize="sm" fontWeight="medium" leftIcon={<Box as="span" className="material-symbols-outlined" fontSize="18px" lineHeight="1">verified</Box>} _hover={{ bg: "rgba(124,58,237,0.9)" }} boxShadow="sm" transition="background 0.15s">
                   Valider les fiches de paie
@@ -344,7 +377,7 @@ export default function DashboardPage() {
           </SimpleGrid>
           <SimpleGrid columns={{ base: 1, lg: 4 }} spacing={6}>
             <BarChart />
-            <DonutChart />
+            <DonutChart distribution={contractDistribution} total={contractTotal} />
             <UpcomingEvents />
           </SimpleGrid>
           <LeaveTable />
