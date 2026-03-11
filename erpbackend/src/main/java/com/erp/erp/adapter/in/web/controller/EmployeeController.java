@@ -146,6 +146,18 @@ public class EmployeeController {
         return ResponseEntity.ok(mapper.toResponseFromList(result));
     }
 
+    @GetMapping("/stats")
+    @PreAuthorize("hasAnyRole('RH', 'ADMIN')")
+    public ResponseEntity<Map<String, Object>> stats() {
+        long total = employeeRepositoryPort.countEmployees();
+        Map<ContractType, Long> distribution = employeeRepositoryPort.countByContractType();
+
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("totalEmployees", total);
+        result.put("contractDistribution", distribution);
+        return ResponseEntity.ok(result);
+    }
+
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('RH', 'ADMIN')")
     public ResponseEntity<EmployeeResponse> update(@PathVariable Long id, @Valid @RequestBody UpdateEmployeeRequest request) {
