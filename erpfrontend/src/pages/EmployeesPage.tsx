@@ -1,6 +1,7 @@
 import {
   Box, Flex, Text, Heading, Button, IconButton, Input, InputGroup, InputLeftElement,
-  Select, Table, Thead, Tbody, Tr, Th, Td, SimpleGrid, useDisclosure,
+  Menu, MenuButton, MenuList, MenuItem,
+  Table, Thead, Tbody, Tr, Th, Td, SimpleGrid, useDisclosure,
   Skeleton, Alert, AlertIcon, Spinner,
   AlertDialog, AlertDialogBody, AlertDialogFooter, AlertDialogHeader, AlertDialogContent, AlertDialogOverlay,
   useToast,
@@ -293,23 +294,53 @@ export default function EmployeesPage() {
                   <Input pl={10} bg="gray.50" borderColor="gray.200" rounded="lg" fontSize="sm" placeholder="Rechercher par nom, matricule..." color="gray.900" _placeholder={{ color: "gray.400" }} _focus={{ borderColor: "#0f4c81", boxShadow: "0 0 0 3px rgba(15,76,129,0.12)" }} value={search} onChange={(e) => setSearch(e.target.value)} />
                 </InputGroup>
               </Box>
-              <Box gridColumn={{ md: "span 4", lg: "span 3" }} position="relative">
-                <Select bg="gray.50" borderColor="gray.200" rounded="lg" fontSize="sm" color="gray.900" pr={10} iconSize="0" _focus={{ borderColor: "#0f4c81", boxShadow: "0 0 0 3px rgba(15,76,129,0.12)" }} value={departement ?? ""} onChange={(e) => setDepartement(e.target.value ? Number(e.target.value) : undefined)}>
-                  <option value="">Tous les départements</option>
-                  {departements.map((d) => (
-                    <option key={d.id} value={d.id}>{d.nom}</option>
-                  ))}
-                </Select>
-                <Box as="span" className="material-symbols-outlined" position="absolute" right={3} top="50%" transform="translateY(-50%)" fontSize="20px" color="gray.400" lineHeight="1" pointerEvents="none">keyboard_arrow_down</Box>
+              <Box gridColumn={{ md: "span 4", lg: "span 3" }}>
+                <Menu matchWidth>
+                  <MenuButton as={Button} w="full" h="40px" bg="gray.50" borderWidth="1px" borderColor="gray.200" rounded="lg"
+                    fontSize="sm" fontWeight="normal" color={departement ? "gray.900" : "gray.500"} textAlign="left"
+                    _hover={{ bg: "gray.100" }} _active={{ bg: "gray.50" }} _focus={{ borderColor: "#0f4c81", boxShadow: "0 0 0 3px rgba(15,76,129,0.12)" }}
+                    rightIcon={<Box as="span" className="material-symbols-outlined" fontSize="20px" color="gray.400" lineHeight="1">keyboard_arrow_down</Box>}>
+                    {departement ? (departements.find((d) => d.id === departement)?.nom ?? "Département") : "Tous les départements"}
+                  </MenuButton>
+                  <MenuList rounded="xl" shadow="lg" borderColor="gray.200" p={2} bg="white" minW="0">
+                    <MenuItem rounded="lg" fontSize="sm" color="gray.700"
+                      bg={!departement ? "teal.50" : "transparent"} fontWeight={!departement ? "600" : "normal"}
+                      _hover={{ bg: "gray.100" }} onClick={() => setDepartement(undefined)}>
+                      Tous les départements
+                    </MenuItem>
+                    {departements.map((d) => (
+                      <MenuItem key={d.id} rounded="lg" fontSize="sm" color="gray.700"
+                        bg={departement === d.id ? "teal.50" : "transparent"} fontWeight={departement === d.id ? "600" : "normal"}
+                        _hover={{ bg: "gray.100" }} onClick={() => setDepartement(d.id)}>
+                        {d.nom}
+                      </MenuItem>
+                    ))}
+                  </MenuList>
+                </Menu>
               </Box>
-              <Box gridColumn={{ md: "span 4", lg: "span 3" }} position="relative">
-                <Select bg="gray.50" borderColor="gray.200" rounded="lg" fontSize="sm" color="gray.900" pr={10} iconSize="0" _focus={{ borderColor: "#0f4c81", boxShadow: "0 0 0 3px rgba(15,76,129,0.12)" }} value={statut} onChange={(e) => setStatut(e.target.value)}>
-                  <option value="">Tous les statuts</option>
-                  {STATUS_TYPES.map((s) => (
-                    <option key={s} value={s}>{s}</option>
-                  ))}
-                </Select>
-                <Box as="span" className="material-symbols-outlined" position="absolute" right={3} top="50%" transform="translateY(-50%)" fontSize="20px" color="gray.400" lineHeight="1" pointerEvents="none">keyboard_arrow_down</Box>
+              <Box gridColumn={{ md: "span 4", lg: "span 3" }}>
+                <Menu matchWidth>
+                  <MenuButton as={Button} w="full" h="40px" bg="gray.50" borderWidth="1px" borderColor="gray.200" rounded="lg"
+                    fontSize="sm" fontWeight="normal" color={statut ? "gray.900" : "gray.500"} textAlign="left"
+                    _hover={{ bg: "gray.100" }} _active={{ bg: "gray.50" }} _focus={{ borderColor: "#0f4c81", boxShadow: "0 0 0 3px rgba(15,76,129,0.12)" }}
+                    rightIcon={<Box as="span" className="material-symbols-outlined" fontSize="20px" color="gray.400" lineHeight="1">keyboard_arrow_down</Box>}>
+                    {statut || "Tous les statuts"}
+                  </MenuButton>
+                  <MenuList rounded="xl" shadow="lg" borderColor="gray.200" p={2} bg="white" minW="0">
+                    <MenuItem rounded="lg" fontSize="sm" color="gray.700"
+                      bg={!statut ? "teal.50" : "transparent"} fontWeight={!statut ? "600" : "normal"}
+                      _hover={{ bg: "gray.100" }} onClick={() => setStatut("")}>
+                      Tous les statuts
+                    </MenuItem>
+                    {STATUS_TYPES.map((s) => (
+                      <MenuItem key={s} rounded="lg" fontSize="sm" color="gray.700"
+                        bg={statut === s ? "teal.50" : "transparent"} fontWeight={statut === s ? "600" : "normal"}
+                        _hover={{ bg: "gray.100" }} onClick={() => setStatut(s)}>
+                        {s}
+                      </MenuItem>
+                    ))}
+                  </MenuList>
+                </Menu>
               </Box>
               <Flex gridColumn={{ md: "span 12", lg: "span 1" }} justify={{ base: "flex-end", lg: "center" }}>
                 <IconButton aria-label="Filtres avancés" icon={<Box as="span" className="material-symbols-outlined" lineHeight="1">filter_list</Box>} variant="outline" borderColor="gray.200" color="gray.600" bg="white" rounded="lg" boxSize="42px" minW="42px" _hover={{ bg: "gray.50" }} />
