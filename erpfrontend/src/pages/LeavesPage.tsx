@@ -120,7 +120,7 @@ export default function LeavesPage() {
               <TabButton label="En attente" active={tab === "pending"} onClick={() => { setTab("pending"); setPage(0); }} />
               <TabButton label="Calendrier d'équipe" active={tab === "calendar"} onClick={() => { setTab("calendar"); setPage(0); }} />
             </Flex>
-            <Box px={4} py={3} borderBottomWidth="1px" borderColor="gray.200">
+            <Box px={4} py={3}>
               <Flex align="center" gap={3} flexWrap="wrap">
                 <Flex align="center" gap={2} flex={1} flexWrap="wrap">
                   <Text fontSize="xs" fontWeight="semibold" color="gray.500" textTransform="uppercase" letterSpacing="wider" whiteSpace="nowrap">Filtrer par :</Text>
@@ -220,6 +220,8 @@ export default function LeavesPage() {
                 </Flex>
               </Flex>
             </Box>
+          </Box>
+          <Box bg="white" rounded="xl" borderWidth="1px" borderColor="gray.200" shadow="sm">
             <Box overflowX="auto">
               <Table variant="unstyled" size="md">
                 <Thead>
