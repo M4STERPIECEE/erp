@@ -51,15 +51,12 @@ function getInitials(nom: string, prenom: string): string {
   return ((prenom?.[0] ?? "") + (nom?.[0] ?? "")).toUpperCase();
 }
 
-function formatDateRange(debut: string, fin: string): string {
-  const opts: Intl.DateTimeFormatOptions = { day: "2-digit", month: "short" };
-  const d = new Date(debut).toLocaleDateString("fr-FR", opts);
-  const f = new Date(fin).toLocaleDateString("fr-FR", opts);
-  return d === f ? d : `${d} – ${f}`;
+function fmtDate(s: string): string {
+  return new Date(s + "T00:00:00").toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit", year: "numeric" });
 }
 
 function fmtShortDate(s: string): string {
-  return new Date(s + "T00:00:00").toLocaleDateString("fr-FR");
+  return new Date(s + "T00:00:00").toLocaleDateString("fr-FR", { day: "2-digit", month: "short" });
 }
 
 const PAGE_SIZE = 8;
@@ -174,18 +171,11 @@ export default function LeavesPage() {
                         color={dateFrom || dateTo ? "teal.600" : "gray.500"}
                         fontSize="sm" rounded="md"
                         leftIcon={<Box as="span" className="material-symbols-outlined" fontSize="16px" lineHeight="1">calendar_month</Box>}>
-                        {dateFrom && dateTo ? (
-                          <Flex direction="column" align="flex-start" lineHeight="1.1">
-                            <Text fontSize="xs" color="gray.600">Du {fmtShortDate(dateFrom)}</Text>
-                            <Text fontSize="xs" color="gray.600">Au {fmtShortDate(dateTo)}</Text>
-                          </Flex>
-                        ) : dateFrom ? (
-                          `Du ${fmtShortDate(dateFrom)}`
-                        ) : dateTo ? (
-                          `Au ${fmtShortDate(dateTo)}`
-                        ) : (
-                          "Période"
-                        )}
+                        {dateFrom && dateTo
+                          ? `${fmtShortDate(dateFrom)} – ${fmtShortDate(dateTo)}`
+                          : dateFrom ? `Depuis ${fmtShortDate(dateFrom)}`
+                          : dateTo ? `Avant ${fmtShortDate(dateTo)}`
+                          : "Période"}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent w="260px" rounded="xl" shadow="md" borderColor="gray.100" bg="white" _focus={{ outline: "none" }}>
@@ -327,7 +317,10 @@ function LeaveRow({ leave, onApprove, onReject }: { leave: AdminLeaveResponse; o
         </Flex>
       </Td>
       <Td px={6} py={4} whiteSpace="nowrap" color="gray.900" fontSize="sm">{TYPE_LABELS[c.type] ?? c.type}</Td>
-      <Td px={6} py={4} whiteSpace="nowrap" color="gray.500" fontSize="sm">{formatDateRange(c.dateDebut, c.dateFin)}</Td>
+      <Td px={6} py={4} whiteSpace="nowrap" fontSize="sm">
+        <Text color="gray.500"><Text as="span" fontWeight="medium" color="gray.700">Du</Text> {fmtDate(c.dateDebut)}</Text>
+        <Text color="gray.500"><Text as="span" fontWeight="medium" color="gray.700">Au</Text> {fmtDate(c.dateFin)}</Text>
+      </Td>
       <Td px={6} py={4} whiteSpace="nowrap" textAlign="center" fontWeight="medium" color="gray.900" fontSize="sm">{c.nombreJours}</Td>
       <Td px={6} py={4} whiteSpace="nowrap" color="gray.500" fontSize="sm" maxW="150px" overflow="hidden" textOverflow="ellipsis" title={c.motif ?? ""}>{c.motif ? (c.motif.length > 20 ? c.motif.slice(0, 20) + "…" : c.motif) : "—"}</Td>
       <Td px={6} py={4} whiteSpace="nowrap">
