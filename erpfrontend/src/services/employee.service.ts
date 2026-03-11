@@ -6,9 +6,9 @@ import type {
   PagedEmployeeResponse,
   UpdateEmployeeRequest,
 } from "../types/employee.types";
+import { API_BASE_URL } from "../config/api.config";
 
-
-const api = axios.create({ baseURL: "/api" });
+const api = axios.create({ baseURL: API_BASE_URL });
 
 const TOKEN_KEY = "erp_access_token";
 

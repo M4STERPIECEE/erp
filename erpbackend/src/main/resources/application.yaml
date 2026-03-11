@@ -34,5 +34,9 @@ keycloak:
     client-id: ${KEYCLOAK_CLIENT_ID:erp-backend}
     client-secret: ${KEYCLOAK_CLIENT_SECRET}
 
+version:
+  path: v1
+
 server:
   port: 8080
+  servlet:

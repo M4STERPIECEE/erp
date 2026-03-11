@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/absences")
+@RequestMapping("/api/${version.path}/absences")
 public class AbsenceController {
 
     private static final Logger log = LoggerFactory.getLogger(AbsenceController.class);

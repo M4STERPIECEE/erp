@@ -23,7 +23,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/leaves")
+@RequestMapping("/api/${version.path}/leaves")
 public class LeaveController {
 
     private static final Logger log = LoggerFactory.getLogger(LeaveController.class);

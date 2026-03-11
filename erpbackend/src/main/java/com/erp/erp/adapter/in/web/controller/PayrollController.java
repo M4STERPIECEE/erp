@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/payroll")
+@RequestMapping("/api/${version.path}/payroll")
 public class PayrollController {
 
     private static final Logger log = LoggerFactory.getLogger(PayrollController.class);
