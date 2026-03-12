@@ -3,6 +3,7 @@ package com.erp.erp.adapter.in.web.exception;
 import com.erp.erp.infrastructure.exception.exceptions.EmployeeNotFoundException;
 import com.erp.erp.infrastructure.exception.exceptions.LeaveConflictException;
 import com.erp.erp.infrastructure.exception.exceptions.LeaveNotFoundException;
+import com.erp.erp.infrastructure.exception.exceptions.UnauthorizedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -37,6 +38,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, Object>> handleLeaveConflict(LeaveConflictException ex) {
         log.warn("Leave conflict: {}", ex.getMessage());
         return buildResponse(HttpStatus.CONFLICT, ex.getMessage());
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<Map<String, Object>> handleUnauthorized(UnauthorizedException ex) {
+        log.warn("Non authentifié: {}", ex.getMessage());
+        return buildResponse(HttpStatus.UNAUTHORIZED, ex.getMessage());
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
