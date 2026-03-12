@@ -5,6 +5,7 @@ import com.erp.erp.adapter.in.web.dto.request.UpdateEmployeeRequest;
 import com.erp.erp.domain.model.enums.ContractType;
 import com.erp.erp.domain.model.enums.EmployeeStatus;
 import com.erp.erp.infrastructure.exception.exceptions.EmployeeNotFoundException;
+import com.erp.erp.infrastructure.exception.exceptions.UnauthorizedException;
 import com.erp.erp.adapter.in.web.dto.response.EmployeeResponse;
 import com.erp.erp.adapter.in.web.dto.response.PagedEmployeeResponse;
 import com.erp.erp.adapter.in.web.mapper.EmployeeWebMapper;
@@ -59,7 +60,7 @@ public class EmployeeController {
     @PreAuthorize("hasAnyRole('EMPLOYE', 'RH', 'ADMIN')")
     public ResponseEntity<Map<String, Object>> myProfile() {
         String keycloakId = jwtTokenProvider.getCurrentUserId()
-                .orElseThrow(() -> new IllegalArgumentException("Utilisateur non authentifié (aucun subject dans le JWT)"));
+                .orElseThrow(() -> new UnauthorizedException("Utilisateur non authentifié (aucun subject dans le JWT)"));
 
         Employee employee = employeeRepositoryPort.findByKeycloakId(keycloakId)
                 .or(() -> {
@@ -74,7 +75,7 @@ public class EmployeeController {
                                 return synced;
                             });
                 })
-                .orElseThrow(() -> new IllegalArgumentException(
+                .orElseThrow(() -> new EmployeeNotFoundException(
                         "Profil employé introuvable pour keycloakId=" + keycloakId));
         EmployeeRepositoryPort.ContractInfo contract = employeeRepositoryPort
                 .findContractByEmployeeId(employee.getId()).orElse(null);
