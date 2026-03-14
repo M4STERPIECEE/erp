@@ -1,12 +1,15 @@
 package com.erp.erp.domain.service;
 
 import com.erp.erp.domain.model.Department;
+import com.erp.erp.domain.port.in.department.CreateDepartmentUseCase;
+import com.erp.erp.domain.port.in.department.GetDepartmentUseCase;
+import com.erp.erp.domain.port.in.department.UpdateDepartmentUseCase;
 import com.erp.erp.domain.port.out.DepartmentRepositoryPort;
 
 import java.util.List;
 import java.util.Optional;
 
-public class DepartmentService {
+public class DepartmentService implements GetDepartmentUseCase, CreateDepartmentUseCase, UpdateDepartmentUseCase {
 
     private final DepartmentRepositoryPort repository;
 

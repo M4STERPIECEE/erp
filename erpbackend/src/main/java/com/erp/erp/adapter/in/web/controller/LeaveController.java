@@ -4,9 +4,13 @@ import com.erp.erp.application.result.AdminLeaveResult;
 import com.erp.erp.application.result.LeaveResult;
 import com.erp.erp.domain.model.Leave;
 import com.erp.erp.domain.model.Employee;
+import com.erp.erp.domain.port.in.leave.ApproveLeaveUseCase;
+import com.erp.erp.domain.port.in.leave.GetLeaveUseCase;
+import com.erp.erp.domain.port.in.leave.RejectLeaveUseCase;
+import com.erp.erp.domain.port.in.leave.RequestLeaveUseCase;
 import com.erp.erp.domain.port.out.EmployeeRepositoryPort;
-import com.erp.erp.domain.service.LeaveService;
 import com.erp.erp.infrastructure.exception.exceptions.EmployeeNotFoundException;
+import com.erp.erp.infrastructure.exception.exceptions.UnauthorizedException;
 import com.erp.erp.infrastructure.security.JwtTokenProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,14 +32,23 @@ public class LeaveController {
 
     private static final Logger log = LoggerFactory.getLogger(LeaveController.class);
 
-    private final LeaveService leaveService;
+    private final RequestLeaveUseCase requestLeaveUseCase;
+    private final GetLeaveUseCase getLeaveUseCase;
+    private final ApproveLeaveUseCase approveLeaveUseCase;
+    private final RejectLeaveUseCase rejectLeaveUseCase;
     private final EmployeeRepositoryPort employeeRepositoryPort;
     private final JwtTokenProvider jwtTokenProvider;
 
-    public LeaveController(LeaveService leaveService,
+    public LeaveController(RequestLeaveUseCase requestLeaveUseCase,
+                           GetLeaveUseCase getLeaveUseCase,
+                           ApproveLeaveUseCase approveLeaveUseCase,
+                           RejectLeaveUseCase rejectLeaveUseCase,
                            EmployeeRepositoryPort employeeRepositoryPort,
                            JwtTokenProvider jwtTokenProvider) {
-        this.leaveService = leaveService;
+        this.requestLeaveUseCase = requestLeaveUseCase;
+        this.getLeaveUseCase = getLeaveUseCase;
+        this.approveLeaveUseCase = approveLeaveUseCase;
+        this.rejectLeaveUseCase = rejectLeaveUseCase;
         this.employeeRepositoryPort = employeeRepositoryPort;
         this.jwtTokenProvider = jwtTokenProvider;
     }
@@ -44,7 +57,7 @@ public class LeaveController {
     @PreAuthorize("hasAnyRole('EMPLOYE', 'RH', 'ADMIN')")
     public ResponseEntity<List<LeaveResult>> myLeaves() {
         Employee employee = getAuthenticatedEmployee();
-        List<LeaveResult> results = leaveService.listEmployeeLeaves(employee.getId())
+        List<LeaveResult> results = getLeaveUseCase.listEmployeeLeaves(employee.getId())
                 .stream().map(this::toResult).toList();
         return ResponseEntity.ok(results);
     }
@@ -58,7 +71,7 @@ public class LeaveController {
             @RequestParam(required = false) String dateDebut,
             @RequestParam(required = false) String dateFin) {
 
-        List<Leave> leaves = leaveService.listAllLeavesFiltered(statut);
+        List<Leave> leaves = getLeaveUseCase.listAllLeavesFiltered(statut);
 
         List<Long> employeIds = leaves.stream()
                 .map(Leave::getEmployeId).distinct().toList();
@@ -102,10 +115,10 @@ public class LeaveController {
     @PreAuthorize("hasAnyRole('RH', 'ADMIN')")
     public ResponseEntity<Map<String, Object>> adminStats() {
         return ResponseEntity.ok(Map.of(
-                "pending", leaveService.countAllPending(),
-                "approved", leaveService.countAllApproved(),
-                "onLeaveToday", leaveService.countOnLeaveToday(),
-                "plannedThisMonth", leaveService.countPlannedThisMonth()
+                "pending", getLeaveUseCase.countAllPending(),
+                "approved", getLeaveUseCase.countAllApproved(),
+                "onLeaveToday", getLeaveUseCase.countOnLeaveToday(),
+                "plannedThisMonth", getLeaveUseCase.countPlannedThisMonth()
         ));
     }
 
@@ -113,7 +126,7 @@ public class LeaveController {
     @PreAuthorize("hasAnyRole('EMPLOYE', 'RH', 'ADMIN')")
     public ResponseEntity<LeaveResult> requestLeave(@RequestBody RequestLeaveRequest request) {
         Employee employee = getAuthenticatedEmployee();
-        Leave leave = leaveService.requestLeave(
+        Leave leave = requestLeaveUseCase.requestLeave(
                 employee.getId(),
                 request.type(),
                 request.dateDebut(),
@@ -127,7 +140,7 @@ public class LeaveController {
     @PreAuthorize("hasAnyRole('EMPLOYE', 'RH', 'ADMIN')")
     public ResponseEntity<Void> cancelLeave(@PathVariable Long id) {
         Employee employee = getAuthenticatedEmployee();
-        leaveService.cancelLeave(id, employee.getId());
+        requestLeaveUseCase.cancelLeave(id, employee.getId());
         return ResponseEntity.noContent().build();
     }
 
@@ -135,7 +148,7 @@ public class LeaveController {
     @PreAuthorize("hasAnyRole('RH', 'ADMIN')")
     public ResponseEntity<LeaveResult> approveLeave(@PathVariable Long id) {
         Long approbateurId = findAuthenticatedEmployeeId();
-        Leave leave = leaveService.approveLeave(id, approbateurId);
+        Leave leave = approveLeaveUseCase.approveLeave(id, approbateurId);
         return ResponseEntity.ok(toResult(leave));
     }
 
@@ -143,7 +156,7 @@ public class LeaveController {
     @PreAuthorize("hasAnyRole('RH', 'ADMIN')")
     public ResponseEntity<LeaveResult> rejectLeave(@PathVariable Long id) {
         Long approbateurId = findAuthenticatedEmployeeId();
-        Leave leave = leaveService.rejectLeave(id, approbateurId);
+        Leave leave = rejectLeaveUseCase.rejectLeave(id, approbateurId);
         return ResponseEntity.ok(toResult(leave));
     }
 
@@ -151,8 +164,8 @@ public class LeaveController {
     @PreAuthorize("hasAnyRole('EMPLOYE', 'RH', 'ADMIN')")
     public ResponseEntity<Map<String, Object>> leaveStats() {
         Employee employee = getAuthenticatedEmployee();
-        int daysTaken = leaveService.countLeaveDaysTakenThisYear(employee.getId());
-        int pending = leaveService.countPendingRequests(employee.getId());
+        int daysTaken = getLeaveUseCase.countLeaveDaysTakenThisYear(employee.getId());
+        int pending = getLeaveUseCase.countPendingRequests(employee.getId());
         int balance = 30 - daysTaken;
         return ResponseEntity.ok(Map.of(
                 "daysTaken", daysTaken,
@@ -163,7 +176,7 @@ public class LeaveController {
 
     private Employee getAuthenticatedEmployee() {
         String keycloakId = jwtTokenProvider.getCurrentUserId()
-                .orElseThrow(() -> new IllegalArgumentException("Utilisateur non authentifié"));
+                .orElseThrow(() -> new UnauthorizedException("Utilisateur non authentifié"));
         return employeeRepositoryPort.findByKeycloakId(keycloakId)
                 .or(() -> {
                     String email = jwtTokenProvider.getCurrentEmail().orElse(null);

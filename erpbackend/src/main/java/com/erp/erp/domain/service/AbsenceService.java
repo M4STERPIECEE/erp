@@ -1,11 +1,12 @@
 package com.erp.erp.domain.service;
 
 import com.erp.erp.domain.model.Absence;
+import com.erp.erp.domain.port.in.absence.GetAbsenceUseCase;
 import com.erp.erp.domain.port.out.AbsenceRepositoryPort;
 
 import java.util.List;
 
-public class AbsenceService {
+public class AbsenceService implements GetAbsenceUseCase {
 
     private final AbsenceRepositoryPort absenceRepository;
 
