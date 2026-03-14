@@ -3,6 +3,10 @@ package com.erp.erp.domain.service;
 import com.erp.erp.domain.model.Leave;
 import com.erp.erp.domain.model.enums.LeaveStatus;
 import com.erp.erp.domain.model.enums.LeaveType;
+import com.erp.erp.domain.port.in.leave.ApproveLeaveUseCase;
+import com.erp.erp.domain.port.in.leave.GetLeaveUseCase;
+import com.erp.erp.domain.port.in.leave.RejectLeaveUseCase;
+import com.erp.erp.domain.port.in.leave.RequestLeaveUseCase;
 import com.erp.erp.domain.port.out.LeaveRepositoryPort;
 import com.erp.erp.infrastructure.exception.exceptions.LeaveNotFoundException;
 import java.time.DayOfWeek;
@@ -10,7 +14,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-public class LeaveService {
+public class LeaveService implements RequestLeaveUseCase, GetLeaveUseCase, ApproveLeaveUseCase, RejectLeaveUseCase {
 
     private final LeaveRepositoryPort congeRepository;
 

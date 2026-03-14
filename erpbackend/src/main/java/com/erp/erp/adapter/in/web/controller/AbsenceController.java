@@ -3,8 +3,10 @@ package com.erp.erp.adapter.in.web.controller;
 import com.erp.erp.application.result.AbsenceResult;
 import com.erp.erp.domain.model.Absence;
 import com.erp.erp.domain.model.Employee;
+import com.erp.erp.domain.port.in.absence.GetAbsenceUseCase;
 import com.erp.erp.domain.port.out.EmployeeRepositoryPort;
-import com.erp.erp.domain.service.AbsenceService;
+import com.erp.erp.infrastructure.exception.exceptions.EmployeeNotFoundException;
+import com.erp.erp.infrastructure.exception.exceptions.UnauthorizedException;
 import com.erp.erp.infrastructure.security.JwtTokenProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,14 +24,14 @@ public class AbsenceController {
 
     private static final Logger log = LoggerFactory.getLogger(AbsenceController.class);
 
-    private final AbsenceService absenceService;
+    private final GetAbsenceUseCase getAbsenceUseCase;
     private final EmployeeRepositoryPort employeeRepositoryPort;
     private final JwtTokenProvider jwtTokenProvider;
 
-    public AbsenceController(AbsenceService absenceService,
+    public AbsenceController(GetAbsenceUseCase getAbsenceUseCase,
                              EmployeeRepositoryPort employeeRepositoryPort,
                              JwtTokenProvider jwtTokenProvider) {
-        this.absenceService = absenceService;
+        this.getAbsenceUseCase = getAbsenceUseCase;
         this.employeeRepositoryPort = employeeRepositoryPort;
         this.jwtTokenProvider = jwtTokenProvider;
     }
@@ -44,14 +46,14 @@ public class AbsenceController {
         int m = mois != null ? mois : LocalDate.now().getMonthValue();
         int a = annee != null ? annee : LocalDate.now().getYear();
 
-        List<AbsenceResult> results = absenceService.listEmployeeAbsences(employee.getId(), m, a)
+        List<AbsenceResult> results = getAbsenceUseCase.listEmployeeAbsences(employee.getId(), m, a)
                 .stream().map(this::toResult).toList();
         return ResponseEntity.ok(results);
     }
 
     private Employee getAuthenticatedEmployee() {
         String keycloakId = jwtTokenProvider.getCurrentUserId()
-                .orElseThrow(() -> new IllegalArgumentException("Utilisateur non authentifié"));
+                .orElseThrow(() -> new UnauthorizedException("Utilisateur non authentifié"));
         return employeeRepositoryPort.findByKeycloakId(keycloakId)
                 .or(() -> {
                     String email = jwtTokenProvider.getCurrentEmail().orElse(null);
@@ -65,7 +67,7 @@ public class AbsenceController {
                                 return synced;
                             });
                 })
-                .orElseThrow(() -> new IllegalArgumentException("Profil employé introuvable"));
+                .orElseThrow(() -> new EmployeeNotFoundException("Profil employé introuvable"));
     }
 
     private AbsenceResult toResult(Absence a) {
