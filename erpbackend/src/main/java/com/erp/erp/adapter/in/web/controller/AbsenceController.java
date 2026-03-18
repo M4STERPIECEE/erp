@@ -13,21 +13,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
-
 @RestController
 @RequestMapping("/api/${version.path}/absences")
 public class AbsenceController {
 
     private static final Logger log = LoggerFactory.getLogger(AbsenceController.class);
-
     private final GetAbsenceUseCase getAbsenceUseCase;
     private final EmployeeRepositoryPort employeeRepositoryPort;
     private final JwtTokenProvider jwtTokenProvider;
-
     public AbsenceController(GetAbsenceUseCase getAbsenceUseCase,
                              EmployeeRepositoryPort employeeRepositoryPort,
                              JwtTokenProvider jwtTokenProvider) {
