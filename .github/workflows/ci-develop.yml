@@ -46,7 +46,7 @@ jobs:
           SPRING_DATASOURCE_URL: jdbc:oracle:thin:@localhost:1521/FREEPDB1
           SPRING_DATASOURCE_USERNAME: erp
           SPRING_DATASOURCE_PASSWORD: erp
-        run: ./gradlew build -x test --no-daemon
+        run: ./gradlew build --no-daemon
 
       - name: Upload JAR artifact
         uses: actions/upload-artifact@v4
