@@ -15,12 +15,57 @@ services:
       - oracle_data:/opt/oracle/oradata
       - ./erpbackend/migration/db/v1_schema.sql:/container-entrypoint-initdb.d/01_v1_schema.sql:ro
       - ./erpbackend/migration/db/v2_tables.sql:/container-entrypoint-initdb.d/02_v2_tables.sql:ro
+      - ./erpbackend/migration/db/v3_keycloak_user.sql:/container-entrypoint-initdb.d/03_v3_keycloak_user.sql:ro
+      - ./erpbackend/migration/db/v4_seed_departements.sql:/container-entrypoint-initdb.d/04_v4_seed_departments.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "healthcheck.sh"]
       interval: 30s
       timeout: 10s
       retries: 10
       start_period: 120s
+
+  erp-backend: 
+    build:
+      context: ./erpbackend
+      dockerfile: Dockerfile
+    container_name: erp_backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:oracle:thin:@//oracle:1521/FREEPDB1
+      SPRING_DATASOURCE_USERNAME: ${ORACLE_USER}
+      SPRING_DATASOURCE_PASSWORD: ${ORACLE_USER_PASSWORD}
+    ports:
+      - "8089:8080"
+    depends_on:
+      oracle:
+        condition: service_healthy
+      keycloak:
+        condition: service_started
+
+  keycloak:
+    build:
+      context: ./erpkeycloak
+      dockerfile: Dockerfile
+    container_name: erp_keycloak
+    restart: unless-stopped
+    command: ["start-dev", "--import-realm"]
+    environment:
+      KC_DB: oracle
+      KC_DB_URL: jdbc:oracle:thin:@//oracle:1521/FREEPDB1
+      KC_DB_USERNAME: ${KEYCLOAK_DB_USER:-keycloak_user}
+      KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD}
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN_USER:-admin}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin}
+      KC_HTTP_PORT: 8080
+    ports:
+      - "8180:8080"
+    volumes:
+      - ./erpkeycloak/import:/opt/keycloak/data/import
+    depends_on:
+      oracle:
+        condition: service_healthy
 
   fastapi:
     build:
@@ -32,11 +77,18 @@ services:
       - .env
     environment:
       DATABASE_URL: ${FASTAPI_DATABASE_URL}
+      KEYCLOAK_PUBLIC_URL: http://localhost:8180
+      KEYCLOAK_INTERNAL_URL: http://keycloak:8080
+      KEYCLOAK_REALM: erp
+      KEYCLOAK_CLIENT_ID: erp-fastapi
+      KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_FASTAPI_CLIENT_SECRET}
     ports:
       - "7000:7000"
     depends_on:
       oracle:
         condition: service_healthy
+      keycloak:
+        condition: service_started
 
 volumes:
   oracle_data:

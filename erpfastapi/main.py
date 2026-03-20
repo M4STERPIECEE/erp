@@ -1,6 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from config import get_settings
+from routers import router as api_router
+
+settings = get_settings()
+
 app = FastAPI(
     title="ERP API",
     version="1.0.0",
@@ -15,12 +20,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-@app.get("/health", tags=["Health"])
-def health_check():
-    return {"status": "ok"}
+# -- API versioned routes (/api/v1/...) ---------------------------------------
+app.include_router(api_router)
 
 
-@app.get("/", tags=["Root"])
-def root():
-    return {"message": "ERP API is running"}
+@app.get("/", tags=["Root"], include_in_schema=False)
+def root() -> dict:
+    return {"message": "ERP FastAPI is running", "docs": "/docs"}

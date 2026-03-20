@@ -1,0 +1,41 @@
+import axios from "axios";
+import type {
+  DepartmentResponse,
+  CreateDepartmentRequest,
+} from "../types/department.types";
+import { API_BASE_URL } from "../config/api.config";
+
+const api = axios.create({ baseURL: API_BASE_URL });
+const TOKEN_KEY = "erp_access_token";
+
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem(TOKEN_KEY);
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+export async function getDepartments(): Promise<DepartmentResponse[]> {
+  const { data } = await api.get<DepartmentResponse[]>("/departments");
+  return data;
+}
+
+export async function getDepartment(id: number): Promise<DepartmentResponse> {
+  const { data } = await api.get<DepartmentResponse>(`/departments/${id}`);
+  return data;
+}
+
+export async function createDepartment(payload: CreateDepartmentRequest): Promise<DepartmentResponse> {
+  const { data } = await api.post<DepartmentResponse>("/departments", payload);
+  return data;
+}
+
+export async function updateDepartment(id: number, payload: CreateDepartmentRequest): Promise<DepartmentResponse> {
+  const { data } = await api.put<DepartmentResponse>(`/departments/${id}`, payload);
+  return data;
+}
+
+export async function deleteDepartment(id: number): Promise<void> {
+  await api.delete(`/departments/${id}`);
+}

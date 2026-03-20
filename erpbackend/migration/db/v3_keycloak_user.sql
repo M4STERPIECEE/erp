@@ -1,0 +1,15 @@
+CREATE USER keycloak_user IDENTIFIED BY zntPEGASUS77K
+    DEFAULT TABLESPACE USERS
+    TEMPORARY TABLESPACE TEMP
+    QUOTA UNLIMITED ON USERS;
+
+GRANT CONNECT, RESOURCE TO keycloak_user;
+GRANT CREATE SESSION      TO keycloak_user;
+GRANT CREATE TABLE        TO keycloak_user;
+GRANT CREATE SEQUENCE     TO keycloak_user;
+GRANT CREATE VIEW         TO keycloak_user;
+GRANT CREATE PROCEDURE    TO keycloak_user;
+GRANT CREATE TRIGGER      TO keycloak_user;
+GRANT CREATE TYPE         TO keycloak_user;
+GRANT CREATE INDEX        TO keycloak_user;
+GRANT ALTER SESSION       TO keycloak_user;

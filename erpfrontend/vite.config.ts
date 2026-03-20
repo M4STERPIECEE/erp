@@ -4,4 +4,23 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+      },
+      '/keycloak': {
+        target: 'http://localhost:8180',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/keycloak/, ''),
+      },
+      '/fastapi': {
+        target: 'http://localhost:7000',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/fastapi/, ''),
+      },
+    },
+  },
 })
+

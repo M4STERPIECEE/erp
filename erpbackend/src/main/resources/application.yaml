@@ -5,7 +5,7 @@ spring:
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:oracle:thin:@//localhost:1521/FREEPDB1}
     username: ${SPRING_DATASOURCE_USERNAME:erp_user}
-    password: ${SPRING_DATASOURCE_PASSWORD:erp_password}
+    password: ${SPRING_DATASOURCE_PASSWORD:${ORACLE_USER_PASSWORD:erp_password}}
     driver-class-name: oracle.jdbc.OracleDriver
 
   jpa:
@@ -16,6 +16,26 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.OracleDialect
         format_sql: true
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8180/realms/erp}
+          jwk-set-uri: ${KEYCLOAK_JWK_SET_URI:http://localhost:8180/realms/erp/protocol/openid-connect/certs}
+
+keycloak:
+  realm: ${KEYCLOAK_REALM:erp}
+  auth-server-url: ${KEYCLOAK_URL:http://localhost:8180}
+  client-id: ${KEYCLOAK_CLIENT_ID:erp-backend}
+  admin:
+    server-url: ${KEYCLOAK_URL:http://localhost:8180}
+    realm: ${KEYCLOAK_REALM:erp}
+    client-id: ${KEYCLOAK_CLIENT_ID:erp-backend}
+    client-secret: ${KEYCLOAK_CLIENT_SECRET}
+
+version:
+  path: v1
 
 server:
   port: 8080

@@ -1,0 +1,20 @@
+import api from "./employee.service";
+import type { AdminLeaveResponse, AdminLeaveStats } from "../types/leave.types";
+
+export async function getAllLeaves(params?: { statut?: string; search?: string; departementId?: number; dateDebut?: string; dateFin?: string }): Promise<AdminLeaveResponse[]> {
+  const { data } = await api.get<AdminLeaveResponse[]>("/leaves", { params });
+  return data;
+}
+
+export async function getAdminLeaveStats(): Promise<AdminLeaveStats> {
+  const { data } = await api.get<AdminLeaveStats>("/leaves/admin-stats");
+  return data;
+}
+
+export async function approveLeave(id: number): Promise<void> {
+  await api.put(`/leaves/${id}/approve`);
+}
+
+export async function rejectLeave(id: number): Promise<void> {
+  await api.put(`/leaves/${id}/reject`);
+}
