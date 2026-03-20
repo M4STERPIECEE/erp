@@ -107,7 +107,7 @@ The Vite dev server proxies API calls automatically:
 
 ## 5. Running the backend locally (optional)
 
-If you prefer to run Spring Boot outside Docker (e.g. for hot-reload):
+If you prefer to run Spring Boot outside Docker (e.g. for hot-reload), the default `application.yaml` already points to the local Oracle and Keycloak endpoints.
 
 ```bash
 # First, start only the infrastructure services
@@ -115,10 +115,10 @@ docker compose up -d oracle keycloak fastapi
 
 # Then run the backend
 cd erpbackend
-./gradlew bootRun --args='--spring.profiles.active=local'
+./gradlew bootRun
 ```
 
-The `local` profile (`application-local.yaml`) overrides the datasource URL to connect to the locally-exposed Oracle port.
+`bootRun` loads the root `.env` file automatically, so the local Oracle password and Keycloak secret are available without a separate `application-local.yaml` profile.
 
 ---
 
