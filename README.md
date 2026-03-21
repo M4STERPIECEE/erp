@@ -16,9 +16,9 @@
 
 ## Prerequisites
 
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (with Compose v2)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 - [Node.js 20+](https://nodejs.org/) and npm
-- [JDK 21](https://adoptium.net/) (only if running the backend outside Docker)
+- [JDK 21](https://adoptium.net/)
 
 ---
 
@@ -32,18 +32,18 @@ ORACLE_SYS_PASSWORD=yourSysPassword
 ORACLE_USER=erp_user
 ORACLE_USER_PASSWORD=yourAppPassword
 
-# Keycloak DB (uses the same Oracle instance)
+# Keycloak DB
 KEYCLOAK_DB_USER=keycloak_user
 KEYCLOAK_DB_PASSWORD=yourKeycloakDbPassword
 
-# Keycloak admin console
+# Keycloak
 KEYCLOAK_ADMIN_USER=admin
 KEYCLOAK_ADMIN_PASSWORD=admin
 
-# FastAPI → Oracle connection string
+# FastAPI
 FASTAPI_DATABASE_URL=oracle+oracledb://erp_user:yourAppPassword@oracle:1521/FREEPDB1
 
-# Keycloak client secret for FastAPI (from Keycloak admin console)
+# Keycloak client secret for FastAPI
 KEYCLOAK_FASTAPI_CLIENT_SECRET=yourClientSecret
 ```
 
@@ -65,16 +65,6 @@ From the project root:
 docker compose up -d
 ```
 
-This starts:
-- **Oracle DB** on `localhost:1521` — runs DB migration scripts automatically on first boot
-- **Keycloak** on `localhost:8180` — imports the `erp` realm automatically
-- **FastAPI** on `localhost:7000`
-- **Spring Boot backend** on `localhost:8089`
-
-> First startup takes a few minutes while Oracle initialises. Check logs with `docker compose logs -f oracle`.
-
----
-
 ## 3. Start the frontend
 
 ```bash
@@ -84,15 +74,6 @@ npm run dev
 ```
 
 The app is available at **http://localhost:5173**.
-
-The Vite dev server proxies API calls automatically:
-- `/api/*` → Spring Boot (`localhost:8080`)
-- `/keycloak/*` → Keycloak (`localhost:8180`)
-- `/fastapi/*` → FastAPI (`localhost:7000`)
-
-> If running the Spring Boot backend via Docker instead of locally, update the `/api` proxy target in `erpfrontend/vite.config.ts` from `localhost:8080` to `localhost:8089`.
-
----
 
 ## 4. Access
 
@@ -110,7 +91,6 @@ The Vite dev server proxies API calls automatically:
 If you prefer to run Spring Boot outside Docker (e.g. for hot-reload), the default `application.yaml` already points to the local Oracle and Keycloak endpoints.
 
 ```bash
-# First, start only the infrastructure services
 docker compose up -d oracle keycloak fastapi
 
 # Then run the backend
@@ -127,8 +107,8 @@ cd erpbackend
 ```
 ├── docker-compose.yaml
 ├── erpbackend/          # Spring Boot — hexagonal architecture
-│   └── migration/db/    # SQL migration scripts (auto-applied by Oracle container)
-├── erpfastapi/          # FastAPI — Keycloak admin proxy & auth helpers
-├── erpfrontend/         # React/Vite SPA
+│   └── migration/db/    # SQL migration scripts
+├── erpfastapi/          # FastAPI — Keycloak admin
+├── erpfrontend/         # React/Vite
 └── erpkeycloak/         # Keycloak custom image + realm import
 ```
