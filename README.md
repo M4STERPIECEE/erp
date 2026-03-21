@@ -1,15 +1,15 @@
-# ERP — HR Management System
+# ERP
 
-A full-stack HR management application with employee management, leave requests, payslips, and department tracking.
+ HR management app
 
 ## Stack
 
 | Layer | Technology |
 |---|---|
-| Frontend | React 19, TypeScript, Vite, Chakra UI |
-| Backend | Spring Boot 4 (Java 21) |
-| Auth service | FastAPI (Python 3) + Keycloak 26 |
-| Database | Oracle Database 23 Free |
+| Frontend | React/TypeScript |
+| Backend | Spring Boot/Java |
+| Auth service | FastAPI + Keycloak |
+| Database | Oracle Database |
 | Auth | Keycloak (realm: `erp`) |
 
 ---
