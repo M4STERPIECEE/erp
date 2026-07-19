@@ -39,9 +39,8 @@ public class BeanConfig {
     }
 
     @Bean
-    public EmployeeService employeeService(KeycloakPort keycloakPort,
-                                         EmployeeRepositoryPort employeeRepositoryPort) {
-        return new EmployeeService(keycloakPort, employeeRepositoryPort);
+    public EmployeeService employeeService(EmployeeRepositoryPort employeeRepositoryPort) {
+        return new EmployeeService(employeeRepositoryPort);
     }
 
     @Bean

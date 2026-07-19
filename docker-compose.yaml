@@ -67,28 +67,7 @@ services:
       oracle:
         condition: service_healthy
 
-  fastapi:
-    build:
-      context: ./erpfastapi
-      dockerfile: Dockerfile
-    container_name: erp_fastapi
-    restart: unless-stopped
-    env_file:
-      - .env
-    environment:
-      DATABASE_URL: ${FASTAPI_DATABASE_URL}
-      KEYCLOAK_PUBLIC_URL: http://localhost:8180
-      KEYCLOAK_INTERNAL_URL: http://keycloak:8080
-      KEYCLOAK_REALM: erp
-      KEYCLOAK_CLIENT_ID: erp-fastapi
-      KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_FASTAPI_CLIENT_SECRET}
-    ports:
-      - "7000:7000"
-    depends_on:
-      oracle:
-        condition: service_healthy
-      keycloak:
-        condition: service_started
+
 
 volumes:
   oracle_data:

@@ -7,7 +7,7 @@ import type {
   AssignRolesRequest,
 } from "../types/keycloak.types";
 
-const api = axios.create({ baseURL: "/fastapi/api/v1/keycloak" });
+const api = axios.create({ baseURL: "/api/v1/keycloak" });
 const TOKEN_KEY = "erp_access_token";
 
 api.interceptors.request.use((config) => {

@@ -17,4 +17,4 @@ erpfrontend/.vite/
 erpkeycloak/import/*.json
 
 docker-compose.override.yml
-erpfrontend/.env.local
+erpfrontend/.env
