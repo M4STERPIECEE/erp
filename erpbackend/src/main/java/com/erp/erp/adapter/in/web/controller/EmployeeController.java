@@ -20,8 +20,6 @@ import com.erp.erp.domain.port.out.EmployeeRepositoryPort;
 import com.erp.erp.domain.service.DepartmentService;
 import com.erp.erp.infrastructure.security.JwtTokenProvider;
 import jakarta.validation.Valid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -29,12 +27,10 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/${version.path}/employees")
 public class EmployeeController {
-    private static final Logger log = LoggerFactory.getLogger(EmployeeController.class);
     private final CreateEmployeeUseCase createEmployeeUseCase;
     private final ListEmployeesUseCase listEmployeesUseCase;
     private final EmployeeWebMapper mapper;
@@ -43,11 +39,11 @@ public class EmployeeController {
     private final JwtTokenProvider jwtTokenProvider;
 
     public EmployeeController(CreateEmployeeUseCase createEmployeeUseCase,
-                              ListEmployeesUseCase listEmployeesUseCase,
-                              EmployeeWebMapper mapper,
-                              EmployeeRepositoryPort employeeRepositoryPort,
-                              DepartmentService departmentService,
-                              JwtTokenProvider jwtTokenProvider) {
+            ListEmployeesUseCase listEmployeesUseCase,
+            EmployeeWebMapper mapper,
+            EmployeeRepositoryPort employeeRepositoryPort,
+            DepartmentService departmentService,
+            JwtTokenProvider jwtTokenProvider) {
         this.createEmployeeUseCase = createEmployeeUseCase;
         this.listEmployeesUseCase = listEmployeesUseCase;
         this.mapper = mapper;
@@ -60,7 +56,8 @@ public class EmployeeController {
     @PreAuthorize("hasAnyRole('EMPLOYE', 'RH', 'ADMIN')")
     public ResponseEntity<Map<String, Object>> myProfile() {
         String email = jwtTokenProvider.getCurrentEmail()
-                .orElseThrow(() -> new UnauthorizedException("Utilisateur non authentifié (aucun subject dans le JWT)"));
+                .orElseThrow(
+                        () -> new UnauthorizedException("Utilisateur non authentifié (aucun subject dans le JWT)"));
 
         Employee employee = employeeRepositoryPort.findByEmail(email)
                 .orElseThrow(() -> new EmployeeNotFoundException(
@@ -81,9 +78,8 @@ public class EmployeeController {
         result.put("statut", employee.getStatut() != null ? employee.getStatut().name() : null);
 
         if (employee.getDepartementId() != null) {
-            departmentService.findById(employee.getDepartementId()).ifPresent(d ->
-                result.put("departement", d.getNom())
-            );
+            departmentService.findById(employee.getDepartementId())
+                    .ifPresent(d -> result.put("departement", d.getNom()));
         }
         if (contract != null) {
             result.put("contractType", contract.type());
@@ -130,8 +126,7 @@ public class EmployeeController {
                 employee.getPoste(), employee.getStatut() != null ? employee.getStatut().name() : null,
                 employee.getDepartementId(),
                 contract != null ? contract.type() : null,
-                contract != null ? contract.salaireBase() : null
-        );
+                contract != null ? contract.salaireBase() : null);
         return ResponseEntity.ok(mapper.toResponseFromList(result));
     }
 
@@ -149,7 +144,8 @@ public class EmployeeController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('RH', 'ADMIN')")
-    public ResponseEntity<EmployeeResponse> update(@PathVariable Long id, @Valid @RequestBody UpdateEmployeeRequest request) {
+    public ResponseEntity<EmployeeResponse> update(@PathVariable Long id,
+            @Valid @RequestBody UpdateEmployeeRequest request) {
         Employee employee = employeeRepositoryPort.findById(id)
                 .orElseThrow(() -> new EmployeeNotFoundException("Employ\u00e9 introuvable : id=" + id));
         employee.setNom(request.nom());
@@ -176,8 +172,7 @@ public class EmployeeController {
                 saved.getPoste(), saved.getStatut() != null ? saved.getStatut().name() : null,
                 saved.getDepartementId(),
                 contract != null ? contract.type() : null,
-                contract != null ? contract.salaireBase() : null
-        );
+                contract != null ? contract.salaireBase() : null);
         return ResponseEntity.ok(mapper.toResponseFromList(result));
     }
 }

@@ -2,7 +2,6 @@ package com.erp.erp.application.result;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.UUID;
 
 public record EmployeeResult(
         Long id,

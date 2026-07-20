@@ -23,7 +23,6 @@ import com.erp.erp.domain.service.DepartmentService;
 import com.erp.erp.domain.service.EmployeeService;
 import com.erp.erp.domain.service.PayrollService;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
