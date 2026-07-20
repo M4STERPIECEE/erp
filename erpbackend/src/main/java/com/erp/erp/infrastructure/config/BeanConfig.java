@@ -1,6 +1,6 @@
 package com.erp.erp.infrastructure.config;
 
-import com.erp.erp.adapter.out.keycloak.KeycloakAdapter;
+
 import com.erp.erp.domain.port.in.absence.GetAbsenceUseCase;
 import com.erp.erp.domain.port.in.department.CreateDepartmentUseCase;
 import com.erp.erp.domain.port.in.department.GetDepartmentUseCase;
@@ -16,14 +16,13 @@ import com.erp.erp.domain.port.out.LeaveRepositoryPort;
 import com.erp.erp.domain.port.out.DepartmentRepositoryPort;
 import com.erp.erp.domain.port.out.EmployeeRepositoryPort;
 import com.erp.erp.domain.port.out.PayslipRepositoryPort;
-import com.erp.erp.domain.port.out.KeycloakPort;
+
 import com.erp.erp.domain.service.AbsenceService;
 import com.erp.erp.domain.service.LeaveService;
 import com.erp.erp.domain.service.DepartmentService;
 import com.erp.erp.domain.service.EmployeeService;
 import com.erp.erp.domain.service.PayrollService;
-import org.keycloak.admin.client.Keycloak;
-import org.springframework.beans.factory.annotation.Value;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
@@ -32,16 +31,11 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableTransactionManagement
 public class BeanConfig {
 
-    @Bean
-    public KeycloakPort keycloakPort(Keycloak keycloakAdminClient,
-                                     @Value("${keycloak.admin.realm}") String realm) {
-        return new KeycloakAdapter(keycloakAdminClient, realm);
-    }
+
 
     @Bean
-    public EmployeeService employeeService(KeycloakPort keycloakPort,
-                                         EmployeeRepositoryPort employeeRepositoryPort) {
-        return new EmployeeService(keycloakPort, employeeRepositoryPort);
+    public EmployeeService employeeService(EmployeeRepositoryPort employeeRepositoryPort) {
+        return new EmployeeService(employeeRepositoryPort);
     }
 
     @Bean

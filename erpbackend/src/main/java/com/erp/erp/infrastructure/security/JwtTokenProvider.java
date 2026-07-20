@@ -1,45 +1,41 @@
 package com.erp.erp.infrastructure.security;
 
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 public class JwtTokenProvider {
 
-    public Optional<Jwt> getCurrentJwt() {
+    public Optional<String> getCurrentEmail() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null && auth.getPrincipal() instanceof Jwt jwt) {
-            return Optional.of(jwt);
+        if (auth != null && auth.getPrincipal() instanceof String email) {
+            return Optional.of(email);
         }
         return Optional.empty();
     }
 
     public Optional<String> getCurrentUserId() {
-        return getCurrentJwt().map(Jwt::getSubject);
+        return getCurrentEmail(); // Now we use email as ID
     }
 
     public Optional<String> getCurrentUsername() {
-        return getCurrentJwt().map(jwt -> jwt.getClaimAsString("preferred_username"));
+        return getCurrentEmail();
     }
 
-    public Optional<String> getCurrentEmail() {
-        return getCurrentJwt().map(jwt -> jwt.getClaimAsString("email"));
-    }
-    @SuppressWarnings("unchecked")
     public List<String> getCurrentRoles() {
-        return getCurrentJwt()
-            .map(jwt -> {
-                Map<String, Object> realmAccess = jwt.getClaim("realm_access");
-                if (realmAccess == null) return List.<String>of();
-                return (List<String>) realmAccess.getOrDefault("roles", List.of());
-            })
-            .orElse(List.of());
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getAuthorities() != null) {
+            return auth.getAuthorities().stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .collect(Collectors.toList());
+        }
+        return List.of();
     }
 
     public boolean hasRole(String role) {
@@ -50,4 +46,3 @@ public class JwtTokenProvider {
     public boolean isRh()      { return hasRole("rh"); }
     public boolean isEmploye() { return hasRole("employe"); }
 }
-

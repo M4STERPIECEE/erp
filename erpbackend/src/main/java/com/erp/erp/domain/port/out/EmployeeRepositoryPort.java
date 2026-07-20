@@ -19,7 +19,7 @@ public interface EmployeeRepositoryPort {
     Map<ContractType, Long> countByContractType();
     PageResult<Employee> searchEmployees(String search, Long departementId, String statut, int page, int size);
     Map<Long, ContractInfo> findContractsForEmployees(List<Long> employeIds);
-    Optional<Employee> findByKeycloakId(String keycloakId);
+
     Optional<Employee> findByEmail(String email);
     Optional<Employee> findById(Long id);
     List<Employee> findAllByIds(List<Long> ids);

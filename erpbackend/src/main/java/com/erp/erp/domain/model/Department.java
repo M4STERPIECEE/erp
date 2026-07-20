@@ -20,7 +20,6 @@ public class Department {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    // Transient enrichment fields (not persisted)
     private String responsableNom;
     private long nombreEmployes;
 }

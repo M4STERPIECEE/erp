@@ -5,7 +5,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { keycloakLogin, validateToken } from "../services/authService";
+import { login as apiLogin, validateToken } from "../services/authService";
 import type { AppRole, AuthContextType, AuthUser } from "../types/auth";
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -37,9 +37,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const login = useCallback(async (username: string, password: string) => {
-    const tokenResp   = await keycloakLogin(username, password);
-    const accessToken = tokenResp.access_token;
+  const login = useCallback(async (email: string, password: string) => {
+    const tokenResp = await apiLogin(email, password);
+    const accessToken = tokenResp.token;
 
     const me = await import("../services/authService").then((m) =>
       m.fetchMe(accessToken)

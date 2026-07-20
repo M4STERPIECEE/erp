@@ -28,7 +28,6 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @ExtendWith(SpringExtension.class)
 @TestPropertySource(properties = "version.path=v1")
@@ -50,14 +49,13 @@ class AbsenceControllerTest {
         mockEmployee.setId(1L);
         mockEmployee.setNom("Test");
         mockEmployee.setPrenom("User");
-        mockEmployee.setKeycloakId(UUID.randomUUID());
     }
 
     @Test
     void should_get_my_absences_and_return_200() throws Exception {
         //given
-        given(jwtTokenProvider.getCurrentUserId()).willReturn(Optional.of(UUID.randomUUID().toString()));
-        given(employeeRepositoryPort.findByKeycloakId(anyString())).willReturn(Optional.of(mockEmployee));
+        given(jwtTokenProvider.getCurrentEmail()).willReturn(Optional.of("test@test.com"));
+        given(employeeRepositoryPort.findByEmail(anyString())).willReturn(Optional.of(mockEmployee));
         given(getAbsenceUseCase.listEmployeeAbsences(anyLong(), anyInt(), anyInt())).willReturn(Collections.emptyList());
 
         //when
@@ -70,8 +68,8 @@ class AbsenceControllerTest {
     @Test
     void should_get_my_absences_with_params_and_return_200() throws Exception {
         //given
-        given(jwtTokenProvider.getCurrentUserId()).willReturn(Optional.of(UUID.randomUUID().toString()));
-        given(employeeRepositoryPort.findByKeycloakId(anyString())).willReturn(Optional.of(mockEmployee));
+        given(jwtTokenProvider.getCurrentEmail()).willReturn(Optional.of("test@test.com"));
+        given(employeeRepositoryPort.findByEmail(anyString())).willReturn(Optional.of(mockEmployee));
         given(getAbsenceUseCase.listEmployeeAbsences(mockEmployee.getId(), 5, 2025)).willReturn(List.of(
                 new Absence(1L, 1L, LocalDate.of(2025, 5, 10), "Maladie", true)
         ));

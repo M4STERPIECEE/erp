@@ -273,7 +273,7 @@ export default function AddEmployeeModal({ isOpen, onClose, onCreated }: AddEmpl
               )}
               {isAdmin && (
                 <FormControl isRequired isInvalid={!!errors.role}>
-                  <FieldLabel>Rôle Keycloak</FieldLabel>
+                  <FieldLabel>Rôle</FieldLabel>
                   <Controller
                     name="role"
                     control={control}

@@ -67,14 +67,13 @@ class LeaveControllerTest {
         mockEmployee.setId(1L);
         mockEmployee.setNom("Test");
         mockEmployee.setPrenom("User");
-        mockEmployee.setKeycloakId(UUID.randomUUID());
     }
 
     @Test
     void should_get_my_leaves_and_return_200() throws Exception {
         //given
-        given(jwtTokenProvider.getCurrentUserId()).willReturn(Optional.of(UUID.randomUUID().toString()));
-        given(employeeRepositoryPort.findByKeycloakId(anyString())).willReturn(Optional.of(mockEmployee));
+        given(jwtTokenProvider.getCurrentEmail()).willReturn(Optional.of("test@test.com"));
+        given(employeeRepositoryPort.findByEmail(anyString())).willReturn(Optional.of(mockEmployee));
         given(getLeaveUseCase.listEmployeeLeaves(mockEmployee.getId())).willReturn(Collections.emptyList());
 
         //when
@@ -102,8 +101,8 @@ class LeaveControllerTest {
         leave.setDateFin(request.dateFin());
         leave.setNombreJours(4);
 
-        given(jwtTokenProvider.getCurrentUserId()).willReturn(Optional.of(UUID.randomUUID().toString()));
-        given(employeeRepositoryPort.findByKeycloakId(anyString())).willReturn(Optional.of(mockEmployee));
+        given(jwtTokenProvider.getCurrentEmail()).willReturn(Optional.of("test@test.com"));
+        given(employeeRepositoryPort.findByEmail(anyString())).willReturn(Optional.of(mockEmployee));
         given(requestLeaveUseCase.requestLeave(anyLong(), anyString(), any(), any(), anyString())).willReturn(leave);
 
         //when
@@ -130,8 +129,8 @@ class LeaveControllerTest {
         leave.setDateDebut(LocalDate.now());
         leave.setDateFin(LocalDate.now().plusDays(1));
 
-        given(jwtTokenProvider.getCurrentUserId()).willReturn(Optional.of(UUID.randomUUID().toString()));
-        given(employeeRepositoryPort.findByKeycloakId(anyString())).willReturn(Optional.of(mockEmployee));
+        given(jwtTokenProvider.getCurrentEmail()).willReturn(Optional.of(UUID.randomUUID().toString()));
+        given(employeeRepositoryPort.findByEmail(anyString())).willReturn(Optional.of(mockEmployee));
         given(approveLeaveUseCase.approveLeave(anyLong(), anyLong())).willReturn(leave);
 
         //when
@@ -148,8 +147,8 @@ class LeaveControllerTest {
     @Test
     void should_get_leave_stats_and_return_200() throws Exception {
         //given
-        given(jwtTokenProvider.getCurrentUserId()).willReturn(Optional.of(UUID.randomUUID().toString()));
-        given(employeeRepositoryPort.findByKeycloakId(anyString())).willReturn(Optional.of(mockEmployee));
+        given(jwtTokenProvider.getCurrentEmail()).willReturn(Optional.of(UUID.randomUUID().toString()));
+        given(employeeRepositoryPort.findByEmail(anyString())).willReturn(Optional.of(mockEmployee));
         given(getLeaveUseCase.countLeaveDaysTakenThisYear(mockEmployee.getId())).willReturn(10);
         given(getLeaveUseCase.countPendingRequests(mockEmployee.getId())).willReturn(2);
 

@@ -11,20 +11,17 @@ import com.erp.erp.domain.port.in.employee.CreateEmployeeUseCase;
 import com.erp.erp.domain.port.in.employee.ListEmployeesUseCase;
 import com.erp.erp.domain.port.out.EmployeeRepositoryPort;
 import com.erp.erp.domain.port.out.EmployeeRepositoryPort.ContractInfo;
-import com.erp.erp.domain.port.out.KeycloakPort;
+
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 public class EmployeeService implements CreateEmployeeUseCase, ListEmployeesUseCase {
 
-    private final KeycloakPort keycloakPort;
     private final EmployeeRepositoryPort employeeRepositoryPort;
 
-    public EmployeeService(KeycloakPort keycloakPort, EmployeeRepositoryPort employeeRepositoryPort) {
-        this.keycloakPort = keycloakPort;
+    public EmployeeService(EmployeeRepositoryPort employeeRepositoryPort) {
         this.employeeRepositoryPort = employeeRepositoryPort;
     }
 
@@ -35,14 +32,9 @@ public class EmployeeService implements CreateEmployeeUseCase, ListEmployeesUseC
             throw new IllegalArgumentException("Un employé avec cet email existe déjà : " + command.email());
         }
 
-        UUID keycloakId = keycloakPort.createUser(
-                command.email(), command.nom(), command.prenom(), command.role()
-        );
-
         String matricule = generateMatricule();
 
         Employee employee = new Employee();
-        employee.setKeycloakId(keycloakId);
         employee.setMatricule(matricule);
         employee.setNom(command.nom());
         employee.setPrenom(command.prenom());
@@ -65,7 +57,6 @@ public class EmployeeService implements CreateEmployeeUseCase, ListEmployeesUseC
 
         return new EmployeeResult(
                 saved.getId(),
-                saved.getKeycloakId(),
                 saved.getMatricule(),
                 saved.getNom(),
                 saved.getPrenom(),
@@ -92,7 +83,6 @@ public class EmployeeService implements CreateEmployeeUseCase, ListEmployeesUseC
             ContractInfo ci = contrats.get(emp.getId());
             return new EmployeeListResult(
                     emp.getId(),
-                    emp.getKeycloakId(),
                     emp.getMatricule(),
                     emp.getNom(),
                     emp.getPrenom(),

@@ -26,7 +26,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Optional;
-import java.util.UUID;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -71,14 +70,13 @@ class EmployeeControllerTest {
                  1L, "CDI", BigDecimal.valueOf(3000.0), null, "ROLE_USER"
         );
 
-        UUID keycloakId = UUID.randomUUID();
         EmployeeResult result = new EmployeeResult(
-                1L, keycloakId, "EMP001", "Dupont", "Jean", "jean.dupont@test.com", "0102030405",
+                1L, "EMP001", "Dupont", "Jean", "jean.dupont@test.com", "0102030405",
                  LocalDate.of(1990, 1, 1), LocalDate.now(), "Dev", "ACTIVE", 1L, "CDI", BigDecimal.valueOf(3000.0)
         );
 
         EmployeeResponse responseDto = new EmployeeResponse(
-                1L, keycloakId, "EMP001", "Dupont", "Jean", "jean.dupont@test.com", "0102030405",
+                1L, "EMP001", "Dupont", "Jean", "jean.dupont@test.com", "0102030405",
                 LocalDate.of(1990, 1, 1), LocalDate.now(), "Dev", "ACTIVE",
                 1L, "CDI", BigDecimal.valueOf(3000.0)
         );
@@ -108,7 +106,7 @@ class EmployeeControllerTest {
         employee.setPrenom("Jean");
 
         EmployeeResponse responseDto = new EmployeeResponse(
-                employeeId, UUID.randomUUID(), "EMP001", "Dupont", "Jean", "jean.dupont@test.com", "0102030405",
+                employeeId, "EMP001", "Dupont", "Jean", "jean.dupont@test.com", "0102030405",
                 LocalDate.of(1990, 1, 1), LocalDate.now(), "Dev", "ACTIVE",
                 1L, "CDI", BigDecimal.valueOf(3000.0)
         );

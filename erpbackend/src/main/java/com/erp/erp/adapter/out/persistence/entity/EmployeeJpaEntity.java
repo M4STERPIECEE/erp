@@ -19,9 +19,6 @@ public class EmployeeJpaEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "keycloak_id", nullable = false, unique = true, length = 36)
-    private String keycloakId;
-
     @Column(nullable = false, unique = true, length = 20)
     private String matricule;
 

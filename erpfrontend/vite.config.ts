@@ -15,11 +15,6 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/keycloak/, ''),
       },
-      '/fastapi': {
-        target: 'http://localhost:7000',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/fastapi/, ''),
-      },
     },
   },
 })
