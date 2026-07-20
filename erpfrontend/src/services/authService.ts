@@ -1,7 +1,7 @@
 import type { AuthUser, KeycloakTokenResponse } from "../types/auth";
 
 const KEYCLOAK_TOKEN_URL    = "/keycloak/realms/erp/protocol/openid-connect/token";
-const FASTAPI_BASE_URL      = "/fastapi";
+
 const KEYCLOAK_CLIENT_ID    = import.meta.env.VITE_KEYCLOAK_CLIENT_ID    as string;
 const KEYCLOAK_CLIENT_SECRET = import.meta.env.VITE_KEYCLOAK_CLIENT_SECRET as string | undefined;
 
@@ -38,7 +38,7 @@ export async function keycloakLogin(
 }
 
 export async function fetchMe(token: string): Promise<AuthUser> {
-  const response = await fetch(`${FASTAPI_BASE_URL}/api/v1/auth/me`, {
+  const response = await fetch(`/api/v1/auth/me`, {
     headers: { Authorization: `Bearer ${token}` },
   });
 
