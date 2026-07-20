@@ -1,28 +1,23 @@
 services:
-  oracle:
-    image: gvenzl/oracle-free:23-slim
-    container_name: erp_oracle
+  postgres:
+    image: postgres:15-alpine
+    container_name: erp_postgres
     restart: unless-stopped
     env_file:
       - .env
     environment:
-      ORACLE_PASSWORD: ${ORACLE_SYS_PASSWORD}
-      APP_USER: ${ORACLE_USER}
-      APP_USER_PASSWORD: ${ORACLE_USER_PASSWORD}
+      POSTGRES_USER: ${POSTGRES_USER:-erp_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-erp_password}
+      POSTGRES_DB: ${POSTGRES_DB:-erp_db}
     ports:
-      - "1521:1521"
+      - "5432:5432"
     volumes:
-      - oracle_data:/opt/oracle/oradata
-      - ./erpbackend/migration/db/v1_schema.sql:/container-entrypoint-initdb.d/01_v1_schema.sql:ro
-      - ./erpbackend/migration/db/v2_tables.sql:/container-entrypoint-initdb.d/02_v2_tables.sql:ro
-      - ./erpbackend/migration/db/v3_keycloak_user.sql:/container-entrypoint-initdb.d/03_v3_keycloak_user.sql:ro
-      - ./erpbackend/migration/db/v4_seed_departements.sql:/container-entrypoint-initdb.d/04_v4_seed_departments.sql:ro
+      - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "healthcheck.sh"]
-      interval: 30s
-      timeout: 10s
-      retries: 10
-      start_period: 120s
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-erp_user} -d ${POSTGRES_DB:-erp_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   erp-backend: 
     build:
@@ -33,41 +28,14 @@ services:
     env_file:
       - .env
     environment:
-      SPRING_DATASOURCE_URL: jdbc:oracle:thin:@//oracle:1521/FREEPDB1
-      SPRING_DATASOURCE_USERNAME: ${ORACLE_USER}
-      SPRING_DATASOURCE_PASSWORD: ${ORACLE_USER_PASSWORD}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-erp_db}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-erp_user}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-erp_password}
     ports:
       - "8089:8080"
     depends_on:
-      oracle:
+      postgres:
         condition: service_healthy
-      keycloak:
-        condition: service_started
-
-  keycloak:
-    build:
-      context: ./erpkeycloak
-      dockerfile: Dockerfile
-    container_name: erp_keycloak
-    restart: unless-stopped
-    command: ["start-dev", "--import-realm"]
-    environment:
-      KC_DB: oracle
-      KC_DB_URL: jdbc:oracle:thin:@//oracle:1521/FREEPDB1
-      KC_DB_USERNAME: ${KEYCLOAK_DB_USER:-keycloak_user}
-      KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD}
-      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN_USER:-admin}
-      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin}
-      KC_HTTP_PORT: 8080
-    ports:
-      - "8180:8080"
-    volumes:
-      - ./erpkeycloak/import:/opt/keycloak/data/import
-    depends_on:
-      oracle:
-        condition: service_healthy
-
-
 
 volumes:
-  oracle_data:
+  postgres_data:

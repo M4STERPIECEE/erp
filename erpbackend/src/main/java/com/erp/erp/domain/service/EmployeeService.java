@@ -36,7 +36,6 @@ public class EmployeeService implements CreateEmployeeUseCase, ListEmployeesUseC
         String matricule = generateMatricule();
 
         Employee employee = new Employee();
-        employee.setKeycloakId(UUID.randomUUID());
         employee.setMatricule(matricule);
         employee.setNom(command.nom());
         employee.setPrenom(command.prenom());
@@ -59,7 +58,6 @@ public class EmployeeService implements CreateEmployeeUseCase, ListEmployeesUseC
 
         return new EmployeeResult(
                 saved.getId(),
-                saved.getKeycloakId(),
                 saved.getMatricule(),
                 saved.getNom(),
                 saved.getPrenom(),
@@ -86,7 +84,6 @@ public class EmployeeService implements CreateEmployeeUseCase, ListEmployeesUseC
             ContractInfo ci = contrats.get(emp.getId());
             return new EmployeeListResult(
                     emp.getId(),
-                    emp.getKeycloakId(),
                     emp.getMatricule(),
                     emp.getNom(),
                     emp.getPrenom(),

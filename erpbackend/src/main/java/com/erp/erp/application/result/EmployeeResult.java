@@ -6,7 +6,6 @@ import java.util.UUID;
 
 public record EmployeeResult(
         Long id,
-        UUID keycloakId,
         String matricule,
         String nom,
         String prenom,

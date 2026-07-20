@@ -6,7 +6,6 @@ import DashboardPage from "./pages/DashboardPage";
 import EmployeesPage from "./pages/EmployeesPage";
 import DepartmentsPage from "./pages/DepartmentsPage";
 import LeavesPage from "./pages/LeavesPage";
-import KeycloakPage from "./pages/KeycloakPage";
 import { ROLES } from "./types/auth";
 import HomeRedirect from "./components/HomeRedirect";
 
@@ -24,7 +23,6 @@ function App() {
             <Route path="/absences"     element={<DashboardPage />} />
             <Route path="/payroll"      element={<DashboardPage />} />
             <Route path="/settings"     element={<DashboardPage />} />
-            <Route path="/admin/keycloak" element={<KeycloakPage />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

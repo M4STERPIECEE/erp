@@ -16,7 +16,6 @@ import java.util.UUID;
 public class Employee {
 
     private Long id;
-    private UUID keycloakId;
     private String matricule;
     private String nom;
     private String prenom;

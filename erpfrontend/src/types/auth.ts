@@ -1,12 +1,6 @@
-// ─── Keycloak token response ────────────────────────────────────────────────
-export interface KeycloakTokenResponse {
-  access_token: string;
-  expires_in: number;
-  refresh_expires_in: number;
-  refresh_token: string;
-  token_type: string;
-  session_state: string;
-  scope: string;
+// ─── Login token response ────────────────────────────────────────────────
+export interface LoginResponse {
+  token: string;
 }
 
 // ─── User returned by FastAPI /auth/me ──────────────────────────────────────

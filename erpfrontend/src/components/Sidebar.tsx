@@ -110,10 +110,7 @@ export default function Sidebar({ activePage = "dashboard" }: SidebarProps) {
           <NavItem icon="event_available" label="Congés"          to="/leaves"        active={activePage === "leaves"} />
           <NavItem icon="person_off"      label="Absences"        to="/absences"      active={activePage === "absences"} />
           <NavItem icon="payments"        label="Paie"            to="/payroll"       active={activePage === "payroll"} />
-          {isAdmin && (
-            <NavItem icon="manage_accounts" label="Comptes Keycloak" to="/admin/keycloak" active={activePage === "keycloak"} />
-          )}
-        </Box>
+          </Box>
       </Box>
       <Box p={6}>
         <NavItem icon="settings" label="Paramètres" to="/settings" active={activePage === "settings"} />

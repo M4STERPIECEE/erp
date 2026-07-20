@@ -1,50 +1,48 @@
 package com.erp.erp.adapter.in.web.controller;
 
-import com.erp.erp.infrastructure.security.JwtTokenProvider;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import java.util.Map;
+import com.erp.erp.infrastructure.security.JwtUtil;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/${version.path}/auth")
+@RequestMapping("/api/v1/auth")
 public class AuthController {
-    private final JwtTokenProvider jwtTokenProvider;
-    public AuthController(JwtTokenProvider jwtTokenProvider) {
-        this.jwtTokenProvider = jwtTokenProvider;
+
+    private final AuthenticationManager authenticationManager;
+    private final JwtUtil jwtUtil;
+
+    public AuthController(AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
+        this.authenticationManager = authenticationManager;
+        this.jwtUtil = jwtUtil;
     }
 
-    @GetMapping("/me")
-    public ResponseEntity<Map<String, Object>> me() {
-        return ResponseEntity.ok(buildUserInfo());
+    public static class LoginRequest {
+        public String email;
+        public String password;
     }
 
-    @GetMapping("/admin/me")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Map<String, Object>> meAdmin() {
-        return ResponseEntity.ok(buildUserInfo());
+    public static class LoginResponse {
+        public String token;
+        public LoginResponse(String token) { this.token = token; }
     }
 
-    @GetMapping("/rh/me")
-    @PreAuthorize("hasAnyRole('RH', 'ADMIN')")
-    public ResponseEntity<Map<String, Object>> meRh() {
-        return ResponseEntity.ok(buildUserInfo());
-    }
-
-    @GetMapping("/Employee/me")
-    @PreAuthorize("hasAnyRole('EMPLOYE', 'RH', 'ADMIN')")
-    public ResponseEntity<Map<String, Object>> meEmploye() {
-        return ResponseEntity.ok(buildUserInfo());
-    }
-
-    private Map<String, Object> buildUserInfo() {
-        return Map.of(
-            "id",       jwtTokenProvider.getCurrentUserId().orElse("unknown"),
-            "username", jwtTokenProvider.getCurrentUsername().orElse("unknown"),
-            "email",    jwtTokenProvider.getCurrentEmail().orElse("unknown"),
-            "roles",    jwtTokenProvider.getCurrentRoles()
+    @PostMapping("/login")
+    public LoginResponse login(@RequestBody LoginRequest request) {
+        Authentication auth = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.email, request.password)
         );
+
+        List<String> roles = auth.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
+
+        String token = jwtUtil.generateToken(request.email, roles);
+        return new LoginResponse(token);
     }
 }

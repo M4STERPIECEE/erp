@@ -59,24 +59,12 @@ public class EmployeeController {
     @GetMapping("/me")
     @PreAuthorize("hasAnyRole('EMPLOYE', 'RH', 'ADMIN')")
     public ResponseEntity<Map<String, Object>> myProfile() {
-        String keycloakId = jwtTokenProvider.getCurrentUserId()
+        String email = jwtTokenProvider.getCurrentEmail()
                 .orElseThrow(() -> new UnauthorizedException("Utilisateur non authentifié (aucun subject dans le JWT)"));
 
-        Employee employee = employeeRepositoryPort.findByKeycloakId(keycloakId)
-                .or(() -> {
-                    String email = jwtTokenProvider.getCurrentEmail().orElse(null);
-                    if (email == null) return java.util.Optional.empty();
-                    log.warn("Employee not found by keycloakId={}, trying email={}", keycloakId, email);
-                    return employeeRepositoryPort.findByEmail(email)
-                            .map(emp -> {
-                                emp.setKeycloakId(UUID.fromString(keycloakId));
-                                Employee synced = employeeRepositoryPort.save(emp);
-                                log.info("Auto-synced keycloakId={} for employee id={} email={}", keycloakId, synced.getId(), email);
-                                return synced;
-                            });
-                })
+        Employee employee = employeeRepositoryPort.findByEmail(email)
                 .orElseThrow(() -> new EmployeeNotFoundException(
-                        "Profil employé introuvable pour keycloakId=" + keycloakId));
+                        "Profil employé introuvable pour email=" + email));
         EmployeeRepositoryPort.ContractInfo contract = employeeRepositoryPort
                 .findContractByEmployeeId(employee.getId()).orElse(null);
 
@@ -136,7 +124,7 @@ public class EmployeeController {
                 .orElseThrow(() -> new EmployeeNotFoundException("Employ\u00e9 introuvable : id=" + id));
         EmployeeRepositoryPort.ContractInfo contract = employeeRepositoryPort.findContractByEmployeeId(id).orElse(null);
         EmployeeListResult result = new EmployeeListResult(
-                employee.getId(), employee.getKeycloakId(), employee.getMatricule(),
+                employee.getId(), employee.getMatricule(),
                 employee.getNom(), employee.getPrenom(), employee.getEmail(),
                 employee.getTelephone(), employee.getDateNaissance(), employee.getDateEmbauche(),
                 employee.getPoste(), employee.getStatut() != null ? employee.getStatut().name() : null,
@@ -182,7 +170,7 @@ public class EmployeeController {
         }
         EmployeeRepositoryPort.ContractInfo contract = employeeRepositoryPort.findContractByEmployeeId(id).orElse(null);
         EmployeeListResult result = new EmployeeListResult(
-                saved.getId(), saved.getKeycloakId(), saved.getMatricule(),
+                saved.getId(), saved.getMatricule(),
                 saved.getNom(), saved.getPrenom(), saved.getEmail(),
                 saved.getTelephone(), saved.getDateNaissance(), saved.getDateEmbauche(),
                 saved.getPoste(), saved.getStatut() != null ? saved.getStatut().name() : null,

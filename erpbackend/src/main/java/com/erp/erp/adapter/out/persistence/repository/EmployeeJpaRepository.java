@@ -14,7 +14,7 @@ import java.util.Optional;
 public interface EmployeeJpaRepository extends JpaRepository<EmployeeJpaEntity, Long> {
     boolean existsByEmail(String email);
 
-    Optional<EmployeeJpaEntity> findByKeycloakId(String keycloakId);
+
 
     Optional<EmployeeJpaEntity> findByEmail(String email);
 

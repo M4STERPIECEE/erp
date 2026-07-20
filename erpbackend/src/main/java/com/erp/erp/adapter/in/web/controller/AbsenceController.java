@@ -48,21 +48,9 @@ public class AbsenceController {
     }
 
     private Employee getAuthenticatedEmployee() {
-        String keycloakId = jwtTokenProvider.getCurrentUserId()
+        String email = jwtTokenProvider.getCurrentEmail()
                 .orElseThrow(() -> new UnauthorizedException("Utilisateur non authentifié"));
-        return employeeRepositoryPort.findByKeycloakId(keycloakId)
-                .or(() -> {
-                    String email = jwtTokenProvider.getCurrentEmail().orElse(null);
-                    if (email == null) return java.util.Optional.empty();
-                    log.warn("Employee not found by keycloakId={}, trying email={}", keycloakId, email);
-                    return employeeRepositoryPort.findByEmail(email)
-                            .map(emp -> {
-                                emp.setKeycloakId(UUID.fromString(keycloakId));
-                                Employee synced = employeeRepositoryPort.save(emp);
-                                log.info("Auto-synced keycloakId={} for employee id={}", keycloakId, synced.getId());
-                                return synced;
-                            });
-                })
+        return employeeRepositoryPort.findByEmail(email)
                 .orElseThrow(() -> new EmployeeNotFoundException("Profil employé introuvable"));
     }
 

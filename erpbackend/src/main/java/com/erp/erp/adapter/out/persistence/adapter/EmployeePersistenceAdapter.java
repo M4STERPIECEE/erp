@@ -114,10 +114,7 @@ public class EmployeePersistenceAdapter implements EmployeeRepositoryPort {
                 ));
     }
 
-    @Override
-    public Optional<Employee> findByKeycloakId(String keycloakId) {
-        return employeJpaRepository.findByKeycloakId(keycloakId).map(mapper::toDomain);
-    }
+
 
     @Override
     public Optional<Employee> findByEmail(String email) {
