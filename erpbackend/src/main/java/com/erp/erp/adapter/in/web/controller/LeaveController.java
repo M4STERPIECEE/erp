@@ -7,8 +7,8 @@ import com.erp.erp.domain.model.Leave;
 import com.erp.erp.domain.port.in.leave.ApproveLeaveUseCase;
 import com.erp.erp.domain.port.in.leave.GetLeaveUseCase;
 import com.erp.erp.domain.port.in.leave.RejectLeaveUseCase;
+import com.erp.erp.domain.port.in.employee.GetEmployeeByEmailUseCase;
 import com.erp.erp.domain.port.in.leave.RequestLeaveUseCase;
-import com.erp.erp.domain.port.out.EmployeeRepositoryPort;
 import com.erp.erp.infrastructure.exception.exceptions.EmployeeNotFoundException;
 import com.erp.erp.infrastructure.exception.exceptions.UnauthorizedException;
 import com.erp.erp.infrastructure.security.JwtTokenProvider;
@@ -29,20 +29,20 @@ public class LeaveController {
     private final GetLeaveUseCase getLeaveUseCase;
     private final ApproveLeaveUseCase approveLeaveUseCase;
     private final RejectLeaveUseCase rejectLeaveUseCase;
-    private final EmployeeRepositoryPort employeeRepositoryPort;
+    private final GetEmployeeByEmailUseCase getEmployeeByEmailUseCase;
     private final JwtTokenProvider jwtTokenProvider;
 
     public LeaveController(RequestLeaveUseCase requestLeaveUseCase,
             GetLeaveUseCase getLeaveUseCase,
             ApproveLeaveUseCase approveLeaveUseCase,
             RejectLeaveUseCase rejectLeaveUseCase,
-            EmployeeRepositoryPort employeeRepositoryPort,
+            GetEmployeeByEmailUseCase getEmployeeByEmailUseCase,
             JwtTokenProvider jwtTokenProvider) {
         this.requestLeaveUseCase = requestLeaveUseCase;
         this.getLeaveUseCase = getLeaveUseCase;
         this.approveLeaveUseCase = approveLeaveUseCase;
         this.rejectLeaveUseCase = rejectLeaveUseCase;
-        this.employeeRepositoryPort = employeeRepositoryPort;
+        this.getEmployeeByEmailUseCase = getEmployeeByEmailUseCase;
         this.jwtTokenProvider = jwtTokenProvider;
     }
 
@@ -133,7 +133,7 @@ public class LeaveController {
     private Employee getAuthenticatedEmployee() {
         String email = jwtTokenProvider.getCurrentEmail()
                 .orElseThrow(() -> new UnauthorizedException("Utilisateur non authentifié"));
-        return employeeRepositoryPort.findByEmail(email)
+        return getEmployeeByEmailUseCase.findByEmail(email)
                 .orElseThrow(() -> new EmployeeNotFoundException("Profil employé introuvable"));
     }
 
@@ -141,7 +141,7 @@ public class LeaveController {
         String email = jwtTokenProvider.getCurrentEmail().orElse(null);
         if (email == null)
             return null;
-        return employeeRepositoryPort.findByEmail(email)
+        return getEmployeeByEmailUseCase.findByEmail(email)
                 .map(Employee::getId)
                 .orElse(null);
     }

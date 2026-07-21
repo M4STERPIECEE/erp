@@ -1,11 +1,13 @@
 package com.erp.erp.infrastructure.config;
 
-
 import com.erp.erp.domain.port.in.absence.GetAbsenceUseCase;
 import com.erp.erp.domain.port.in.department.CreateDepartmentUseCase;
 import com.erp.erp.domain.port.in.department.GetDepartmentUseCase;
 import com.erp.erp.domain.port.in.department.UpdateDepartmentUseCase;
-import com.erp.erp.domain.port.in.employee.CreateEmployeeUseCase;
+import com.erp.erp.domain.port.in.employee.GetEmployeeByEmailUseCase;
+import com.erp.erp.domain.port.in.employee.GetEmployeeByIdUseCase;
+import com.erp.erp.domain.port.in.employee.GetEmployeeContractUseCase;
+import com.erp.erp.domain.port.in.employee.GetEmployeeStatsUseCase;
 import com.erp.erp.domain.port.in.employee.ListEmployeesUseCase;
 import com.erp.erp.domain.port.in.leave.ApproveLeaveUseCase;
 import com.erp.erp.domain.port.in.leave.GetLeaveUseCase;
@@ -31,20 +33,33 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableTransactionManagement
 public class BeanConfig {
 
-
-
     @Bean
     public EmployeeService employeeService(EmployeeRepositoryPort employeeRepositoryPort) {
         return new EmployeeService(employeeRepositoryPort);
     }
 
     @Bean
-    public CreateEmployeeUseCase createEmployeeUseCase(EmployeeService employeeService) {
+    public ListEmployeesUseCase listEmployeesUseCase(EmployeeService employeeService) {
         return employeeService;
     }
 
     @Bean
-    public ListEmployeesUseCase listEmployeesUseCase(EmployeeService employeeService) {
+    public GetEmployeeByEmailUseCase getEmployeeByEmailUseCase(EmployeeService employeeService) {
+        return employeeService;
+    }
+
+    @Bean
+    public GetEmployeeByIdUseCase getEmployeeByIdUseCase(EmployeeService employeeService) {
+        return employeeService;
+    }
+
+    @Bean
+    public GetEmployeeContractUseCase getEmployeeContractUseCase(EmployeeService employeeService) {
+        return employeeService;
+    }
+
+    @Bean
+    public GetEmployeeStatsUseCase getEmployeeStatsUseCase(EmployeeService employeeService) {
         return employeeService;
     }
 
@@ -70,7 +85,7 @@ public class BeanConfig {
 
     @Bean
     public LeaveService leaveService(LeaveRepositoryPort leaveRepositoryPort,
-                                     EmployeeRepositoryPort employeeRepositoryPort) {
+            EmployeeRepositoryPort employeeRepositoryPort) {
         return new LeaveService(leaveRepositoryPort, employeeRepositoryPort);
     }
 

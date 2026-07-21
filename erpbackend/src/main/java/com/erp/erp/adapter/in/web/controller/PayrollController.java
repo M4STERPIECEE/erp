@@ -3,7 +3,7 @@ package com.erp.erp.adapter.in.web.controller;
 import com.erp.erp.application.result.PayslipResult;
 import com.erp.erp.domain.model.Employee;
 import com.erp.erp.domain.model.Payslip;
-import com.erp.erp.domain.port.out.EmployeeRepositoryPort;
+import com.erp.erp.domain.port.in.employee.GetEmployeeByEmailUseCase;
 import com.erp.erp.domain.service.PayrollService;
 import com.erp.erp.infrastructure.security.JwtTokenProvider;
 import org.springframework.http.ResponseEntity;
@@ -17,14 +17,14 @@ import java.util.List;
 public class PayrollController {
 
         private final PayrollService payrollService;
-        private final EmployeeRepositoryPort employeeRepositoryPort;
+        private final GetEmployeeByEmailUseCase getEmployeeByEmailUseCase;
         private final JwtTokenProvider jwtTokenProvider;
 
         public PayrollController(PayrollService payrollService,
-                        EmployeeRepositoryPort employeeRepositoryPort,
+                        GetEmployeeByEmailUseCase getEmployeeByEmailUseCase,
                         JwtTokenProvider jwtTokenProvider) {
                 this.payrollService = payrollService;
-                this.employeeRepositoryPort = employeeRepositoryPort;
+                this.getEmployeeByEmailUseCase = getEmployeeByEmailUseCase;
                 this.jwtTokenProvider = jwtTokenProvider;
         }
 
@@ -64,7 +64,7 @@ public class PayrollController {
         private Employee getAuthenticatedEmployee() {
                 String email = jwtTokenProvider.getCurrentEmail()
                                 .orElseThrow(() -> new IllegalArgumentException("Utilisateur non authentifié"));
-                return employeeRepositoryPort.findByEmail(email)
+                return getEmployeeByEmailUseCase.findByEmail(email)
                                 .orElseThrow(() -> new IllegalArgumentException("Profil employé introuvable"));
         }
 

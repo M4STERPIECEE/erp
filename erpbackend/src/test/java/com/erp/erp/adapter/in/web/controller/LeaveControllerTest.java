@@ -16,7 +16,7 @@ import com.erp.erp.domain.port.in.leave.ApproveLeaveUseCase;
 import com.erp.erp.domain.port.in.leave.GetLeaveUseCase;
 import com.erp.erp.domain.port.in.leave.RejectLeaveUseCase;
 import com.erp.erp.domain.port.in.leave.RequestLeaveUseCase;
-import com.erp.erp.domain.port.out.EmployeeRepositoryPort;
+import com.erp.erp.domain.port.in.employee.GetEmployeeByEmailUseCase;
 import com.erp.erp.infrastructure.security.JwtTokenProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -47,7 +47,7 @@ class LeaveControllerTest {
     @MockitoBean private GetLeaveUseCase getLeaveUseCase;
     @MockitoBean private ApproveLeaveUseCase approveLeaveUseCase;
     @MockitoBean private RejectLeaveUseCase rejectLeaveUseCase;
-    @MockitoBean private EmployeeRepositoryPort employeeRepositoryPort;
+    @MockitoBean private GetEmployeeByEmailUseCase getEmployeeByEmailUseCase;
     @MockitoBean private JwtTokenProvider jwtTokenProvider;
 
     private Employee mockEmployee;
@@ -56,7 +56,7 @@ class LeaveControllerTest {
     void setUp() {
         leaveController = new LeaveController(
                 requestLeaveUseCase, getLeaveUseCase, approveLeaveUseCase,
-                rejectLeaveUseCase, employeeRepositoryPort, jwtTokenProvider
+                rejectLeaveUseCase, getEmployeeByEmailUseCase, jwtTokenProvider
         );
         mockMvc = MockMvcBuilders.standaloneSetup(leaveController)
                 .setControllerAdvice(new GlobalExceptionHandler())
@@ -73,7 +73,7 @@ class LeaveControllerTest {
     void should_get_my_leaves_and_return_200() throws Exception {
         //given
         given(jwtTokenProvider.getCurrentEmail()).willReturn(Optional.of("test@test.com"));
-        given(employeeRepositoryPort.findByEmail(anyString())).willReturn(Optional.of(mockEmployee));
+        given(getEmployeeByEmailUseCase.findByEmail(anyString())).willReturn(Optional.of(mockEmployee));
         given(getLeaveUseCase.listEmployeeLeaves(mockEmployee.getId())).willReturn(Collections.emptyList());
 
         //when
@@ -102,7 +102,7 @@ class LeaveControllerTest {
         leave.setNombreJours(4);
 
         given(jwtTokenProvider.getCurrentEmail()).willReturn(Optional.of("test@test.com"));
-        given(employeeRepositoryPort.findByEmail(anyString())).willReturn(Optional.of(mockEmployee));
+        given(getEmployeeByEmailUseCase.findByEmail(anyString())).willReturn(Optional.of(mockEmployee));
         given(requestLeaveUseCase.requestLeave(anyLong(), anyString(), any(), any(), anyString())).willReturn(leave);
 
         //when
@@ -130,7 +130,7 @@ class LeaveControllerTest {
         leave.setDateFin(LocalDate.now().plusDays(1));
 
         given(jwtTokenProvider.getCurrentEmail()).willReturn(Optional.of(UUID.randomUUID().toString()));
-        given(employeeRepositoryPort.findByEmail(anyString())).willReturn(Optional.of(mockEmployee));
+        given(getEmployeeByEmailUseCase.findByEmail(anyString())).willReturn(Optional.of(mockEmployee));
         given(approveLeaveUseCase.approveLeave(anyLong(), anyLong())).willReturn(leave);
 
         //when
@@ -148,7 +148,7 @@ class LeaveControllerTest {
     void should_get_leave_stats_and_return_200() throws Exception {
         //given
         given(jwtTokenProvider.getCurrentEmail()).willReturn(Optional.of(UUID.randomUUID().toString()));
-        given(employeeRepositoryPort.findByEmail(anyString())).willReturn(Optional.of(mockEmployee));
+        given(getEmployeeByEmailUseCase.findByEmail(anyString())).willReturn(Optional.of(mockEmployee));
         given(getLeaveUseCase.countLeaveDaysTakenThisYear(mockEmployee.getId())).willReturn(10);
         given(getLeaveUseCase.countPendingRequests(mockEmployee.getId())).willReturn(2);
 

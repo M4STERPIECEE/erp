@@ -9,6 +9,10 @@ import com.erp.erp.domain.model.PageResult;
 import com.erp.erp.domain.model.enums.EmployeeStatus;
 import com.erp.erp.domain.model.enums.ContractType;
 import com.erp.erp.domain.port.in.employee.CreateEmployeeUseCase;
+import com.erp.erp.domain.port.in.employee.GetEmployeeByEmailUseCase;
+import com.erp.erp.domain.port.in.employee.GetEmployeeByIdUseCase;
+import com.erp.erp.domain.port.in.employee.GetEmployeeContractUseCase;
+import com.erp.erp.domain.port.in.employee.GetEmployeeStatsUseCase;
 import com.erp.erp.domain.port.in.employee.ListEmployeesUseCase;
 import com.erp.erp.domain.port.out.EmployeeRepositoryPort;
 import com.erp.erp.domain.port.out.EmployeeRepositoryPort.ContractInfo;
@@ -16,8 +20,10 @@ import com.erp.erp.domain.port.out.EmployeeRepositoryPort.ContractInfo;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
-public class EmployeeService implements CreateEmployeeUseCase, ListEmployeesUseCase {
+public class EmployeeService implements CreateEmployeeUseCase, ListEmployeesUseCase,
+        GetEmployeeByEmailUseCase, GetEmployeeByIdUseCase, GetEmployeeContractUseCase, GetEmployeeStatsUseCase {
 
     private final EmployeeRepositoryPort employeeRepositoryPort;
     private final EmployeeServiceMapper mapper;
@@ -72,6 +78,26 @@ public class EmployeeService implements CreateEmployeeUseCase, ListEmployeesUseC
 
         return new PageResult<>(results, pageResult.totalElements(), pageResult.totalPages(), pageResult.number(),
                 pageResult.size());
+    }
+
+    @Override
+    public Optional<Employee> findByEmail(String email) {
+        return employeeRepositoryPort.findByEmail(email);
+    }
+
+    @Override
+    public Optional<Employee> findById(Long id) {
+        return employeeRepositoryPort.findById(id);
+    }
+
+    @Override
+    public Optional<ContractInfo> findContractByEmployeeId(Long employeeId) {
+        return employeeRepositoryPort.findContractByEmployeeId(employeeId);
+    }
+
+    @Override
+    public Map<ContractType, Long> countByContractType() {
+        return employeeRepositoryPort.countByContractType();
     }
 
     private String generateMatricule() {
