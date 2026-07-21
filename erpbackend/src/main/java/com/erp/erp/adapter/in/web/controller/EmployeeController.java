@@ -15,8 +15,13 @@ import com.erp.erp.application.result.EmployeeResult;
 import com.erp.erp.domain.model.Employee;
 import com.erp.erp.domain.model.PageResult;
 import com.erp.erp.domain.port.in.employee.CreateEmployeeUseCase;
+import com.erp.erp.domain.port.in.employee.GetEmployeeByEmailUseCase;
+import com.erp.erp.domain.port.in.employee.GetEmployeeByIdUseCase;
+import com.erp.erp.domain.port.in.employee.GetEmployeeContractUseCase;
+import com.erp.erp.domain.port.in.employee.GetEmployeeStatsUseCase;
 import com.erp.erp.domain.port.in.employee.ListEmployeesUseCase;
 import com.erp.erp.domain.port.out.EmployeeRepositoryPort;
+import com.erp.erp.domain.port.out.EmployeeRepositoryPort.ContractInfo;
 import com.erp.erp.domain.service.DepartmentService;
 import com.erp.erp.infrastructure.security.JwtTokenProvider;
 import jakarta.validation.Valid;
@@ -33,6 +38,10 @@ import java.util.Map;
 public class EmployeeController {
     private final CreateEmployeeUseCase createEmployeeUseCase;
     private final ListEmployeesUseCase listEmployeesUseCase;
+    private final GetEmployeeByEmailUseCase getEmployeeByEmailUseCase;
+    private final GetEmployeeByIdUseCase getEmployeeByIdUseCase;
+    private final GetEmployeeContractUseCase getEmployeeContractUseCase;
+    private final GetEmployeeStatsUseCase getEmployeeStatsUseCase;
     private final EmployeeWebMapper mapper;
     private final EmployeeRepositoryPort employeeRepositoryPort;
     private final DepartmentService departmentService;
@@ -40,12 +49,20 @@ public class EmployeeController {
 
     public EmployeeController(CreateEmployeeUseCase createEmployeeUseCase,
             ListEmployeesUseCase listEmployeesUseCase,
+            GetEmployeeByEmailUseCase getEmployeeByEmailUseCase,
+            GetEmployeeByIdUseCase getEmployeeByIdUseCase,
+            GetEmployeeContractUseCase getEmployeeContractUseCase,
+            GetEmployeeStatsUseCase getEmployeeStatsUseCase,
             EmployeeWebMapper mapper,
             EmployeeRepositoryPort employeeRepositoryPort,
             DepartmentService departmentService,
             JwtTokenProvider jwtTokenProvider) {
         this.createEmployeeUseCase = createEmployeeUseCase;
         this.listEmployeesUseCase = listEmployeesUseCase;
+        this.getEmployeeByEmailUseCase = getEmployeeByEmailUseCase;
+        this.getEmployeeByIdUseCase = getEmployeeByIdUseCase;
+        this.getEmployeeContractUseCase = getEmployeeContractUseCase;
+        this.getEmployeeStatsUseCase = getEmployeeStatsUseCase;
         this.mapper = mapper;
         this.employeeRepositoryPort = employeeRepositoryPort;
         this.departmentService = departmentService;
@@ -53,17 +70,16 @@ public class EmployeeController {
     }
 
     @GetMapping("/me")
-    @PreAuthorize("hasRole('admin')")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Map<String, Object>> myProfile() {
         String email = jwtTokenProvider.getCurrentEmail()
                 .orElseThrow(
                         () -> new UnauthorizedException("Utilisateur non authentifié (aucun subject dans le JWT)"));
 
-        Employee employee = employeeRepositoryPort.findByEmail(email)
+        Employee employee = getEmployeeByEmailUseCase.findByEmail(email)
                 .orElseThrow(() -> new EmployeeNotFoundException(
                         "Profil employé introuvable pour email=" + email));
-        EmployeeRepositoryPort.ContractInfo contract = employeeRepositoryPort
-                .findContractByEmployeeId(employee.getId()).orElse(null);
+        ContractInfo contract = getEmployeeContractUseCase.findContractByEmployeeId(employee.getId()).orElse(null);
 
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("id", employee.getId());
@@ -116,9 +132,9 @@ public class EmployeeController {
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<EmployeeResponse> getById(@PathVariable Long id) {
-        Employee employee = employeeRepositoryPort.findById(id)
+        Employee employee = getEmployeeByIdUseCase.findById(id)
                 .orElseThrow(() -> new EmployeeNotFoundException("Employ\u00e9 introuvable : id=" + id));
-        EmployeeRepositoryPort.ContractInfo contract = employeeRepositoryPort.findContractByEmployeeId(id).orElse(null);
+        ContractInfo contract = getEmployeeContractUseCase.findContractByEmployeeId(id).orElse(null);
         EmployeeListResult result = new EmployeeListResult(
                 employee.getId(), employee.getMatricule(),
                 employee.getNom(), employee.getPrenom(), employee.getEmail(),
@@ -133,8 +149,8 @@ public class EmployeeController {
     @GetMapping("/stats")
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<Map<String, Object>> stats() {
-        long total = employeeRepositoryPort.countEmployees();
-        Map<ContractType, Long> distribution = employeeRepositoryPort.countByContractType();
+        long total = listEmployeesUseCase.list("", null, "", 0, 1).totalElements();
+        Map<ContractType, Long> distribution = getEmployeeStatsUseCase.countByContractType();
 
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("totalEmployees", total);
@@ -146,7 +162,7 @@ public class EmployeeController {
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<EmployeeResponse> update(@PathVariable Long id,
             @Valid @RequestBody UpdateEmployeeRequest request) {
-        Employee employee = employeeRepositoryPort.findById(id)
+        Employee employee = getEmployeeByIdUseCase.findById(id)
                 .orElseThrow(() -> new EmployeeNotFoundException("Employ\u00e9 introuvable : id=" + id));
         employee.setNom(request.nom());
         employee.setPrenom(request.prenom());
@@ -164,7 +180,7 @@ public class EmployeeController {
             LocalDate dateFin = contractType == ContractType.CDI ? null : request.dateFinContrat();
             employeeRepositoryPort.updateContract(id, contractType, request.salaireBase(), dateFin);
         }
-        EmployeeRepositoryPort.ContractInfo contract = employeeRepositoryPort.findContractByEmployeeId(id).orElse(null);
+        ContractInfo contract = getEmployeeContractUseCase.findContractByEmployeeId(id).orElse(null);
         EmployeeListResult result = new EmployeeListResult(
                 saved.getId(), saved.getMatricule(),
                 saved.getNom(), saved.getPrenom(), saved.getEmail(),

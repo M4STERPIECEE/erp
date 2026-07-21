@@ -29,8 +29,8 @@ public class EmployeePersistenceAdapter implements EmployeeRepositoryPort {
     private final EmployeeJpaMapper mapper;
 
     public EmployeePersistenceAdapter(EmployeeJpaRepository employeJpaRepository,
-                                     ContractJpaRepository contratJpaRepository,
-                                     EmployeeJpaMapper mapper) {
+            ContractJpaRepository contratJpaRepository,
+            EmployeeJpaMapper mapper) {
         this.employeJpaRepository = employeJpaRepository;
         this.contratJpaRepository = contratJpaRepository;
         this.mapper = mapper;
@@ -45,7 +45,7 @@ public class EmployeePersistenceAdapter implements EmployeeRepositoryPort {
 
     @Override
     public void saveContract(Long employeId, ContractType type, BigDecimal salaireBase,
-                                   LocalDate dateDebut, LocalDate dateFin) {
+            LocalDate dateDebut, LocalDate dateFin) {
         ContractJpaEntity contract = new ContractJpaEntity();
         contract.setEmployeId(employeId);
         contract.setType(type.name());
@@ -73,8 +73,17 @@ public class EmployeePersistenceAdapter implements EmployeeRepositoryPort {
     }
 
     @Override
-    public long countEmployees() {
-        return employeJpaRepository.count();
+    public String generateNextMatricule(int year) {
+        String prefix = String.format("EMP-%d-", year);
+        List<String> results = employeJpaRepository.findLastMatriculeByPrefix(
+                prefix, PageRequest.of(0, 1));
+        if (results.isEmpty()) {
+            return prefix + "0001";
+        }
+        String last = results.get(0);
+        String[] parts = last.split("-");
+        int next = Integer.parseInt(parts[parts.length - 1]) + 1;
+        return String.format("%s%04d", prefix, next);
     }
 
     @Override
@@ -98,23 +107,22 @@ public class EmployeePersistenceAdapter implements EmployeeRepositoryPort {
                 .map(mapper::toDomain)
                 .toList();
 
-        return new PageResult<>(employes, jpaPage.getTotalElements(), jpaPage.getTotalPages(), jpaPage.getNumber(), jpaPage.getSize());
+        return new PageResult<>(employes, jpaPage.getTotalElements(), jpaPage.getTotalPages(), jpaPage.getNumber(),
+                jpaPage.getSize());
     }
 
     @Override
     public Map<Long, ContractInfo> findContractsForEmployees(List<Long> employeIds) {
-        if (employeIds.isEmpty()) return Map.of();
+        if (employeIds.isEmpty())
+            return Map.of();
 
         List<ContractJpaEntity> contrats = contratJpaRepository.findByEmployeIdIn(employeIds);
         return contrats.stream()
                 .collect(Collectors.toMap(
                         ContractJpaEntity::getEmployeId,
                         c -> new ContractInfo(c.getType(), c.getSalaireBase(), c.getDateDebut(), c.getDateFin()),
-                        (a, b) -> b
-                ));
+                        (a, b) -> b));
     }
-
-
 
     @Override
     public Optional<Employee> findByEmail(String email) {
@@ -128,7 +136,8 @@ public class EmployeePersistenceAdapter implements EmployeeRepositoryPort {
 
     @Override
     public List<Employee> findAllByIds(List<Long> ids) {
-        if (ids.isEmpty()) return List.of();
+        if (ids.isEmpty())
+            return List.of();
         return employeJpaRepository.findAllById(ids).stream().map(mapper::toDomain).toList();
     }
 

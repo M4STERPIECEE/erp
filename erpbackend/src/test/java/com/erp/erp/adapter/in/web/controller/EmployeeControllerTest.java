@@ -12,6 +12,10 @@ import com.erp.erp.application.command.CreateEmployeeCommand;
 import com.erp.erp.application.result.EmployeeResult;
 import com.erp.erp.domain.model.Employee;
 import com.erp.erp.domain.port.in.employee.CreateEmployeeUseCase;
+import com.erp.erp.domain.port.in.employee.GetEmployeeByEmailUseCase;
+import com.erp.erp.domain.port.in.employee.GetEmployeeByIdUseCase;
+import com.erp.erp.domain.port.in.employee.GetEmployeeContractUseCase;
+import com.erp.erp.domain.port.in.employee.GetEmployeeStatsUseCase;
 import com.erp.erp.domain.port.in.employee.ListEmployeesUseCase;
 import com.erp.erp.domain.port.out.EmployeeRepositoryPort;
 import com.erp.erp.domain.service.DepartmentService;
@@ -41,6 +45,10 @@ class EmployeeControllerTest {
     private final ObjectMapper objectMapper = new ObjectMapper().registerModule(new com.fasterxml.jackson.datatype.jsr310.JavaTimeModule());
     @MockitoBean private CreateEmployeeUseCase createEmployeeUseCase;
     @MockitoBean private ListEmployeesUseCase listEmployeesUseCase;
+    @MockitoBean private GetEmployeeByEmailUseCase getEmployeeByEmailUseCase;
+    @MockitoBean private GetEmployeeByIdUseCase getEmployeeByIdUseCase;
+    @MockitoBean private GetEmployeeContractUseCase getEmployeeContractUseCase;
+    @MockitoBean private GetEmployeeStatsUseCase getEmployeeStatsUseCase;
     @MockitoBean private EmployeeWebMapper mapper;
     @MockitoBean private EmployeeRepositoryPort employeeRepositoryPort;
     @MockitoBean private DepartmentService departmentService;
@@ -48,7 +56,7 @@ class EmployeeControllerTest {
 
     @BeforeEach
     void setUp() {
-        employeeController = new EmployeeController(createEmployeeUseCase, listEmployeesUseCase, mapper, employeeRepositoryPort, departmentService, jwtTokenProvider);
+        employeeController = new EmployeeController(createEmployeeUseCase, listEmployeesUseCase, getEmployeeByEmailUseCase, getEmployeeByIdUseCase, getEmployeeContractUseCase, getEmployeeStatsUseCase, mapper, employeeRepositoryPort, departmentService, jwtTokenProvider);
         mockMvc = MockMvcBuilders.standaloneSetup(employeeController)
                 .setControllerAdvice(new GlobalExceptionHandler())
                 .addPlaceholderValue("version.path", "v1")
@@ -111,8 +119,8 @@ class EmployeeControllerTest {
                 1L, "CDI", BigDecimal.valueOf(3000.0)
         );
 
-        given(employeeRepositoryPort.findById(employeeId)).willReturn(Optional.of(employee));
-        given(employeeRepositoryPort.findContractByEmployeeId(employeeId)).willReturn(Optional.empty());
+        given(getEmployeeByIdUseCase.findById(employeeId)).willReturn(Optional.of(employee));
+        given(getEmployeeContractUseCase.findContractByEmployeeId(employeeId)).willReturn(Optional.empty());
         given(mapper.toResponseFromList(any())).willReturn(responseDto);
 
         //when
@@ -128,7 +136,7 @@ class EmployeeControllerTest {
     void should_return_404_when_employee_not_found() throws Exception {
         //given
         Long employeeId = 99L;
-        given(employeeRepositoryPort.findById(employeeId)).willReturn(Optional.empty());
+        given(getEmployeeByIdUseCase.findById(employeeId)).willReturn(Optional.empty());
 
         //when
         MockHttpServletResponse response = mockMvc.perform(get("/api/v1/employees/{id}", employeeId).accept(MediaType.APPLICATION_JSON)).andExpect(status().isNotFound()).andReturn().getResponse();

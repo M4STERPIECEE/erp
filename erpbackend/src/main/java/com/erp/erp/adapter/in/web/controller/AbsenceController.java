@@ -4,7 +4,7 @@ import com.erp.erp.application.result.AbsenceResult;
 import com.erp.erp.domain.model.Absence;
 import com.erp.erp.domain.model.Employee;
 import com.erp.erp.domain.port.in.absence.GetAbsenceUseCase;
-import com.erp.erp.domain.port.out.EmployeeRepositoryPort;
+import com.erp.erp.domain.port.in.employee.GetEmployeeByEmailUseCase;
 import com.erp.erp.infrastructure.exception.exceptions.EmployeeNotFoundException;
 import com.erp.erp.infrastructure.exception.exceptions.UnauthorizedException;
 import com.erp.erp.infrastructure.security.JwtTokenProvider;
@@ -19,19 +19,19 @@ import java.util.List;
 public class AbsenceController {
 
     private final GetAbsenceUseCase getAbsenceUseCase;
-    private final EmployeeRepositoryPort employeeRepositoryPort;
+    private final GetEmployeeByEmailUseCase getEmployeeByEmailUseCase;
     private final JwtTokenProvider jwtTokenProvider;
 
     public AbsenceController(GetAbsenceUseCase getAbsenceUseCase,
-            EmployeeRepositoryPort employeeRepositoryPort,
+            GetEmployeeByEmailUseCase getEmployeeByEmailUseCase,
             JwtTokenProvider jwtTokenProvider) {
         this.getAbsenceUseCase = getAbsenceUseCase;
-        this.employeeRepositoryPort = employeeRepositoryPort;
+        this.getEmployeeByEmailUseCase = getEmployeeByEmailUseCase;
         this.jwtTokenProvider = jwtTokenProvider;
     }
 
     @GetMapping("/my-absences")
-    @PreAuthorize("hasRole('admin')")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<AbsenceResult>> myAbsences(
             @RequestParam(required = false) Integer mois,
             @RequestParam(required = false) Integer annee) {
@@ -48,7 +48,7 @@ public class AbsenceController {
     private Employee getAuthenticatedEmployee() {
         String email = jwtTokenProvider.getCurrentEmail()
                 .orElseThrow(() -> new UnauthorizedException("Utilisateur non authentifié"));
-        return employeeRepositoryPort.findByEmail(email)
+        return getEmployeeByEmailUseCase.findByEmail(email)
                 .orElseThrow(() -> new EmployeeNotFoundException("Profil employé introuvable"));
     }
 

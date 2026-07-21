@@ -2,7 +2,7 @@ package com.erp.erp.adapter.in.web.exception;
 
 import com.erp.erp.infrastructure.exception.exceptions.EmployeeNotFoundException;
 import com.erp.erp.infrastructure.exception.exceptions.LeaveConflictException;
-import com.erp.erp.infrastructure.exception.exceptions.LeaveNotFoundException;
+import com.erp.erp.domain.exception.LeaveNotFoundException;
 import com.erp.erp.infrastructure.exception.exceptions.UnauthorizedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

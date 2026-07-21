@@ -17,34 +17,23 @@ public class DepartmentService implements GetDepartmentUseCase, CreateDepartment
         this.repository = repository;
     }
 
+    @Override
     public List<Department> listAll() {
-        List<Department> departements = repository.findAll();
-        for (Department d : departements) {
-            d.setNombreEmployes(repository.countEmployeesByDepartmentId(d.getId()));
-            if (d.getResponsableId() != null) {
-                repository.findManagerNameById(d.getResponsableId())
-                        .ifPresent(d::setResponsableNom);
-            }
-        }
-        return departements;
+        return repository.findAllWithStats();
     }
 
+    @Override
     public Optional<Department> findById(Long id) {
-        return repository.findById(id).map(d -> {
-            d.setNombreEmployes(repository.countEmployeesByDepartmentId(d.getId()));
-            if (d.getResponsableId() != null) {
-                repository.findManagerNameById(d.getResponsableId())
-                        .ifPresent(d::setResponsableNom);
-            }
-            return d;
-        });
+        return repository.findByIdWithStats(id);
     }
 
+    @Override
     public Department create(Department department) {
         Department saved = repository.save(department);
-        return enrich(saved);
+        return repository.findByIdWithStats(saved.getId()).orElse(saved);
     }
 
+    @Override
     public Department update(Long id, String nom, String description, Long responsableId) {
         Department existing = repository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Département introuvable : " + id));
@@ -52,19 +41,11 @@ public class DepartmentService implements GetDepartmentUseCase, CreateDepartment
         existing.setDescription(description);
         existing.setResponsableId(responsableId);
         Department saved = repository.save(existing);
-        return enrich(saved);
+        return repository.findByIdWithStats(saved.getId()).orElse(saved);
     }
 
+    @Override
     public void delete(Long id) {
         repository.deleteById(id);
-    }
-
-    private Department enrich(Department d) {
-        d.setNombreEmployes(repository.countEmployeesByDepartmentId(d.getId()));
-        if (d.getResponsableId() != null) {
-            repository.findManagerNameById(d.getResponsableId())
-                    .ifPresent(d::setResponsableNom);
-        }
-        return d;
     }
 }
