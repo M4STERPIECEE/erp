@@ -1,5 +1,6 @@
 package com.erp.erp.adapter.in.web.controller;
 
+import com.erp.erp.adapter.in.web.dto.request.CreateDepartementRequest;
 import com.erp.erp.adapter.in.web.dto.response.DepartmentResponse;
 import com.erp.erp.domain.model.Department;
 import com.erp.erp.domain.port.in.department.CreateDepartmentUseCase;
@@ -29,7 +30,7 @@ public class DepartmentController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('RH', 'ADMIN', 'EMPLOYE')")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<List<DepartmentResponse>> list() {
         List<Department> departements = getDepartmentUseCase.listAll();
         List<DepartmentResponse> response = departements.stream()
@@ -39,7 +40,7 @@ public class DepartmentController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('RH', 'ADMIN', 'EMPLOYE')")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<DepartmentResponse> findById(@PathVariable Long id) {
         return getDepartmentUseCase.findById(id)
                 .map(d -> ResponseEntity.ok(toResponse(d)))
@@ -47,7 +48,7 @@ public class DepartmentController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('RH', 'ADMIN')")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<DepartmentResponse> create(@RequestBody CreateDepartementRequest request) {
         Department dept = new Department();
         dept.setNom(request.nom());
@@ -58,7 +59,7 @@ public class DepartmentController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('RH', 'ADMIN')")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<DepartmentResponse> update(@PathVariable Long id,
                                                        @RequestBody CreateDepartementRequest request) {
         Department updated = updateDepartmentUseCase.update(id, request.nom(), request.description(), request.responsableId());
@@ -66,7 +67,7 @@ public class DepartmentController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('RH', 'ADMIN')")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         updateDepartmentUseCase.delete(id);
         return ResponseEntity.noContent().build();
@@ -80,5 +81,4 @@ public class DepartmentController {
         );
     }
 
-    public record CreateDepartementRequest(String nom, String description, Long responsableId) {}
 }

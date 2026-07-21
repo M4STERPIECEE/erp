@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import com.erp.erp.adapter.in.web.dto.request.CreateDepartementRequest;
 import com.erp.erp.adapter.in.web.exception.GlobalExceptionHandler;
 import com.erp.erp.domain.model.Department;
 import com.erp.erp.domain.port.in.department.CreateDepartmentUseCase;
@@ -91,7 +92,7 @@ class DepartmentControllerTest {
     @Test
     void should_create_department_and_return_201() throws Exception {
         //given
-        DepartmentController.CreateDepartementRequest request = new DepartmentController.CreateDepartementRequest("Marketing", "Mktdesc", 100L);
+        CreateDepartementRequest request = new CreateDepartementRequest("Marketing", "Mktdesc", 100L);
         
         Department saved = new Department();
         saved.setId(1L);

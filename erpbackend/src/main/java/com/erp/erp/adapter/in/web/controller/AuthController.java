@@ -1,6 +1,12 @@
 package com.erp.erp.adapter.in.web.controller;
 
+import com.erp.erp.adapter.in.web.dto.request.LoginRequest;
+import com.erp.erp.adapter.in.web.dto.response.LoginResponse;
+import com.erp.erp.adapter.in.web.dto.response.AuthUserResponse;
+import com.erp.erp.infrastructure.security.JwtTokenProvider;
 import com.erp.erp.infrastructure.security.JwtUtil;
+import com.erp.erp.infrastructure.exception.exceptions.UnauthorizedException;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -8,7 +14,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -16,33 +21,36 @@ public class AuthController {
 
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
+    private final JwtTokenProvider jwtTokenProvider;
 
-    public AuthController(AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
+    public AuthController(AuthenticationManager authenticationManager, JwtUtil jwtUtil, JwtTokenProvider jwtTokenProvider) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
-    }
-
-    public static class LoginRequest {
-        public String email;
-        public String password;
-    }
-
-    public static class LoginResponse {
-        public String token;
-        public LoginResponse(String token) { this.token = token; }
+        this.jwtTokenProvider = jwtTokenProvider;
     }
 
     @PostMapping("/login")
-    public LoginResponse login(@RequestBody LoginRequest request) {
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
         Authentication auth = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.email, request.password)
+                new UsernamePasswordAuthenticationToken(request.email(), request.password())
         );
 
         List<String> roles = auth.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toList());
+                .toList();
 
-        String token = jwtUtil.generateToken(request.email, roles);
-        return new LoginResponse(token);
+        String token = jwtUtil.generateToken(request.email(), roles);
+        return ResponseEntity.ok(new LoginResponse(token));
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<AuthUserResponse> me() {
+        String email = jwtTokenProvider.getCurrentEmail()
+                .orElseThrow(() -> new UnauthorizedException("Not authenticated"));
+
+        List<String> roles = jwtTokenProvider.getCurrentRoles();
+
+        // sub, username, email, roles
+        return ResponseEntity.ok(new AuthUserResponse(email, email, email, roles));
     }
 }
