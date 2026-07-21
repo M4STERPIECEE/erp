@@ -1,7 +1,25 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { AnimatePresence } from "framer-motion";
 import { Box, Flex, Spinner, Text } from "@chakra-ui/react";
 import { useAuth } from "../hooks/useAuth";
+import PageTransition from "./PageTransition";
+import Sidebar from "./Sidebar";
 import type { AppRole } from "../types/auth";
+
+const scrollStyles = {
+  "&::-webkit-scrollbar": { width: "8px", height: "8px" },
+  "&::-webkit-scrollbar-track": { background: "transparent" },
+  "&::-webkit-scrollbar-thumb": { background: "#cbd5e1", borderRadius: "4px" },
+  "&::-webkit-scrollbar-thumb:hover": { background: "#94a3b8" },
+};
+
+function activePageFromPath(pathname: string): string {
+  const match = pathname.match(/^\/([^/]+)/);
+  const base = match?.[1] ?? "";
+  if (base === "" || base === "dashboard") return "dashboard";
+  if (["employees", "departments", "leaves", "absences", "payroll", "settings"].includes(base)) return base;
+  return "dashboard";
+}
 
 interface ProtectedRouteProps {
   allowedRoles?: AppRole[];
@@ -38,5 +56,16 @@ export default function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
     );
   }
 
-  return <Outlet />;
+  return (
+    <Flex h="100vh" w="full" overflow="hidden" fontFamily="'Inter', sans-serif">
+      <Sidebar activePage={activePageFromPath(location.pathname)} />
+      <Box as="main" flex={1} h="full" overflowY="auto" bg="#f8fafc" p={{ base: 4, lg: 8 }} sx={scrollStyles}>
+        <AnimatePresence mode="wait">
+          <PageTransition key={location.pathname}>
+            <Outlet />
+          </PageTransition>
+        </AnimatePresence>
+      </Box>
+    </Flex>
+  );
 }

@@ -8,7 +8,6 @@ import com.erp.erp.domain.model.Employee;
 import com.erp.erp.domain.model.PageResult;
 import com.erp.erp.domain.model.enums.EmployeeStatus;
 import com.erp.erp.domain.model.enums.ContractType;
-import com.erp.erp.domain.port.in.employee.CreateEmployeeUseCase;
 import com.erp.erp.domain.port.in.employee.GetEmployeeByEmailUseCase;
 import com.erp.erp.domain.port.in.employee.GetEmployeeByIdUseCase;
 import com.erp.erp.domain.port.in.employee.GetEmployeeContractUseCase;
@@ -22,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public class EmployeeService implements CreateEmployeeUseCase, ListEmployeesUseCase,
+public class EmployeeService implements ListEmployeesUseCase,
         GetEmployeeByEmailUseCase, GetEmployeeByIdUseCase, GetEmployeeContractUseCase, GetEmployeeStatsUseCase {
 
     private final EmployeeRepositoryPort employeeRepositoryPort;
@@ -33,7 +32,6 @@ public class EmployeeService implements CreateEmployeeUseCase, ListEmployeesUseC
         this.mapper = new EmployeeServiceMapper();
     }
 
-    @Override
     public EmployeeResult create(CreateEmployeeCommand command) {
         if (employeeRepositoryPort.existsByEmail(command.email())) {
             throw new IllegalArgumentException("Un employé avec cet email existe déjà : " + command.email());

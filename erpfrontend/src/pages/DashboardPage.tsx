@@ -17,7 +17,6 @@ import {
   Tag,
 } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
-import Sidebar from "../components/Sidebar";
 import { useAuth } from "../hooks/useAuth";
 import { ROLES } from "../types/auth";
 import { getEmployeeStats, type EmployeeStats } from "../services/employee.service";
@@ -283,7 +282,6 @@ function LeaveTable() {
 }
 
 export default function DashboardPage() {
-  const bgPage    = "#f6f7f8";
   const borderClr = "gray.200";
   const textMain  = "gray.900";
   const textMuted = "gray.500";
@@ -336,10 +334,7 @@ export default function DashboardPage() {
   ];
 
   return (
-    <Flex h="100vh" w="full" overflow="hidden" fontFamily="'Inter', sans-serif">
-      <Sidebar activePage="dashboard" />
-      <Box as="main" flex={1} h="full" overflowY="auto" bg={bgPage} p={{ base: 4, lg: 8 }} sx={{ "&::-webkit-scrollbar": { width: "8px", height: "8px" }, "&::-webkit-scrollbar-track": { background: "transparent" }, "&::-webkit-scrollbar-thumb": { background: "#cbd5e1", borderRadius: "4px" }, "&::-webkit-scrollbar-thumb:hover": { background: "#94a3b8" },  }}>
-        <Box maxW="1600px" mx="auto" w="full" display="flex" flexDir="column" gap={8}>
+    <Box maxW="1600px" mx="auto" w="full" display="flex" flexDir="column" gap={8}>
           <Flex as="header" justify="space-between" align="flex-end" pb={4} borderBottomWidth="1px" borderColor={borderClr}>
             <Box>
               <Flex alignItems="center" gap={3} mb={1}>
@@ -382,7 +377,5 @@ export default function DashboardPage() {
           </SimpleGrid>
           <LeaveTable />
         </Box>
-      </Box>
-    </Flex>
   );
 }

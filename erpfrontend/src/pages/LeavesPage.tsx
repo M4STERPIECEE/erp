@@ -25,7 +25,6 @@ import {
   Spinner,
   Button,
 } from "@chakra-ui/react";
-import Sidebar from "../components/Sidebar";
 import { useAllLeaves } from "../hooks/useAllLeaves";
 import { useDepartments } from "../hooks/useDepartments";
 import type { AdminLeaveResponse } from "../types/leave.types";
@@ -85,22 +84,15 @@ export default function LeavesPage() {
 
   if (error) {
     return (
-      <Flex h="100vh" fontFamily="'Inter', sans-serif">
-        <Sidebar activePage="leaves" />
-        <Flex flex={1} align="center" justify="center" direction="column" gap={4}>
-          <Box as="span" className="material-symbols-outlined" fontSize="64px" color="red.400">error</Box>
-          <Text color="gray.700" fontWeight="bold">{error}</Text>
-        </Flex>
+      <Flex flex={1} align="center" justify="center" direction="column" gap={4}>
+        <Box as="span" className="material-symbols-outlined" fontSize="64px" color="red.400">error</Box>
+        <Text color="gray.700" fontWeight="bold">{error}</Text>
       </Flex>
     );
   }
 
   return (
-    <Flex h="100vh" overflow="hidden" fontFamily="'Inter', sans-serif">
-      <Sidebar activePage="leaves" />
-
-      <Box flex={1} overflowY="auto" bg="#f6f7f7" px={{ base: 6, lg: 10 }} py={8}>
-        <Box w="full" display="flex" flexDir="column" gap={6}>
+    <Box w="full" display="flex" flexDir="column" gap={6}>
           <Box>
             <Heading as="h1" fontSize={{ base: "2xl", md: "3xl" }} fontWeight="bold" color="gray.900" letterSpacing="tight">Aperçu des demandes</Heading>
             <Text color="gray.500" mt={1} fontSize="sm">Gérez et suivez les congés de vos équipes en temps réel.</Text>
@@ -273,10 +265,8 @@ export default function LeavesPage() {
             </Flex>
           </Box>
         </Box>
-      </Box>
-    </Flex>
   );
-}
+} 
 function KpiCard({ label, value, icon, iconBg, iconColor }: { label: string; value: number; icon: string; iconBg: string; iconColor: string }) {
   return (
     <Box flex="1" minW="200px" bg="white" p={5} rounded="xl" borderWidth="1px" borderColor="gray.200" shadow="sm" display="flex" alignItems="flex-start" justifyContent="space-between">
