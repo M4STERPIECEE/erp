@@ -31,7 +31,7 @@ public class AbsenceController {
     }
 
     @GetMapping("/my-absences")
-    @PreAuthorize("hasRole('admin')")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<AbsenceResult>> myAbsences(
             @RequestParam(required = false) Integer mois,
             @RequestParam(required = false) Integer annee) {

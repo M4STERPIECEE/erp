@@ -29,7 +29,7 @@ public class PayrollController {
         }
 
         @GetMapping("/my-payslips")
-        @PreAuthorize("hasRole('admin')")
+        @PreAuthorize("isAuthenticated()")
         public ResponseEntity<List<PayslipResult>> myPayslips() {
                 Employee employee = getAuthenticatedEmployee();
                 List<PayslipResult> results = payrollService.listEmployeePayslips(employee.getId())
@@ -38,7 +38,7 @@ public class PayrollController {
         }
 
         @GetMapping("/{id}/pdf")
-        @PreAuthorize("hasRole('admin')")
+        @PreAuthorize("isAuthenticated()")
         public ResponseEntity<byte[]> downloadPdf(@PathVariable Long id) {
                 Employee employee = getAuthenticatedEmployee();
                 Payslip fiche = payrollService.findById(id)

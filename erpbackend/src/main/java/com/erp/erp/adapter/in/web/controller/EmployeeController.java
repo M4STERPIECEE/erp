@@ -53,7 +53,7 @@ public class EmployeeController {
     }
 
     @GetMapping("/me")
-    @PreAuthorize("hasRole('admin')")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Map<String, Object>> myProfile() {
         String email = jwtTokenProvider.getCurrentEmail()
                 .orElseThrow(
@@ -133,7 +133,7 @@ public class EmployeeController {
     @GetMapping("/stats")
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<Map<String, Object>> stats() {
-        long total = employeeRepositoryPort.countEmployees();
+        long total = listEmployeesUseCase.list("", null, "", 0, 1).totalElements();
         Map<ContractType, Long> distribution = employeeRepositoryPort.countByContractType();
 
         Map<String, Object> result = new LinkedHashMap<>();

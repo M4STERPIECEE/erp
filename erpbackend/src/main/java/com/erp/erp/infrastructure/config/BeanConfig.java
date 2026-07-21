@@ -69,8 +69,9 @@ public class BeanConfig {
     }
 
     @Bean
-    public LeaveService leaveService(LeaveRepositoryPort leaveRepositoryPort) {
-        return new LeaveService(leaveRepositoryPort);
+    public LeaveService leaveService(LeaveRepositoryPort leaveRepositoryPort,
+                                     EmployeeRepositoryPort employeeRepositoryPort) {
+        return new LeaveService(leaveRepositoryPort, employeeRepositoryPort);
     }
 
     @Bean

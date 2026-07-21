@@ -41,13 +41,27 @@ public class DepartmentPersistenceAdapter implements DepartmentRepositoryPort {
     }
 
     @Override
-    public long countEmployeesByDepartmentId(Long departementId) {
-        return jpaRepository.countEmployeesByDepartmentId(departementId);
+    public List<Department> findAllWithStats() {
+        return jpaRepository.findAllWithStats().stream()
+                .map(this::rowToDomain)
+                .toList();
     }
 
     @Override
-    public Optional<String> findManagerNameById(Long responsableId) {
-        return jpaRepository.findEmployeeFullNameById(responsableId);
+    public Optional<Department> findByIdWithStats(Long id) {
+        return jpaRepository.findByIdWithStats(id).stream()
+                .map(this::rowToDomain)
+                .findFirst();
+    }
+
+    private Department rowToDomain(Object[] row) {
+        DepartmentJpaEntity entity = (DepartmentJpaEntity) row[0];
+        long nombreEmployes = ((Number) row[1]).longValue();
+        String responsableNom = (String) row[2];
+        Department d = toDomain(entity);
+        d.setNombreEmployes(nombreEmployes);
+        d.setResponsableNom(responsableNom);
+        return d;
     }
 
     private Department toDomain(DepartmentJpaEntity entity) {
