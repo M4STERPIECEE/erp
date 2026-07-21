@@ -53,7 +53,7 @@ public class EmployeeController {
     }
 
     @GetMapping("/me")
-    @PreAuthorize("hasAnyRole('EMPLOYE', 'RH', 'ADMIN')")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<Map<String, Object>> myProfile() {
         String email = jwtTokenProvider.getCurrentEmail()
                 .orElseThrow(
@@ -91,7 +91,7 @@ public class EmployeeController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('RH', 'ADMIN', 'EMPLOYE')")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<PagedEmployeeResponse> list(
             @RequestParam(defaultValue = "") String search,
             @RequestParam(required = false) Long department,
@@ -105,7 +105,7 @@ public class EmployeeController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('RH', 'ADMIN')")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<EmployeeResponse> create(@Valid @RequestBody CreateEmployeeRequest request) {
         CreateEmployeeCommand command = mapper.toCommand(request);
         EmployeeResult result = createEmployeeUseCase.create(command);
@@ -114,7 +114,7 @@ public class EmployeeController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('RH', 'ADMIN')")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<EmployeeResponse> getById(@PathVariable Long id) {
         Employee employee = employeeRepositoryPort.findById(id)
                 .orElseThrow(() -> new EmployeeNotFoundException("Employ\u00e9 introuvable : id=" + id));
@@ -131,7 +131,7 @@ public class EmployeeController {
     }
 
     @GetMapping("/stats")
-    @PreAuthorize("hasAnyRole('RH', 'ADMIN')")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<Map<String, Object>> stats() {
         long total = employeeRepositoryPort.countEmployees();
         Map<ContractType, Long> distribution = employeeRepositoryPort.countByContractType();
@@ -143,7 +143,7 @@ public class EmployeeController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('RH', 'ADMIN')")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<EmployeeResponse> update(@PathVariable Long id,
             @Valid @RequestBody UpdateEmployeeRequest request) {
         Employee employee = employeeRepositoryPort.findById(id)

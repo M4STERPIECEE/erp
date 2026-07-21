@@ -49,7 +49,7 @@ public class LeaveController {
     }
 
     @GetMapping("/my-leaves")
-    @PreAuthorize("hasAnyRole('EMPLOYE', 'RH', 'ADMIN')")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<List<LeaveResult>> myLeaves() {
         Employee employee = getAuthenticatedEmployee();
         List<LeaveResult> results = getLeaveUseCase.listEmployeeLeaves(employee.getId())
@@ -58,7 +58,7 @@ public class LeaveController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('RH', 'ADMIN')")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<List<AdminLeaveResult>> allLeaves(
             @RequestParam(required = false) String statut,
             @RequestParam(required = false) String search,
@@ -111,7 +111,7 @@ public class LeaveController {
     }
 
     @GetMapping("/admin-stats")
-    @PreAuthorize("hasAnyRole('RH', 'ADMIN')")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<Map<String, Object>> adminStats() {
         return ResponseEntity.ok(Map.of(
                 "pending", getLeaveUseCase.countAllPending(),
@@ -121,7 +121,7 @@ public class LeaveController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('EMPLOYE', 'RH', 'ADMIN')")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<LeaveResult> requestLeave(@RequestBody RequestLeaveRequest request) {
         Employee employee = getAuthenticatedEmployee();
         Leave leave = requestLeaveUseCase.requestLeave(
@@ -134,7 +134,7 @@ public class LeaveController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('EMPLOYE', 'RH', 'ADMIN')")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<Void> cancelLeave(@PathVariable Long id) {
         Employee employee = getAuthenticatedEmployee();
         requestLeaveUseCase.cancelLeave(id, employee.getId());
@@ -142,7 +142,7 @@ public class LeaveController {
     }
 
     @PutMapping("/{id}/approve")
-    @PreAuthorize("hasAnyRole('RH', 'ADMIN')")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<LeaveResult> approveLeave(@PathVariable Long id) {
         Long approbateurId = findAuthenticatedEmployeeId();
         Leave leave = approveLeaveUseCase.approveLeave(id, approbateurId);
@@ -150,7 +150,7 @@ public class LeaveController {
     }
 
     @PutMapping("/{id}/reject")
-    @PreAuthorize("hasAnyRole('RH', 'ADMIN')")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<LeaveResult> rejectLeave(@PathVariable Long id) {
         Long approbateurId = findAuthenticatedEmployeeId();
         Leave leave = rejectLeaveUseCase.rejectLeave(id, approbateurId);
@@ -158,7 +158,7 @@ public class LeaveController {
     }
 
     @GetMapping("/stats")
-    @PreAuthorize("hasAnyRole('EMPLOYE', 'RH', 'ADMIN')")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<Map<String, Object>> leaveStats() {
         Employee employee = getAuthenticatedEmployee();
         int daysTaken = getLeaveUseCase.countLeaveDaysTakenThisYear(employee.getId());

@@ -38,7 +38,7 @@ public class LeaveJpaEntity {
     @Column(nullable = false, length = 20)
     private String statut;
 
-    @Column(columnDefinition = "CLOB")
+    @Column(columnDefinition = "TEXT")
     private String motif;
 
     @Column(name = "created_at", updatable = false)

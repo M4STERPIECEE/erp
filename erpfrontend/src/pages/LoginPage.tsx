@@ -64,9 +64,9 @@ export default function LoginPage() {
       <Box position="absolute" inset="0" bg="#1f3b61" opacity={useColorModeValue(0.05, 0.1)} pointerEvents="none" />
       <Box position="absolute" top="0" left="0" right="0" h="256px" bgGradient="linear(to-b, rgba(31,59,97,0.1), transparent)" pointerEvents="none" />
       <Flex flexDir="column" alignItems="center" justifyContent="center" p={{ base: 4, sm: 6, lg: 8 }} zIndex="10" position="relative" w="full"  maxW="container.lg" >
-          <Box w="full" maxW="480px" bg={cardBg} shadow="xl" rounded="xl" borderWidth="1px" borderColor={borderColor} overflow="hidden">
-          <Flex flexDir="column" alignItems="center" pt={10} pb={6} px={8} textAlign="center">
-            <Flex boxSize={12} bg="rgba(31,59,97,0.1)" rounded="lg" alignItems="center" justifyContent="center" mb={6} color="#1f3b61">
+          <Box w="full" maxW="400px" bg={cardBg} shadow="xl" rounded="xl" borderWidth="1px" borderColor={borderColor} overflow="hidden">
+          <Flex flexDir="column" alignItems="center" pt={8} pb={4} px={6} textAlign="center">
+            <Flex boxSize={12} bg="rgba(31,59,97,0.1)" rounded="lg" alignItems="center" justifyContent="center" mb={4} color="#1f3b61">
               <Box as="span" className="material-symbols-outlined" fontSize="32px" lineHeight="1">
                 dataset
               </Box>
@@ -78,8 +78,8 @@ export default function LoginPage() {
               Connectez-vous pour accéder à votre portail RH
             </Text>
           </Flex>
-          <Box px={8} pb={10}>
-            <VStack as="form" spacing={5} onSubmit={handleSubmit}>
+          <Box px={6} pb={8}>
+            <VStack as="form" spacing={4} onSubmit={handleSubmit}>
               <FormControl>
                 <FormLabel color={useColorModeValue("gray.700", "gray.300")} fontSize="sm" fontWeight="medium">
                   Email professionnel
@@ -132,7 +132,7 @@ export default function LoginPage() {
               </Button>
             </VStack>
           </Box>
-          <Flex px={8} py={4} bg={useColorModeValue("gray.50", "rgba(26,32,44,0.5)")} borderTopWidth="1px" borderColor={useColorModeValue("gray.100", "gray.700")} justify="center" textAlign="center" >
+          <Flex px={6} py={3.5} bg={useColorModeValue("gray.50", "rgba(26,32,44,0.5)")} borderTopWidth="1px" borderColor={useColorModeValue("gray.100", "gray.700")} justify="center" textAlign="center" >
             <Text color={textMuted} fontSize="xs">
               Besoin d'assistance ?{" "}
               <Link color={useColorModeValue("#1f3b61", "gray.200")} fontWeight="medium" _hover={{ textDecoration: "underline" }}>

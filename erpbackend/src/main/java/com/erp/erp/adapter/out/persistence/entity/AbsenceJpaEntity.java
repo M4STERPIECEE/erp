@@ -24,10 +24,10 @@ public class AbsenceJpaEntity {
     @Column(name = "\"DATE\"", nullable = false)
     private LocalDate date;
 
-    @Column(columnDefinition = "CLOB")
+    @Column(columnDefinition = "TEXT")
     private String motif;
 
-    @Column(nullable = false, columnDefinition = "NUMBER(1) DEFAULT 0")
+    @Column(nullable = false, columnDefinition = "boolean default false")
     private boolean justifiee;
 
     @Column(name = "created_at", updatable = false)

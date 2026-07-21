@@ -21,7 +21,7 @@ public class DepartmentJpaEntity {
     @Column(nullable = false, unique = true, length = 100)
     private String nom;
 
-    @Column(columnDefinition = "CLOB")
+    @Column(columnDefinition = "TEXT")
     private String description;
 
     @Column(name = "responsable_id")
