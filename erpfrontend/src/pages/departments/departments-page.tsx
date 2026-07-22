@@ -10,7 +10,7 @@ import DepartmentCard from "./department-card";
 import AddNewCard from "./add-new-card";
 import SkeletonCards from "./skeleton-cards";
 import DepartementFormModal from "./department-form-modal";
-import DeleteDepartementDialog from "./delete-department-dialog";
+import ConfirmDeleteDialog from "../../components/ConfirmDeleteDialog";
 
 export default function DepartmentsPage() {
   const { departements, isLoading, error, refresh } = useDepartments();
@@ -90,7 +90,12 @@ export default function DepartmentsPage() {
           isOpen={isFormOpen} onClose={() => { onFormClose(); setEditTarget(null); }} onSaved={refresh} editTarget={editTarget}
         />
       )}
-      <DeleteDepartementDialog dept={deleteTarget} isOpen={isDeleteOpen} onClose={onDeleteClose} onConfirm={confirmDelete} isDeleting={isDeleting} />
+      <ConfirmDeleteDialog title="Supprimer le département" isOpen={isDeleteOpen} onClose={onDeleteClose} onConfirm={confirmDelete} isDeleting={isDeleting}>
+        <Text as="span" fontWeight="600" color="gray.900">
+          {deleteTarget?.nom}
+        </Text>{" "}
+        ? Cette action est irréversible.
+      </ConfirmDeleteDialog>
     </>
   );
 }

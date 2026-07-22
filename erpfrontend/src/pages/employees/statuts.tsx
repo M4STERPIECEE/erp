@@ -1,7 +1,7 @@
 import { Box } from "@chakra-ui/react";
 import type { StatusType } from "../../types/employee.types";
 
-export const statutStyles: Record<StatusType, { bg: string; color: string; borderColor: string; dotColor: string }> = {
+const statutStyles: Record<StatusType, { bg: string; color: string; borderColor: string; dotColor: string }> = {
   ACTIF: { bg: "#dcfce7", color: "#15803d", borderColor: "#bbf7d0", dotColor: "#22c55e" },
   INACTIF: { bg: "#f1f5f9", color: "#475569", borderColor: "#e2e8f0", dotColor: "#94a3b8" },
   SUSPENDU: { bg: "#fee2e2", color: "#b91c1c", borderColor: "#fecaca", dotColor: "#ef4444" },

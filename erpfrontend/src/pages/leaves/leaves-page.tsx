@@ -8,7 +8,8 @@ import {
 } from "@chakra-ui/react";
 import { useAllLeaves } from "../../hooks/useAllLeaves";
 import { useDepartments } from "../../hooks/useDepartments";
-import KpiCard from "./kpi-card";
+import KpiCard from "../../components/KpiCard";
+import Pagination from "../../components/Pagination";
 import TabButton from "./tab-button";
 import LeaveRow from "./leave-row";
 
@@ -189,17 +190,7 @@ export default function LeavesPage() {
             </Tbody>
           </Table>
         </Box>
-        <Flex px={6} py={4} borderTopWidth="1px" borderColor="gray.200" align="center" justify="space-between">
-          <Text fontSize="sm" color="gray.500">
-            Affichage de <Text as="span" fontWeight="medium" color="gray.900">{leaves.length === 0 ? 0 : page * PAGE_SIZE + 1}</Text> à{" "}
-            <Text as="span" fontWeight="medium" color="gray.900">{Math.min((page + 1) * PAGE_SIZE, leaves.length)}</Text> sur{" "}
-            <Text as="span" fontWeight="medium" color="gray.900">{leaves.length}</Text> résultats
-          </Text>
-          <Flex gap={1}>
-            <Button size="sm" variant="outline" borderColor="gray.200" color="gray.500" fontSize="sm" isDisabled={page === 0} onClick={() => setPage((p) => p - 1)}>Précédent</Button>
-            <Button size="sm" variant="outline" borderColor="gray.200" color="gray.500" fontSize="sm" isDisabled={page >= totalPages - 1} onClick={() => setPage((p) => p + 1)}>Suivant</Button>
-          </Flex>
-        </Flex>
+        <Pagination page={page} totalPages={totalPages} totalElements={leaves.length} pageSize={PAGE_SIZE} currentElements={paginated.length} onPageChange={setPage} label="résultats" simple />
       </Box>
     </Box>
   );

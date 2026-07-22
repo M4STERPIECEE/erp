@@ -18,8 +18,8 @@ import Cell from "./cell";
 import ContratBadge from "./contrats";
 import StatutBadge from "./statuts";
 import SkeletonRows from "./skeleton-rows";
-import Pagination from "./pagination";
-import DeleteDialog from "./delete-dialog";
+import Pagination from "../../components/Pagination";
+import ConfirmDeleteDialog from "../../components/ConfirmDeleteDialog";
 
 export default function EmployeesPage() {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -188,13 +188,18 @@ export default function EmployeesPage() {
               </Tbody>
             </Table>
           </Box>
-          {!isLoading && totalElements > 0 && (
-            <Pagination page={page} totalPages={totalPages} totalElements={totalElements} size={size} employees={employees} onPageChange={setPage} />
+          {!isLoading && (
+            <Pagination page={page} totalPages={totalPages} totalElements={totalElements} pageSize={size} currentElements={employees.length} onPageChange={setPage} label="employés" />
           )}
         </Box>
       </Box>
       <AddEmployeeModal isOpen={isOpen} onClose={onClose} onCreated={refresh} />
-      <DeleteDialog employee={deleteTarget} isOpen={isDeleteOpen} onClose={onDeleteClose} onConfirm={confirmDelete} isDeleting={isDeleting} />
+      <ConfirmDeleteDialog title="Supprimer l'employé" isOpen={isDeleteOpen} onClose={onDeleteClose} onConfirm={confirmDelete} isDeleting={isDeleting}>
+        <Text as="span" fontWeight="600" color="gray.900">
+          {deleteTarget?.prenom} {deleteTarget?.nom}
+        </Text>{" "}
+        ({deleteTarget?.matricule}) ? Cette action est irréversible.
+      </ConfirmDeleteDialog>
       <ViewEmployeeModal employee={viewTarget} isOpen={isViewOpen} onClose={onViewClose} />
       <EditEmployeeModal employee={editTarget} isOpen={isEditOpen} onClose={onEditClose} onUpdated={refresh} />
     </>

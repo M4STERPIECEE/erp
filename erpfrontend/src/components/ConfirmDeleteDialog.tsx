@@ -1,14 +1,19 @@
-import { useRef } from "react";
+import { useRef, type ReactNode } from "react";
 import {
-  Box, Text, Button, Spinner, Flex,
+  Box, Button, Spinner, Flex,
   AlertDialog, AlertDialogBody, AlertDialogFooter, AlertDialogHeader, AlertDialogContent, AlertDialogOverlay,
 } from "@chakra-ui/react";
-import type { DepartmentResponse } from "../../types/department.types";
 
-export default function DeleteDepartementDialog({ dept, isOpen, onClose, onConfirm, isDeleting }: {
-  dept: DepartmentResponse | null; isOpen: boolean; onClose: () => void;
-  onConfirm: () => void; isDeleting: boolean;
-}) {
+export interface ConfirmDeleteDialogProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  isDeleting: boolean;
+  title: string;
+  children: ReactNode;
+}
+
+export default function ConfirmDeleteDialog({ isOpen, onClose, onConfirm, isDeleting, title, children }: ConfirmDeleteDialogProps) {
   const cancelRef = useRef<HTMLButtonElement>(null);
   return (
     <AlertDialog isOpen={isOpen} leastDestructiveRef={cancelRef} onClose={onClose} isCentered>
@@ -16,18 +21,10 @@ export default function DeleteDepartementDialog({ dept, isOpen, onClose, onConfi
         <AlertDialogContent rounded="2xl" mx={4} bg="white" fontFamily="'Inter', sans-serif">
           <Box h="4px" bgGradient="linear(to-r, #dc2626, #ef4444)" />
           <AlertDialogHeader fontSize="lg" fontWeight="700" color="gray.900" pt={6}>
-            Supprimer le département
+            {title}
           </AlertDialogHeader>
           <AlertDialogBody color="gray.600" fontSize="sm">
-            Êtes-vous sûr de vouloir supprimer{" "}
-            <Text as="span" fontWeight="600" color="gray.900">
-              {dept?.nom}
-            </Text>{" "}? Cette action est irréversible.
-            {(dept?.nombreEmployes ?? 0) > 0 && (
-              <Text mt={2} color="orange.600" fontSize="xs">
-                ⚠ Ce département contient {dept?.nombreEmployes} employé(s). Ils seront dissociés.
-              </Text>
-            )}
+            {children}
           </AlertDialogBody>
           <AlertDialogFooter pb={6}>
             <Flex w="full" gap={3}>

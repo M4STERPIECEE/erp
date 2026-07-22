@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import {
-  Box, Flex, Text, Button, Spinner,
+  Box, Flex, Button, Spinner,
   Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalFooter, ModalCloseButton,
   FormControl, FormLabel, Input, Textarea, Select,
   useToast,

@@ -1,7 +1,7 @@
 import { Box, Text } from "@chakra-ui/react";
 import type { ContractType } from "../../types/employee.types";
 
-export const contratStyles: Record<ContractType, { bg: string; color: string }> = {
+const contratStyles: Record<ContractType, { bg: string; color: string }> = {
   CDI: { bg: "#dbeafe", color: "#1d4ed8" },
   CDD: { bg: "#ffedd5", color: "#c2410c" },
   FREELANCE: { bg: "#f3e8ff", color: "#7e22ce" },
