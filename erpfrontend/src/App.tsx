@@ -2,11 +2,11 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import PageTransition from "./components/PageTransition";
-import LoginPage from "./pages/LoginPage";
-import DashboardPage from "./pages/DashboardPage";
-import EmployeesPage from "./pages/EmployeesPage";
-import DepartmentsPage from "./pages/DepartmentsPage";
-import LeavesPage from "./pages/LeavesPage";
+import LoginPage from "./pages/login/login-page";
+import DashboardPage from "./pages/dashboard/dashboard-page";
+import EmployeesPage from "./pages/employees/employees-page";
+import DepartmentsPage from "./pages/departments/departments-page";
+import LeavesPage from "./pages/leaves/leaves-page";
 import { ROLES } from "./types/auth";
 import HomeRedirect from "./components/HomeRedirect";
 
