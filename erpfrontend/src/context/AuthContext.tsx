@@ -30,16 +30,12 @@ export function AuthProvider({
   children: ReactNode;
 }) {
   const [user, setUser] = useState<AuthUser | null>(null);
-  const [token, setToken] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [token, setToken] = useState<string | null>(() => localStorage.getItem(TOKEN_KEY));
+  const [isLoading, setIsLoading] = useState(() => !!localStorage.getItem(TOKEN_KEY));
 
   useEffect(() => {
     const storedToken = localStorage.getItem(TOKEN_KEY);
-
-    if (!storedToken) {
-      setIsLoading(false);
-      return;
-    }
+    if (!storedToken) return;
 
     validateToken(storedToken)
       .then((authenticatedUser) => {
