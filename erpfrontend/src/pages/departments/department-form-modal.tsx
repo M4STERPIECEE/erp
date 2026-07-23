@@ -54,7 +54,7 @@ export default function DepartementFormModal({ isOpen, onClose, onSaved, editTar
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered size="md" closeOnOverlayClick={false}>
       <ModalOverlay bg="rgba(15,23,42,0.45)" backdropFilter="blur(6px)" />
-      <ModalContent rounded="2xl" mx={4} bg="white" fontFamily="'Inter', sans-serif" overflow="hidden">
+      <ModalContent rounded="2xl" mx={4} bg="white" overflow="hidden">
         <Box h="4px" bgGradient="linear(to-r, #14b8a6, #0d9488)" />
         <ModalHeader fontSize="lg" fontWeight="700" color="gray.900" pt={6}>
           {editTarget ? "Modifier le département" : "Nouveau département"}

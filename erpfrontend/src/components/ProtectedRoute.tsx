@@ -57,7 +57,7 @@ export default function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
   }
 
   return (
-    <Flex h="100vh" w="full" overflow="hidden" fontFamily="'Inter', sans-serif">
+    <Flex h="100vh" w="full" overflow="hidden">
       <Sidebar activePage={activePageFromPath(location.pathname)} />
       <Box as="main" flex={1} h="full" overflowY="auto" bg="#f8fafc" p={{ base: 4, lg: 8 }} sx={scrollStyles}>
         <AnimatePresence mode="wait">

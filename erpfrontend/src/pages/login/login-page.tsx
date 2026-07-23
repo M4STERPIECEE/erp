@@ -60,7 +60,7 @@ export default function LoginPage() {
   const inputBg = useColorModeValue("gray.50", "gray.800");
 
   return (
-    <Box minH="100vh" w="100vw" bg={bgLightDark} position="relative" fontFamily="'Inter', sans-serif" overflow="hidden" color={textMain} display="flex" alignItems="center"  justifyContent="center">
+    <Box minH="100vh" w="100vw" bg={bgLightDark} position="relative" overflow="hidden" color={textMain} display="flex" alignItems="center"  justifyContent="center">
       <Box position="absolute" inset="0" bg="#1f3b61" opacity={useColorModeValue(0.05, 0.1)} pointerEvents="none" />
       <Box position="absolute" top="0" left="0" right="0" h="256px" bgGradient="linear(to-b, rgba(31,59,97,0.1), transparent)" pointerEvents="none" />
       <Flex flexDir="column" alignItems="center" justifyContent="center" p={{ base: 4, sm: 6, lg: 8 }} zIndex="10" position="relative" w="full"  maxW="container.lg" >

@@ -10,7 +10,7 @@ import { useAllLeaves } from "../../hooks/useAllLeaves";
 import { useDepartments } from "../../hooks/useDepartments";
 import KpiCard from "../../components/KpiCard";
 import Pagination from "../../components/Pagination";
-import TabButton from "./tab-button";
+import TabButton from "./leave-tab-button";
 import LeaveRow from "./leave-row";
 
 function fmtShortDate(s: string): string {

@@ -91,7 +91,7 @@ export default function Sidebar({ activePage = "dashboard" }: SidebarProps) {
   const fullLabel = roleLabel(user?.roles ?? []);
 
   return (
-    <Box as="aside" w="64" minW="256px" bg={bg} display="flex" flexDir="column" justifyContent="space-between" h="full" flexShrink={0} zIndex={20} boxShadow="xl" fontFamily="'Inter', sans-serif" >
+    <Box as="aside" w="64" minW="256px" bg={bg} display="flex" flexDir="column" justifyContent="space-between" h="full" flexShrink={0} zIndex={20} boxShadow="xl" >
       <Box p={6} display="flex" flexDir="column" gap={6}>
         <Flex alignItems="center" gap={3}>
           <Flex bg="rgba(255,255,255,0.1)" p={2} rounded="lg" alignItems="center" justifyContent="center" backdropFilter="blur(4px)" >
@@ -139,7 +139,7 @@ export default function Sidebar({ activePage = "dashboard" }: SidebarProps) {
       </Box>
       <Modal isOpen={isOpen} onClose={onClose} isCentered size="sm" closeOnOverlayClick={false} closeOnEsc={false}>
         <ModalOverlay bg="rgba(15,23,42,0.45)" backdropFilter="blur(6px)" />
-        <ModalContent mx={4} rounded="2xl" bg="white" boxShadow="0 25px 50px -12px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.06)" fontFamily="'Inter', sans-serif" overflow="hidden" >
+        <ModalContent mx={4} rounded="2xl" bg="white" boxShadow="0 25px 50px -12px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.06)" overflow="hidden" >
           <Box h="4px" bgGradient="linear(to-r, #1E3A5F, #0d9488)" />
           <ModalBody px={7} pt={7} pb={4}>
             <Text textAlign="center" fontWeight="700" fontSize="xl" color="gray.900" letterSpacing="tight" mb={2} >

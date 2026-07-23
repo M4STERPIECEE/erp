@@ -6,18 +6,18 @@ import {
   Alert, AlertIcon,
   useToast,
 } from "@chakra-ui/react";
-import AddEmployeeModal from "../../components/AddEmployeeModal";
-import ViewEmployeeModal from "../../components/ViewEmployeeModal";
-import EditEmployeeModal from "../../components/EditEmployeeModal";
+import AddEmployeeModal from "./employee-add-modal";
+import ViewEmployeeModal from "./employee-view-modal";
+import EditEmployeeModal from "./employee-edit-modal";
 import { useEmployees } from "../../hooks/useEmployees";
 import { deleteEmployee } from "../../services/employee.service";
 import { STATUS_TYPES } from "../../types/employee.types";
 import type { EmployeeResponse } from "../../types/employee.types";
 import { useDepartments } from "../../hooks/useDepartments";
-import Cell from "./cell";
-import ContratBadge from "./contrats";
-import StatutBadge from "./statuts";
-import SkeletonRows from "./skeleton-rows";
+import Cell from "./employee-cell";
+import ContratBadge from "./employee-contrats";
+import StatutBadge from "./employee-statuts";
+import SkeletonRows from "./employee-skeleton-rows";
 import Pagination from "../../components/Pagination";
 import ConfirmDeleteDialog from "../../components/ConfirmDeleteDialog";
 

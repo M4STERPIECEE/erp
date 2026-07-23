@@ -8,10 +8,10 @@ import { getEmployeeStats, type EmployeeStats } from "../../services/employee.se
 import { getAdminLeaveStats } from "../../services/leave.service";
 import KpiCard from "../../components/KpiCard";
 import type { KpiCardProps } from "../../components/KpiCard";
-import BarChart from "./bar-chart";
-import DonutChart from "./donut-chart";
-import UpcomingEvents from "./upcoming-events";
-import LeaveTable from "./leave-table";
+import BarChart from "./dashboard-bar-chart";
+import DonutChart from "./dashboard-donut-chart";
+import UpcomingEvents from "./dashboard-upcoming-events";
+import LeaveTable from "./dashboard-leave-table";
 
 export default function DashboardPage() {
   const borderClr = "gray.200";

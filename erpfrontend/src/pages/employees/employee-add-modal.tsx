@@ -5,11 +5,11 @@ import {
   FormControl, FormLabel, FormErrorMessage, Input, Grid,
   Menu, MenuButton, MenuList, MenuItem,
 } from "@chakra-ui/react";
-import { useCreateEmployee } from "../hooks/useCreateEmployee";
-import { useAuth } from "../hooks/useAuth";
-import { CONTRACT_TYPES, ROLE_TYPES } from "../types/employee.types";
-import type { CreateEmployeeRequest } from "../types/employee.types";
-import { useDepartments } from "../hooks/useDepartments";
+import { useCreateEmployee } from "../../hooks/useCreateEmployee";
+import { useAuth } from "../../hooks/useAuth";
+import { CONTRACT_TYPES, ROLE_TYPES } from "../../types/employee.types";
+import type { CreateEmployeeRequest } from "../../types/employee.types";
+import { useDepartments } from "../../hooks/useDepartments";
 
 interface AddEmployeeModalProps {
   isOpen: boolean;
@@ -156,7 +156,7 @@ export default function AddEmployeeModal({ isOpen, onClose, onCreated }: AddEmpl
   return (
     <Modal isOpen={isOpen} onClose={handleClose} size="2xl" isCentered>
       <ModalOverlay bg="rgba(15,23,42,0.45)" backdropFilter="blur(6px)" />
-      <ModalContent rounded="2xl" fontFamily="'Inter', sans-serif" overflow="hidden" bg="white" color="gray.900">
+      <ModalContent rounded="2xl" overflow="hidden" bg="white" color="gray.900">
         <Box h="4px" bgGradient="linear(to-r, #14b8a6, #0d9488)" />
         <ModalHeader px={7} pt={6} pb={2} fontSize="xl" fontWeight="700" color="gray.900" bg="white">
           Ajouter un employé

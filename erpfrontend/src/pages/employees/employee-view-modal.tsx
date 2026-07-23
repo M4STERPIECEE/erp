@@ -2,8 +2,8 @@ import {
   Box, Flex, Text, Badge, Grid, Divider,
   Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalCloseButton,
 } from "@chakra-ui/react";
-import type { EmployeeResponse } from "../types/employee.types";
-import { useDepartments } from "../hooks/useDepartments";
+import type { EmployeeResponse } from "../../types/employee.types";
+import { useDepartments } from "../../hooks/useDepartments";
 
 interface ViewEmployeeModalProps {
   employee: EmployeeResponse | null;
@@ -43,7 +43,7 @@ export default function ViewEmployeeModal({ employee, isOpen, onClose }: ViewEmp
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="lg" isCentered>
       <ModalOverlay bg="rgba(15,23,42,0.45)" backdropFilter="blur(6px)" />
-      <ModalContent rounded="2xl" fontFamily="'Inter', sans-serif" overflow="hidden" bg="white">
+      <ModalContent rounded="2xl" overflow="hidden" bg="white">
         <Box h="4px" bgGradient="linear(to-r, #0f4c81, #1e88e5)" />
         <ModalHeader px={7} pt={6} pb={3}>
           <Flex align="flex-start" justify="space-between" gap={3}>

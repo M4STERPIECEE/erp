@@ -18,7 +18,7 @@ export default function ConfirmDeleteDialog({ isOpen, onClose, onConfirm, isDele
   return (
     <AlertDialog isOpen={isOpen} leastDestructiveRef={cancelRef} onClose={onClose} isCentered>
       <AlertDialogOverlay bg="rgba(15,23,42,0.45)" backdropFilter="blur(6px)">
-        <AlertDialogContent rounded="2xl" mx={4} bg="white" fontFamily="'Inter', sans-serif">
+        <AlertDialogContent rounded="2xl" mx={4} bg="white">
           <Box h="4px" bgGradient="linear(to-r, #dc2626, #ef4444)" />
           <AlertDialogHeader fontSize="lg" fontWeight="700" color="gray.900" pt={6}>
             {title}

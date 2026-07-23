@@ -7,8 +7,8 @@ import { useDepartments } from "../../hooks/useDepartments";
 import { deleteDepartment } from "../../services/department.service";
 import type { DepartmentResponse } from "../../types/department.types";
 import DepartmentCard from "./department-card";
-import AddNewCard from "./add-new-card";
-import SkeletonCards from "./skeleton-cards";
+import AddNewCard from "./department-add-new-card";
+import SkeletonCards from "./department-skeleton-cards";
 import DepartementFormModal from "./department-form-modal";
 import ConfirmDeleteDialog from "../../components/ConfirmDeleteDialog";
 
