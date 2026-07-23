@@ -2,20 +2,63 @@ import { useEffect, useState } from "react";
 import {
   Box, Flex, Button, Spinner,
   Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalFooter, ModalCloseButton,
-  FormControl, FormLabel, Input, Textarea, Select,
+  FormControl, FormLabel, Input, Textarea,
+  Menu, MenuButton, MenuList, MenuItem,
   useToast,
 } from "@chakra-ui/react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { createDepartment, updateDepartment } from "../../services/department.service";
 import { getEmployees } from "../../services/employee.service";
 import type { EmployeeResponse } from "../../types/employee.types";
 import type { DepartmentResponse, CreateDepartmentRequest } from "../../types/department.types";
 
+const menuButtonStyles = (isInvalid: boolean, hasValue: boolean) => ({
+  w: "full",
+  h: "40px",
+  bg: "gray.50",
+  borderWidth: "1px",
+  borderColor: isInvalid ? "red.300" : "gray.200",
+  rounded: "lg",
+  fontSize: "sm",
+  fontWeight: "normal",
+  color: hasValue ? "gray.900" : "gray.400",
+  textAlign: "left" as const,
+  _hover: { bg: "gray.100" },
+  _active: { bg: "gray.50" },
+  _focus: { borderColor: "#14b8a6", boxShadow: "0 0 0 3px rgba(20,184,166,0.12)" },
+});
+
+const menuListStyles = {
+  minW: "0",
+  rounded: "xl",
+  shadow: "lg",
+  borderColor: "gray.200",
+  p: 2,
+  bg: "white",
+};
+
+function menuItemStyles(selected: boolean) {
+  return {
+    rounded: "lg",
+    fontSize: "sm",
+    color: "gray.700",
+    bg: selected ? "teal.50" : "transparent",
+    fontWeight: selected ? "600" : "normal",
+    _hover: { bg: "gray.100" },
+  };
+}
+
+const chevron = (
+  <Box as="span" className="material-symbols-outlined" fontSize="20px" color="gray.400" lineHeight="1">
+    keyboard_arrow_down
+  </Box>
+);
+
 export default function DepartementFormModal({ isOpen, onClose, onSaved, editTarget }: {
   isOpen: boolean; onClose: () => void; onSaved: () => void;
   editTarget: DepartmentResponse | null;
 }) {
-  const { register, handleSubmit, reset, formState: { isSubmitting } } = useForm<CreateDepartmentRequest>({
+  const { register, handleSubmit, reset, control, formState: { isSubmitting } } = useForm<CreateDepartmentRequest>({
     defaultValues: editTarget
       ? { nom: editTarget.nom, description: editTarget.description ?? "", responsableId: editTarget.responsableId ?? undefined }
       : { nom: "", description: "", responsableId: undefined },
@@ -72,13 +115,43 @@ export default function DepartementFormModal({ isOpen, onClose, onSaved, editTar
             </FormControl>
             <FormControl>
               <FormLabel fontSize="sm" fontWeight="medium" color="gray.700">Responsable</FormLabel>
-              <Select {...register("responsableId")} placeholder="Aucun responsable" bg="gray.50" color="gray.900" borderColor="gray.200" rounded="lg" fontSize="sm" _hover={{ borderColor: "gray.300" }} _focus={{ borderColor: "#14b8a6", boxShadow: "0 0 0 3px rgba(20,184,166,0.12)" }} sx={{ "& option": { bg: "#f9fafb", color: "#1a202c" } }}>
-                {employes.map((e) => (
-                  <option key={e.id} value={e.id} style={{ backgroundColor: "#f9fafb", color: "#1a202c" }}>
-                    {e.prenom} {e.nom} — {e.poste}
-                  </option>
-                ))}
-              </Select>
+              <Controller
+                name="responsableId"
+                control={control}
+                render={({ field }) => {
+                  const selectedEmployee = employes.find((e) => e.id === Number(field.value));
+                  return (
+                    <Menu matchWidth>
+                      <MenuButton
+                        as={Button}
+                        {...menuButtonStyles(false, !!field.value)}
+                        rightIcon={chevron}
+                      >
+                        {selectedEmployee
+                          ? `${selectedEmployee.prenom} ${selectedEmployee.nom} — ${selectedEmployee.poste}`
+                          : "Aucun responsable"}
+                      </MenuButton>
+                      <MenuList {...menuListStyles}>
+                        <MenuItem
+                          {...menuItemStyles(false)}
+                          onClick={() => field.onChange(undefined)}
+                        >
+                          Aucun responsable
+                        </MenuItem>
+                        {employes.map((e) => (
+                          <MenuItem
+                            key={e.id}
+                            {...menuItemStyles(Number(field.value) === e.id)}
+                            onClick={() => field.onChange(e.id)}
+                          >
+                            {e.prenom} {e.nom} — {e.poste}
+                          </MenuItem>
+                        ))}
+                      </MenuList>
+                    </Menu>
+                  );
+                }}
+              />
             </FormControl>
           </ModalBody>
           <ModalFooter pb={6}>
@@ -91,7 +164,7 @@ export default function DepartementFormModal({ isOpen, onClose, onSaved, editTar
               </Button>
             </Flex>
           </ModalFooter>
-        </form>è
+        </form>
       </ModalContent>
     </Modal>
   );

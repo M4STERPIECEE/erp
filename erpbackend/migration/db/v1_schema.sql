@@ -1,1 +1,0 @@
-SELECT 'Schema init for Oracle' FROM dual;
