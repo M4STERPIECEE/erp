@@ -6,33 +6,48 @@ export async function login(
 ): Promise<LoginResponse> {
   const response = await fetch("/api/v1/auth/login", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password }),
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      email,
+      password,
+    }),
   });
 
   if (!response.ok) {
-    const err = await response.json().catch(() => ({}));
-    throw new Error(err.detail ?? "Identifiants incorrects");
+    const error = await response.json().catch(() => ({}));
+
+    throw new Error(error.detail ?? "Identifiants incorrects");
   }
 
-  return response.json() as Promise<LoginResponse>;
+  return response.json();
 }
 
-export async function fetchMe(token: string): Promise<AuthUser> {
-  const response = await fetch(`/api/v1/auth/me`, {
-    headers: { Authorization: `Bearer ${token}` },
+export async function fetchAuthenticatedUser(
+  token: string
+): Promise<AuthUser> {
+  const response = await fetch("/api/v1/auth/authenticated-user", {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
   });
 
   if (!response.ok) {
-    throw new Error("Impossible de récupérer les informations utilisateur");
+    throw new Error(
+      "Impossible de récupérer les informations utilisateur"
+    );
   }
 
-  return response.json() as Promise<AuthUser>;
+  return response.json();
 }
 
-export async function validateToken(token: string): Promise<AuthUser | null> {
+export async function validateToken(
+  token: string
+): Promise<AuthUser | null> {
   try {
-    return await fetchMe(token);
+    return await fetchAuthenticatedUser(token);
   } catch {
     return null;
   }
