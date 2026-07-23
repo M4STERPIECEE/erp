@@ -91,7 +91,7 @@ export default function DepartementFormModal({ isOpen, onClose, onSaved, editTar
               </Button>
             </Flex>
           </ModalFooter>
-        </form>
+        </form>è
       </ModalContent>
     </Modal>
   );
