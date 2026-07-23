@@ -25,15 +25,15 @@ import { useAuth } from "../../hooks/useAuth";
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
-  const [email,        setEmail]        = useState("");
-  const [password,     setPassword]     = useState("");
-  const [error,        setError]        = useState<string | null>(null);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { login } = useAuth();
-  const navigate  = useNavigate();
-  const location  = useLocation();
-  const from      = (location.state as { from?: { pathname: string } })?.from?.pathname;
+  const navigate = useNavigate();
+  const location = useLocation();
+  const from = (location.state as { from?: { pathname: string } })?.from?.pathname;
 
   const handleTogglePassword = () => setShowPassword(!showPassword);
 
@@ -60,11 +60,11 @@ export default function LoginPage() {
   const inputBg = useColorModeValue("gray.50", "gray.800");
 
   return (
-    <Box minH="100vh" w="100vw" bg={bgLightDark} position="relative" overflow="hidden" color={textMain} display="flex" alignItems="center"  justifyContent="center">
+    <Box minH="100vh" w="100vw" bg={bgLightDark} position="relative" overflow="hidden" color={textMain} display="flex" alignItems="center" justifyContent="center">
       <Box position="absolute" inset="0" bg="#1f3b61" opacity={useColorModeValue(0.05, 0.1)} pointerEvents="none" />
       <Box position="absolute" top="0" left="0" right="0" h="256px" bgGradient="linear(to-b, rgba(31,59,97,0.1), transparent)" pointerEvents="none" />
-      <Flex flexDir="column" alignItems="center" justifyContent="center" p={{ base: 4, sm: 6, lg: 8 }} zIndex="10" position="relative" w="full"  maxW="container.lg" >
-          <Box w="full" maxW="400px" bg={cardBg} shadow="xl" rounded="xl" borderWidth="1px" borderColor={borderColor} overflow="hidden">
+      <Flex flexDir="column" alignItems="center" justifyContent="center" p={{ base: 4, sm: 6, lg: 8 }} zIndex="10" position="relative" w="full" maxW="container.lg" >
+        <Box w="full" maxW="400px" bg={cardBg} shadow="xl" rounded="xl" borderWidth="1px" borderColor={borderColor} overflow="hidden">
           <Flex flexDir="column" alignItems="center" pt={8} pb={4} px={6} textAlign="center">
             <Flex boxSize={12} bg="rgba(31,59,97,0.1)" rounded="lg" alignItems="center" justifyContent="center" mb={4} color="#1f3b61">
               <Box as="span" className="material-symbols-outlined" fontSize="32px" lineHeight="1">
@@ -79,7 +79,7 @@ export default function LoginPage() {
             </Text>
           </Flex>
           <Box px={6} pb={8}>
-            <VStack as="form" spacing={4} onSubmit={handleSubmit}>
+            <VStack as="form" spacing={4} onSubmit={handleSubmit} w="full" maxW="300px" mx="auto">
               <FormControl>
                 <FormLabel color={useColorModeValue("gray.700", "gray.300")} fontSize="sm" fontWeight="medium">
                   Email professionnel
@@ -112,7 +112,7 @@ export default function LoginPage() {
                 </InputGroup>
               </FormControl>
               <Flex w="full" align="center" justify="space-between" mt={1}>
-                <Checkbox size="sm" colorScheme="teal" sx={{ ".chakra-checkbox__control": { borderColor: useColorModeValue("gray.300", "gray.600"),  bg: useColorModeValue("white", "gray.800"),  borderWidth: "1px",  }, ".chakra-checkbox__control[data-checked]": { bg: "#2d8a8a", borderColor: "#2d8a8a", },  }} >
+                <Checkbox size="sm" colorScheme="teal" sx={{ ".chakra-checkbox__control": { borderColor: useColorModeValue("gray.300", "gray.600"), bg: useColorModeValue("white", "gray.800"), borderWidth: "1px", }, ".chakra-checkbox__control[data-checked]": { bg: "#2d8a8a", borderColor: "#2d8a8a", }, }} >
                   <Text color={textMuted} fontSize="sm" ml={2}>
                     Se souvenir de moi
                   </Text>
