@@ -1,9 +1,8 @@
 package com.erp.erp.adapter.out.persistence.adapter;
 
-import com.erp.erp.adapter.out.persistence.entity.PayslipJpaEntity;
+import com.erp.erp.adapter.out.persistence.mapper.PayslipJpaMapper;
 import com.erp.erp.adapter.out.persistence.repository.PayslipJpaRepository;
 import com.erp.erp.domain.model.Payslip;
-import com.erp.erp.domain.model.enums.PayslipStatus;
 import com.erp.erp.domain.port.out.PayslipRepositoryPort;
 import org.springframework.stereotype.Component;
 
@@ -14,35 +13,21 @@ import java.util.Optional;
 public class PayslipPersistenceAdapter implements PayslipRepositoryPort {
 
     private final PayslipJpaRepository repository;
+    private final PayslipJpaMapper mapper;
 
-    public PayslipPersistenceAdapter(PayslipJpaRepository repository) {
+    public PayslipPersistenceAdapter(PayslipJpaRepository repository, PayslipJpaMapper mapper) {
         this.repository = repository;
+        this.mapper = mapper;
     }
 
     @Override
     public List<Payslip> findByEmployeeId(Long employeId) {
         return repository.findByEmployeIdOrderByAnneeDescMoisDesc(employeId)
-                .stream().map(this::toDomain).toList();
+                .stream().map(mapper::toDomain).toList();
     }
 
     @Override
     public Optional<Payslip> findById(Long id) {
-        return repository.findById(id).map(this::toDomain);
-    }
-
-    private Payslip toDomain(PayslipJpaEntity e) {
-        Payslip f = new Payslip();
-        f.setId(e.getId());
-        f.setEmployeId(e.getEmployeId());
-        f.setMois(e.getMois());
-        f.setAnnee(e.getAnnee());
-        f.setSalaireBase(e.getSalaireBase());
-        f.setTotalAbsences(e.getTotalAbsences());
-        f.setDeductionAbsences(e.getDeductionAbsences());
-        f.setPrimePresence(e.getPrimePresence());
-        f.setCotisationsTotal(e.getCotisationsTotal());
-        f.setSalaireNet(e.getSalaireNet());
-        f.setStatut(PayslipStatus.valueOf(e.getStatut()));
-        return f;
+        return repository.findById(id).map(mapper::toDomain);
     }
 }

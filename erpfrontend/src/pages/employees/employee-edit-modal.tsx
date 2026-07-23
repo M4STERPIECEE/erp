@@ -7,10 +7,10 @@ import {
   Menu, MenuButton, MenuList, MenuItem,
   useToast,
 } from "@chakra-ui/react";
-import type { EmployeeResponse, UpdateEmployeeRequest } from "../types/employee.types";
-import { CONTRACT_TYPES, STATUS_TYPES } from "../types/employee.types";
-import { updateEmployee } from "../services/employee.service";
-import { useDepartments } from "../hooks/useDepartments";
+import type { EmployeeResponse, UpdateEmployeeRequest } from "../../types/employee.types";
+import { CONTRACT_TYPES, STATUS_TYPES } from "../../types/employee.types";
+import { updateEmployee } from "../../services/employee.service";
+import { useDepartments } from "../../hooks/useDepartments";
 
 interface EditEmployeeModalProps {
   employee: EmployeeResponse | null;
@@ -178,7 +178,7 @@ export default function EditEmployeeModal({ employee, isOpen, onClose, onUpdated
   return (
     <Modal isOpen={isOpen} onClose={handleClose} size="2xl" isCentered>
       <ModalOverlay bg="rgba(15,23,42,0.45)" backdropFilter="blur(6px)" />
-      <ModalContent rounded="2xl" fontFamily="'Inter', sans-serif" overflow="hidden" bg="white" color="gray.900">
+      <ModalContent rounded="2xl" overflow="hidden" bg="white" color="gray.900">
         <Box h="4px" bgGradient="linear(to-r, #2563eb, #1d4ed8)" />
         <ModalHeader px={7} pt={6} pb={2} bg="white">
           <Text fontSize="xl" fontWeight="700" color="gray.900">Modifier l'employé</Text>

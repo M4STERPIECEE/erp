@@ -1,12 +1,19 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { ChakraProvider } from '@chakra-ui/react'
+import { ChakraProvider, extendTheme } from '@chakra-ui/react'
 import './index.css'
 import App from './App.tsx'
 
+const theme = extendTheme({
+  fonts: {
+    heading: `'Poppins', sans-serif`,
+    body: `'Poppins', sans-serif`,
+  },
+})
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <ChakraProvider>
+    <ChakraProvider theme={theme}>
       <App />
     </ChakraProvider>
   </StrictMode>,
