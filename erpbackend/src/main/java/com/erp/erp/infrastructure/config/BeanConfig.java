@@ -18,13 +18,12 @@ import com.erp.erp.domain.port.out.LeaveRepositoryPort;
 import com.erp.erp.domain.port.out.DepartmentRepositoryPort;
 import com.erp.erp.domain.port.out.EmployeeRepositoryPort;
 import com.erp.erp.domain.port.out.PayslipRepositoryPort;
-
 import com.erp.erp.domain.service.AbsenceService;
 import com.erp.erp.domain.service.LeaveService;
 import com.erp.erp.domain.service.DepartmentService;
 import com.erp.erp.domain.service.EmployeeService;
 import com.erp.erp.domain.service.PayrollService;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
@@ -32,6 +31,11 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @Configuration
 @EnableTransactionManagement
 public class BeanConfig {
+
+    @Bean
+    public ObjectMapper objectMapper() {
+        return new ObjectMapper();
+    }
 
     @Bean
     public EmployeeService employeeService(EmployeeRepositoryPort employeeRepositoryPort) {
