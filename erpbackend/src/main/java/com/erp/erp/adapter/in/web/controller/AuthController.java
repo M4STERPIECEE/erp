@@ -42,8 +42,8 @@ public class AuthController {
         return ResponseEntity.ok(new LoginResponse(token));
     }
 
-    @GetMapping("/me")
-    public ResponseEntity<AuthUserResponse> me() {
+    @GetMapping("/authenticated-user")
+    public ResponseEntity<AuthUserResponse> authenticatedUser() {
         String email = jwtTokenProvider.getCurrentEmail()
                 .orElseThrow(() -> new UnauthorizedException("Not authenticated"));
 
