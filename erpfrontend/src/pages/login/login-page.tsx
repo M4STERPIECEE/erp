@@ -72,7 +72,7 @@ export default function LoginPage() {
               </Box>
             </Flex>
             <Heading as="h1" color={useColorModeValue("#1f3b61", "white")} fontSize="2xl" fontWeight="bold" lineHeight="tight" letterSpacing="tight" mb={2}>
-              HR Management System
+              SIRH
             </Heading>
             <Text color={textMuted} fontSize="sm" fontWeight="normal">
               Connectez-vous pour accéder à votre portail RH
