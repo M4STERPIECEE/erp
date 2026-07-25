@@ -1,6 +1,6 @@
 package com.erp.erp.infrastructure.security;
 
-import com.erp.erp.infrastructure.exception.ErrorResponseFactory;
+import com.erp.erp.adapter.in.web.exception.ErrorResponseFactory;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;

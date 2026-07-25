@@ -1,12 +1,10 @@
 package com.erp.erp.adapter.in.web.exception;
 
-import com.erp.erp.infrastructure.exception.ErrorResponseFactory;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.erp.erp.infrastructure.exception.exceptions.EmployeeNotFoundException;
-import com.erp.erp.infrastructure.exception.exceptions.LeaveConflictException;
+import com.erp.erp.domain.exception.EmployeeNotFoundException;
+import com.erp.erp.domain.exception.LeaveConflictException;
 import com.erp.erp.domain.exception.LeaveNotFoundException;
-import com.erp.erp.infrastructure.exception.exceptions.PayslipNotFoundException;
-import com.erp.erp.infrastructure.exception.exceptions.UnauthorizedException;
+import com.erp.erp.domain.exception.PayslipNotFoundException;
+import com.erp.erp.domain.exception.UnauthorizedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -27,7 +25,7 @@ public class GlobalExceptionHandler {
     private final ErrorResponseFactory errorResponseFactory;
 
     public GlobalExceptionHandler() {
-        this.errorResponseFactory = new ErrorResponseFactory(new ObjectMapper());
+        this.errorResponseFactory = new ErrorResponseFactory();
     }
 
     public GlobalExceptionHandler(ErrorResponseFactory errorResponseFactory) {
