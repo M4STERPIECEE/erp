@@ -5,7 +5,7 @@ import com.erp.erp.adapter.in.web.dto.response.LoginResponse;
 import com.erp.erp.adapter.in.web.dto.response.AuthUserResponse;
 import com.erp.erp.infrastructure.security.JwtTokenProvider;
 import com.erp.erp.infrastructure.security.JwtUtil;
-import com.erp.erp.infrastructure.exception.exceptions.UnauthorizedException;
+import com.erp.erp.domain.exception.UnauthorizedException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
