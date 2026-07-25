@@ -1,4 +1,5 @@
 name: ci-develop
+
 on:
   push:
     branches:
@@ -7,15 +8,21 @@ on:
 
 permissions:
   contents: read
-  actions: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   backend:
     name: Backend Build & Test
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+
     defaults:
       run:
         working-directory: erpbackend
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -40,13 +47,17 @@ jobs:
           name: backend-jar
           path: erpbackend/build/libs/*.jar
           retention-days: 7
+          if-no-files-found: error
 
   frontend:
     name: Frontend Build & Lint
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+
     defaults:
       run:
         working-directory: erpfrontend
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -73,3 +84,4 @@ jobs:
           name: frontend-dist
           path: erpfrontend/dist/
           retention-days: 7
+          if-no-files-found: error
