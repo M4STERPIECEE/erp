@@ -5,6 +5,9 @@ import com.erp.erp.domain.model.Employee;
 import com.erp.erp.domain.model.Payslip;
 import com.erp.erp.domain.port.in.employee.GetEmployeeByEmailUseCase;
 import com.erp.erp.domain.service.PayrollService;
+import com.erp.erp.infrastructure.exception.exceptions.EmployeeNotFoundException;
+import com.erp.erp.infrastructure.exception.exceptions.PayslipNotFoundException;
+import com.erp.erp.infrastructure.exception.exceptions.UnauthorizedException;
 import com.erp.erp.infrastructure.security.JwtTokenProvider;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -42,10 +45,10 @@ public class PayrollController {
         public ResponseEntity<byte[]> downloadPdf(@PathVariable Long id) {
                 Employee employee = getAuthenticatedEmployee();
                 Payslip fiche = payrollService.findById(id)
-                                .orElseThrow(() -> new IllegalArgumentException("Fiche de paie introuvable"));
+                                .orElseThrow(() -> new PayslipNotFoundException("Fiche de paie introuvable"));
 
                 if (!fiche.getEmployeId().equals(employee.getId())) {
-                        throw new IllegalArgumentException("Cette fiche de paie ne vous appartient pas");
+                        throw new UnauthorizedException("Cette fiche de paie ne vous appartient pas");
                 }
 
                 String content = String.format(
@@ -63,9 +66,9 @@ public class PayrollController {
 
         private Employee getAuthenticatedEmployee() {
                 String email = jwtTokenProvider.getCurrentEmail()
-                                .orElseThrow(() -> new IllegalArgumentException("Utilisateur non authentifié"));
+                                .orElseThrow(() -> new UnauthorizedException("Utilisateur non authentifié"));
                 return getEmployeeByEmailUseCase.findByEmail(email)
-                                .orElseThrow(() -> new IllegalArgumentException("Profil employé introuvable"));
+                                .orElseThrow(() -> new EmployeeNotFoundException("Profil employé introuvable"));
         }
 
         private PayslipResult toResult(Payslip f) {

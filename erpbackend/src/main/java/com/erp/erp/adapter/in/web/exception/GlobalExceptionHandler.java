@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.erp.erp.infrastructure.exception.exceptions.EmployeeNotFoundException;
 import com.erp.erp.infrastructure.exception.exceptions.LeaveConflictException;
 import com.erp.erp.domain.exception.LeaveNotFoundException;
+import com.erp.erp.infrastructure.exception.exceptions.PayslipNotFoundException;
 import com.erp.erp.infrastructure.exception.exceptions.UnauthorizedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +43,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(LeaveNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleLeaveNotFound(LeaveNotFoundException ex) {
         log.warn("Leave not found: {}", ex.getMessage());
+        return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
+    @ExceptionHandler(PayslipNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handlePayslipNotFound(PayslipNotFoundException ex) {
+        log.warn("Payslip not found: {}", ex.getMessage());
         return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
