@@ -1,4 +1,4 @@
-package com.erp.erp.infrastructure.exception.exceptions;
+package com.erp.erp.domain.exception;
 
 public class LeaveConflictException extends RuntimeException {
     public LeaveConflictException(String message) {
