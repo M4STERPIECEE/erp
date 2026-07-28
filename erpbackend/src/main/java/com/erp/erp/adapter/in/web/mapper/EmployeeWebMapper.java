@@ -10,9 +10,9 @@ import com.erp.erp.application.result.EmployeeResult;
 import com.erp.erp.domain.model.Employee;
 import com.erp.erp.domain.model.PageResult;
 import com.erp.erp.domain.port.out.EmployeeRepositoryPort.ContractInfo;
-import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+
 import java.util.List;
 
 @Mapper(componentModel = "spring")
@@ -37,6 +37,5 @@ public interface EmployeeWebMapper {
     @Mapping(target = "salaireBase", expression = "java(contract != null ? contract.salaireBase() : null)")
     @Mapping(target = "dateDebutContrat", expression = "java(contract != null ? contract.dateDebut() : null)")
     @Mapping(target = "dateFinContrat", expression = "java(contract != null ? contract.dateFin() : null)")
-    ProfileResponse toProfileResponse(Employee employee, @Context ContractInfo contract,
-            @Context String departementNom);
+    ProfileResponse toProfileResponse(Employee employee, ContractInfo contract, String departementNom);
 }

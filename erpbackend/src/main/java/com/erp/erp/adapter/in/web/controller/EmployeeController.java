@@ -75,7 +75,8 @@ public class EmployeeController {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ProfileResponse> myProfile() {
         String email = jwtTokenProvider.getCurrentEmail()
-                .orElseThrow(() -> new UnauthorizedException("Utilisateur non authentifié (aucun subject dans le JWT)"));
+                .orElseThrow(
+                        () -> new UnauthorizedException("Utilisateur non authentifié (aucun subject dans le JWT)"));
 
         Employee employee = getEmployeeByEmailUseCase.findByEmail(email)
                 .orElseThrow(() -> new EmployeeNotFoundException(
