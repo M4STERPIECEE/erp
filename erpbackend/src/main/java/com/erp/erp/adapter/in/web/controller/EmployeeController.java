@@ -8,10 +8,12 @@ import com.erp.erp.domain.exception.EmployeeNotFoundException;
 import com.erp.erp.domain.exception.UnauthorizedException;
 import com.erp.erp.adapter.in.web.dto.response.EmployeeResponse;
 import com.erp.erp.adapter.in.web.dto.response.PagedEmployeeResponse;
+import com.erp.erp.adapter.in.web.dto.response.ProfileResponse;
 import com.erp.erp.adapter.in.web.mapper.EmployeeWebMapper;
 import com.erp.erp.application.command.CreateEmployeeCommand;
 import com.erp.erp.application.result.EmployeeListResult;
 import com.erp.erp.application.result.EmployeeResult;
+import com.erp.erp.domain.model.Department;
 import com.erp.erp.domain.model.Employee;
 import com.erp.erp.domain.model.PageResult;
 import com.erp.erp.domain.port.in.employee.CreateEmployeeUseCase;
@@ -71,39 +73,19 @@ public class EmployeeController {
 
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<Map<String, Object>> myProfile() {
+    public ResponseEntity<ProfileResponse> myProfile() {
         String email = jwtTokenProvider.getCurrentEmail()
-                .orElseThrow(
-                        () -> new UnauthorizedException("Utilisateur non authentifié (aucun subject dans le JWT)"));
+                .orElseThrow(() -> new UnauthorizedException("Utilisateur non authentifié (aucun subject dans le JWT)"));
 
         Employee employee = getEmployeeByEmailUseCase.findByEmail(email)
                 .orElseThrow(() -> new EmployeeNotFoundException(
                         "Profil employé introuvable pour email=" + email));
         ContractInfo contract = getEmployeeContractUseCase.findContractByEmployeeId(employee.getId()).orElse(null);
+        String departementNom = employee.getDepartementId() != null
+                ? departmentService.findById(employee.getDepartementId()).map(Department::getNom).orElse(null)
+                : null;
 
-        Map<String, Object> result = new LinkedHashMap<>();
-        result.put("id", employee.getId());
-        result.put("matricule", employee.getMatricule());
-        result.put("nom", employee.getNom());
-        result.put("prenom", employee.getPrenom());
-        result.put("email", employee.getEmail());
-        result.put("telephone", employee.getTelephone());
-        result.put("poste", employee.getPoste());
-        result.put("dateEmbauche", employee.getDateEmbauche());
-        result.put("dateNaissance", employee.getDateNaissance());
-        result.put("statut", employee.getStatut() != null ? employee.getStatut().name() : null);
-
-        if (employee.getDepartementId() != null) {
-            departmentService.findById(employee.getDepartementId())
-                    .ifPresent(d -> result.put("departement", d.getNom()));
-        }
-        if (contract != null) {
-            result.put("contractType", contract.type());
-            result.put("salaireBase", contract.salaireBase());
-            result.put("dateDebutContrat", contract.dateDebut());
-            result.put("dateFinContrat", contract.dateFin());
-        }
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(mapper.toProfileResponse(employee, contract, departementNom));
     }
 
     @GetMapping
