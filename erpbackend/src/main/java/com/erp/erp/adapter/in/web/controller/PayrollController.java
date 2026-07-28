@@ -1,5 +1,6 @@
 package com.erp.erp.adapter.in.web.controller;
 
+import com.erp.erp.adapter.in.web.mapper.PayrollWebMapper;
 import com.erp.erp.application.result.PayslipResult;
 import com.erp.erp.domain.model.Employee;
 import com.erp.erp.domain.model.Payslip;
@@ -22,13 +23,16 @@ public class PayrollController {
         private final PayrollService payrollService;
         private final GetEmployeeByEmailUseCase getEmployeeByEmailUseCase;
         private final JwtTokenProvider jwtTokenProvider;
+        private final PayrollWebMapper payrollWebMappermapper;
 
         public PayrollController(PayrollService payrollService,
                         GetEmployeeByEmailUseCase getEmployeeByEmailUseCase,
-                        JwtTokenProvider jwtTokenProvider) {
+                        JwtTokenProvider jwtTokenProvider,
+                        PayrollWebMapper payrollWebMapper) {
                 this.payrollService = payrollService;
                 this.getEmployeeByEmailUseCase = getEmployeeByEmailUseCase;
                 this.jwtTokenProvider = jwtTokenProvider;
+                this.payrollWebMappermapper = payrollWebMapper;
         }
 
         @GetMapping("/my-payslips")
@@ -36,7 +40,7 @@ public class PayrollController {
         public ResponseEntity<List<PayslipResult>> myPayslips() {
                 Employee employee = getAuthenticatedEmployee();
                 List<PayslipResult> results = payrollService.listEmployeePayslips(employee.getId())
-                                .stream().map(this::toResult).toList();
+                                .stream().map(payrollWebMappermapper::toResult).toList();
                 return ResponseEntity.ok(results);
         }
 
@@ -69,13 +73,5 @@ public class PayrollController {
                                 .orElseThrow(() -> new UnauthorizedException("Utilisateur non authentifié"));
                 return getEmployeeByEmailUseCase.findByEmail(email)
                                 .orElseThrow(() -> new EmployeeNotFoundException("Profil employé introuvable"));
-        }
-
-        private PayslipResult toResult(Payslip f) {
-                return new PayslipResult(
-                                f.getId(), f.getMois(), f.getAnnee(), f.getSalaireBase(),
-                                f.getDeductionAbsences(), f.getPrimePresence(),
-                                f.getCotisationsTotal(), f.getSalaireNet(),
-                                f.getStatut().name());
         }
 }

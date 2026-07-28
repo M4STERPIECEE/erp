@@ -44,7 +44,7 @@ public class EmployeeController {
     private final GetEmployeeByIdUseCase getEmployeeByIdUseCase;
     private final GetEmployeeContractUseCase getEmployeeContractUseCase;
     private final GetEmployeeStatsUseCase getEmployeeStatsUseCase;
-    private final EmployeeWebMapper mapper;
+    private final EmployeeWebMapper employeeWebMapper;
     private final EmployeeRepositoryPort employeeRepositoryPort;
     private final DepartmentService departmentService;
     private final JwtTokenProvider jwtTokenProvider;
@@ -55,7 +55,7 @@ public class EmployeeController {
             GetEmployeeByIdUseCase getEmployeeByIdUseCase,
             GetEmployeeContractUseCase getEmployeeContractUseCase,
             GetEmployeeStatsUseCase getEmployeeStatsUseCase,
-            EmployeeWebMapper mapper,
+            EmployeeWebMapper employeeWebMapper,
             EmployeeRepositoryPort employeeRepositoryPort,
             DepartmentService departmentService,
             JwtTokenProvider jwtTokenProvider) {
@@ -65,7 +65,7 @@ public class EmployeeController {
         this.getEmployeeByIdUseCase = getEmployeeByIdUseCase;
         this.getEmployeeContractUseCase = getEmployeeContractUseCase;
         this.getEmployeeStatsUseCase = getEmployeeStatsUseCase;
-        this.mapper = mapper;
+        this.employeeWebMapper = employeeWebMapper;
         this.employeeRepositoryPort = employeeRepositoryPort;
         this.departmentService = departmentService;
         this.jwtTokenProvider = jwtTokenProvider;
@@ -86,7 +86,7 @@ public class EmployeeController {
                 ? departmentService.findById(employee.getDepartementId()).map(Department::getNom).orElse(null)
                 : null;
 
-        return ResponseEntity.ok(mapper.toProfileResponse(employee, contract, departementNom));
+        return ResponseEntity.ok(employeeWebMapper.toProfileResponse(employee, contract, departementNom));
     }
 
     @GetMapping
@@ -99,16 +99,16 @@ public class EmployeeController {
             @RequestParam(defaultValue = "10") int size) {
 
         PageResult<EmployeeListResult> result = listEmployeesUseCase.list(search, department, statut, page, size);
-        PagedEmployeeResponse response = mapper.toPagedResponse(result);
+        PagedEmployeeResponse response = employeeWebMapper.toPagedResponse(result);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<EmployeeResponse> create(@Valid @RequestBody CreateEmployeeRequest request) {
-        CreateEmployeeCommand command = mapper.toCommand(request);
+        CreateEmployeeCommand command = employeeWebMapper.toCommand(request);
         EmployeeResult result = createEmployeeUseCase.create(command);
-        EmployeeResponse response = mapper.toResponse(result);
+        EmployeeResponse response = employeeWebMapper.toResponse(result);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -126,7 +126,7 @@ public class EmployeeController {
                 employee.getDepartementId(),
                 contract != null ? contract.type() : null,
                 contract != null ? contract.salaireBase() : null);
-        return ResponseEntity.ok(mapper.toResponseFromList(result));
+        return ResponseEntity.ok(employeeWebMapper.toResponseFromList(result));
     }
 
     @GetMapping("/stats")
@@ -172,6 +172,6 @@ public class EmployeeController {
                 saved.getDepartementId(),
                 contract != null ? contract.type() : null,
                 contract != null ? contract.salaireBase() : null);
-        return ResponseEntity.ok(mapper.toResponseFromList(result));
+        return ResponseEntity.ok(employeeWebMapper.toResponseFromList(result));
     }
 }

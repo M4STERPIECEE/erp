@@ -1,6 +1,8 @@
 package com.erp.erp.adapter.in.web.controller;
 
 import com.erp.erp.adapter.in.web.dto.request.RequestLeaveRequest;
+import com.erp.erp.adapter.in.web.dto.response.AdminStatsResponse;
+import com.erp.erp.adapter.in.web.dto.response.LeaveStatsResponse;
 import com.erp.erp.adapter.in.web.mapper.LeaveWebMapper;
 import com.erp.erp.application.result.AdminLeaveResult;
 import com.erp.erp.application.result.LeaveResult;
@@ -18,10 +20,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/${version.path}/leaves")
@@ -33,7 +33,7 @@ public class LeaveController {
     private final RejectLeaveUseCase rejectLeaveUseCase;
     private final GetEmployeeByEmailUseCase getEmployeeByEmailUseCase;
     private final JwtTokenProvider jwtTokenProvider;
-    private final LeaveWebMapper mapper;
+    private final LeaveWebMapper leaveWebMapper;
 
     public LeaveController(RequestLeaveUseCase requestLeaveUseCase,
             GetLeaveUseCase getLeaveUseCase,
@@ -41,14 +41,14 @@ public class LeaveController {
             RejectLeaveUseCase rejectLeaveUseCase,
             GetEmployeeByEmailUseCase getEmployeeByEmailUseCase,
             JwtTokenProvider jwtTokenProvider,
-            LeaveWebMapper mapper) {
+            LeaveWebMapper leaveWebMapper) {
         this.requestLeaveUseCase = requestLeaveUseCase;
         this.getLeaveUseCase = getLeaveUseCase;
         this.approveLeaveUseCase = approveLeaveUseCase;
         this.rejectLeaveUseCase = rejectLeaveUseCase;
         this.getEmployeeByEmailUseCase = getEmployeeByEmailUseCase;
         this.jwtTokenProvider = jwtTokenProvider;
-        this.mapper = mapper;
+        this.leaveWebMapper = leaveWebMapper;
     }
 
     @GetMapping("/my-leaves")
@@ -56,7 +56,7 @@ public class LeaveController {
     public ResponseEntity<List<LeaveResult>> myLeaves() {
         Employee employee = getAuthenticatedEmployee();
         List<LeaveResult> results = getLeaveUseCase.listEmployeeLeaves(employee.getId())
-                .stream().map(mapper::toResult).toList();
+                .stream().map(leaveWebMapper::toResult).toList();
         return ResponseEntity.ok(results);
     }
 
@@ -70,7 +70,7 @@ public class LeaveController {
                 request.dateDebut(),
                 request.dateFin(),
                 request.motif());
-        return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toResult(leave));
+        return ResponseEntity.status(HttpStatus.CREATED).body(leaveWebMapper.toResult(leave));
     }
 
     @DeleteMapping("/{id}")
@@ -83,18 +83,13 @@ public class LeaveController {
 
     @GetMapping("/stats")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<Map<String, Object>> leaveStats() {
+    public ResponseEntity<LeaveStatsResponse> leaveStats() {
         Employee employee = getAuthenticatedEmployee();
         int daysTaken = getLeaveUseCase.countLeaveDaysTakenThisYear(employee.getId());
         int pending = getLeaveUseCase.countPendingRequests(employee.getId());
         int balance = 30 - daysTaken;
-        return ResponseEntity.ok(Map.of(
-                "daysTaken", daysTaken,
-                "pending", pending,
-                "remainingBalance", Math.max(balance, 0)));
+        return ResponseEntity.ok(new LeaveStatsResponse(daysTaken, pending, Math.max(balance, 0)));
     }
-
-    // ---- Routes admin ----
 
     @GetMapping
     @PreAuthorize("hasRole('admin')")
@@ -111,12 +106,12 @@ public class LeaveController {
 
     @GetMapping("/admin-stats")
     @PreAuthorize("hasRole('admin')")
-    public ResponseEntity<Map<String, Object>> adminStats() {
-        return ResponseEntity.ok(Map.of(
-                "pending", getLeaveUseCase.countAllPending(),
-                "approved", getLeaveUseCase.countAllApproved(),
-                "onLeaveToday", getLeaveUseCase.countOnLeaveToday(),
-                "plannedThisMonth", getLeaveUseCase.countPlannedThisMonth()));
+    public ResponseEntity<AdminStatsResponse> adminStats() {
+        return ResponseEntity.ok(new AdminStatsResponse(
+                getLeaveUseCase.countAllPending(),
+                getLeaveUseCase.countAllApproved(),
+                getLeaveUseCase.countOnLeaveToday(),
+                getLeaveUseCase.countPlannedThisMonth()));
     }
 
     @PutMapping("/{id}/approve")
@@ -124,7 +119,7 @@ public class LeaveController {
     public ResponseEntity<LeaveResult> approveLeave(@PathVariable Long id) {
         Long approbateurId = findAuthenticatedEmployeeId();
         Leave leave = approveLeaveUseCase.approveLeave(id, approbateurId);
-        return ResponseEntity.ok(mapper.toResult(leave));
+        return ResponseEntity.ok(leaveWebMapper.toResult(leave));
     }
 
     @PutMapping("/{id}/reject")
@@ -132,7 +127,7 @@ public class LeaveController {
     public ResponseEntity<LeaveResult> rejectLeave(@PathVariable Long id) {
         Long approbateurId = findAuthenticatedEmployeeId();
         Leave leave = rejectLeaveUseCase.rejectLeave(id, approbateurId);
-        return ResponseEntity.ok(mapper.toResult(leave));
+        return ResponseEntity.ok(leaveWebMapper.toResult(leave));
     }
 
     private Employee getAuthenticatedEmployee() {
