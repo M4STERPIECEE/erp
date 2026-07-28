@@ -7,6 +7,7 @@ import com.erp.erp.domain.model.enums.EmployeeStatus;
 import com.erp.erp.domain.exception.EmployeeNotFoundException;
 import com.erp.erp.domain.exception.UnauthorizedException;
 import com.erp.erp.adapter.in.web.dto.response.EmployeeResponse;
+import com.erp.erp.adapter.in.web.dto.response.EmployeeStatsResponse;
 import com.erp.erp.adapter.in.web.dto.response.PagedEmployeeResponse;
 import com.erp.erp.adapter.in.web.dto.response.ProfileResponse;
 import com.erp.erp.adapter.in.web.mapper.EmployeeWebMapper;
@@ -32,7 +33,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 @RestController
@@ -118,27 +118,15 @@ public class EmployeeController {
         Employee employee = getEmployeeByIdUseCase.findById(id)
                 .orElseThrow(() -> new EmployeeNotFoundException("Employ\u00e9 introuvable : id=" + id));
         ContractInfo contract = getEmployeeContractUseCase.findContractByEmployeeId(id).orElse(null);
-        EmployeeListResult result = new EmployeeListResult(
-                employee.getId(), employee.getMatricule(),
-                employee.getNom(), employee.getPrenom(), employee.getEmail(),
-                employee.getTelephone(), employee.getDateNaissance(), employee.getDateEmbauche(),
-                employee.getPoste(), employee.getStatut() != null ? employee.getStatut().name() : null,
-                employee.getDepartementId(),
-                contract != null ? contract.type() : null,
-                contract != null ? contract.salaireBase() : null);
-        return ResponseEntity.ok(employeeWebMapper.toResponseFromList(result));
+        return ResponseEntity.ok(employeeWebMapper.toEmployeeResponse(employee, contract));
     }
 
     @GetMapping("/stats")
     @PreAuthorize("hasRole('admin')")
-    public ResponseEntity<Map<String, Object>> stats() {
+    public ResponseEntity<EmployeeStatsResponse> stats() {
         long total = listEmployeesUseCase.list("", null, "", 0, 1).totalElements();
         Map<ContractType, Long> distribution = getEmployeeStatsUseCase.countByContractType();
-
-        Map<String, Object> result = new LinkedHashMap<>();
-        result.put("totalEmployees", total);
-        result.put("contractDistribution", distribution);
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(employeeWebMapper.toStatsResponse(total, distribution));
     }
 
     @PutMapping("/{id}")
@@ -164,14 +152,6 @@ public class EmployeeController {
             employeeRepositoryPort.updateContract(id, contractType, request.salaireBase(), dateFin);
         }
         ContractInfo contract = getEmployeeContractUseCase.findContractByEmployeeId(id).orElse(null);
-        EmployeeListResult result = new EmployeeListResult(
-                saved.getId(), saved.getMatricule(),
-                saved.getNom(), saved.getPrenom(), saved.getEmail(),
-                saved.getTelephone(), saved.getDateNaissance(), saved.getDateEmbauche(),
-                saved.getPoste(), saved.getStatut() != null ? saved.getStatut().name() : null,
-                saved.getDepartementId(),
-                contract != null ? contract.type() : null,
-                contract != null ? contract.salaireBase() : null);
-        return ResponseEntity.ok(employeeWebMapper.toResponseFromList(result));
+        return ResponseEntity.ok(employeeWebMapper.toEmployeeResponse(saved, contract));
     }
 }

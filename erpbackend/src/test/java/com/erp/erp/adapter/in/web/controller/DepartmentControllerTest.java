@@ -3,6 +3,7 @@ package com.erp.erp.adapter.in.web.controller;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import com.erp.erp.adapter.in.web.dto.request.CreateDepartementRequest;
@@ -42,9 +43,21 @@ class DepartmentControllerTest {
 
     @BeforeEach
     void setUp() {
-        departmentWebMapper = d -> new DepartmentResponse(
-                d.getId(), d.getNom(), d.getDescription(),
-                d.getResponsableId(), d.getResponsableNom(), d.getNombreEmployes());
+        departmentWebMapper = mock(DepartmentWebMapper.class);
+        given(departmentWebMapper.toResponse(any())).willAnswer(invocation -> {
+            Department d = invocation.getArgument(0);
+            return new DepartmentResponse(
+                    d.getId(), d.getNom(), d.getDescription(),
+                    d.getResponsableId(), d.getResponsableNom(), d.getNombreEmployes());
+        });
+        given(departmentWebMapper.toEntity(any())).willAnswer(invocation -> {
+            CreateDepartementRequest req = invocation.getArgument(0);
+            Department d = new Department();
+            d.setNom(req.nom());
+            d.setDescription(req.description());
+            d.setResponsableId(req.responsableId());
+            return d;
+        });
         departmentController = new DepartmentController(getDepartmentUseCase, createDepartmentUseCase, updateDepartmentUseCase, departmentWebMapper);
         mockMvc = MockMvcBuilders.standaloneSetup(departmentController)
                 .setControllerAdvice(new GlobalExceptionHandler())

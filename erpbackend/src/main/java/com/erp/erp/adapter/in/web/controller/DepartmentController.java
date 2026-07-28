@@ -53,11 +53,7 @@ public class DepartmentController {
     @PostMapping
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<DepartmentResponse> create(@RequestBody CreateDepartementRequest request) {
-        Department dept = new Department();
-        dept.setNom(request.nom());
-        dept.setDescription(request.description());
-        dept.setResponsableId(request.responsableId());
-        Department saved = createDepartmentUseCase.create(dept);
+        Department saved = createDepartmentUseCase.create(departmentWebMapper.toEntity(request));
         return ResponseEntity.status(HttpStatus.CREATED).body(departmentWebMapper.toResponse(saved));
     }
 

@@ -11,11 +11,8 @@ import com.erp.erp.domain.model.Leave;
 import com.erp.erp.domain.port.in.leave.ApproveLeaveUseCase;
 import com.erp.erp.domain.port.in.leave.GetLeaveUseCase;
 import com.erp.erp.domain.port.in.leave.RejectLeaveUseCase;
-import com.erp.erp.domain.port.in.employee.GetEmployeeByEmailUseCase;
 import com.erp.erp.domain.port.in.leave.RequestLeaveUseCase;
-import com.erp.erp.domain.exception.EmployeeNotFoundException;
-import com.erp.erp.domain.exception.UnauthorizedException;
-import com.erp.erp.infrastructure.security.JwtTokenProvider;
+import com.erp.erp.infrastructure.security.AuthenticatedUserProvider;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -31,30 +28,27 @@ public class LeaveController {
     private final GetLeaveUseCase getLeaveUseCase;
     private final ApproveLeaveUseCase approveLeaveUseCase;
     private final RejectLeaveUseCase rejectLeaveUseCase;
-    private final GetEmployeeByEmailUseCase getEmployeeByEmailUseCase;
-    private final JwtTokenProvider jwtTokenProvider;
     private final LeaveWebMapper leaveWebMapper;
+    private final AuthenticatedUserProvider authenticatedUserProvider;
 
     public LeaveController(RequestLeaveUseCase requestLeaveUseCase,
             GetLeaveUseCase getLeaveUseCase,
             ApproveLeaveUseCase approveLeaveUseCase,
             RejectLeaveUseCase rejectLeaveUseCase,
-            GetEmployeeByEmailUseCase getEmployeeByEmailUseCase,
-            JwtTokenProvider jwtTokenProvider,
-            LeaveWebMapper leaveWebMapper) {
+            LeaveWebMapper leaveWebMapper,
+            AuthenticatedUserProvider authenticatedUserProvider) {
         this.requestLeaveUseCase = requestLeaveUseCase;
         this.getLeaveUseCase = getLeaveUseCase;
         this.approveLeaveUseCase = approveLeaveUseCase;
         this.rejectLeaveUseCase = rejectLeaveUseCase;
-        this.getEmployeeByEmailUseCase = getEmployeeByEmailUseCase;
-        this.jwtTokenProvider = jwtTokenProvider;
         this.leaveWebMapper = leaveWebMapper;
+        this.authenticatedUserProvider = authenticatedUserProvider;
     }
 
     @GetMapping("/my-leaves")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<LeaveResult>> myLeaves() {
-        Employee employee = getAuthenticatedEmployee();
+        Employee employee = authenticatedUserProvider.getAuthenticatedEmployee();
         List<LeaveResult> results = getLeaveUseCase.listEmployeeLeaves(employee.getId())
                 .stream().map(leaveWebMapper::toResult).toList();
         return ResponseEntity.ok(results);
@@ -63,7 +57,7 @@ public class LeaveController {
     @PostMapping
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<LeaveResult> requestLeave(@RequestBody RequestLeaveRequest request) {
-        Employee employee = getAuthenticatedEmployee();
+        Employee employee = authenticatedUserProvider.getAuthenticatedEmployee();
         Leave leave = requestLeaveUseCase.requestLeave(
                 employee.getId(),
                 request.type(),
@@ -76,7 +70,7 @@ public class LeaveController {
     @DeleteMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Void> cancelLeave(@PathVariable Long id) {
-        Employee employee = getAuthenticatedEmployee();
+        Employee employee = authenticatedUserProvider.getAuthenticatedEmployee();
         requestLeaveUseCase.cancelLeave(id, employee.getId());
         return ResponseEntity.noContent().build();
     }
@@ -84,7 +78,7 @@ public class LeaveController {
     @GetMapping("/stats")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<LeaveStatsResponse> leaveStats() {
-        Employee employee = getAuthenticatedEmployee();
+        Employee employee = authenticatedUserProvider.getAuthenticatedEmployee();
         int daysTaken = getLeaveUseCase.countLeaveDaysTakenThisYear(employee.getId());
         int pending = getLeaveUseCase.countPendingRequests(employee.getId());
         int balance = 30 - daysTaken;
@@ -117,7 +111,7 @@ public class LeaveController {
     @PutMapping("/{id}/approve")
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<LeaveResult> approveLeave(@PathVariable Long id) {
-        Long approbateurId = findAuthenticatedEmployeeId();
+        Long approbateurId = authenticatedUserProvider.getAuthenticatedEmployeeId();
         Leave leave = approveLeaveUseCase.approveLeave(id, approbateurId);
         return ResponseEntity.ok(leaveWebMapper.toResult(leave));
     }
@@ -125,24 +119,8 @@ public class LeaveController {
     @PutMapping("/{id}/reject")
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<LeaveResult> rejectLeave(@PathVariable Long id) {
-        Long approbateurId = findAuthenticatedEmployeeId();
+        Long approbateurId = authenticatedUserProvider.getAuthenticatedEmployeeId();
         Leave leave = rejectLeaveUseCase.rejectLeave(id, approbateurId);
         return ResponseEntity.ok(leaveWebMapper.toResult(leave));
-    }
-
-    private Employee getAuthenticatedEmployee() {
-        String email = jwtTokenProvider.getCurrentEmail()
-                .orElseThrow(() -> new UnauthorizedException("Utilisateur non authentifié"));
-        return getEmployeeByEmailUseCase.findByEmail(email)
-                .orElseThrow(() -> new EmployeeNotFoundException("Profil employé introuvable"));
-    }
-
-    private Long findAuthenticatedEmployeeId() {
-        String email = jwtTokenProvider.getCurrentEmail().orElse(null);
-        if (email == null)
-            return null;
-        return getEmployeeByEmailUseCase.findByEmail(email)
-                .map(Employee::getId)
-                .orElse(null);
     }
 }

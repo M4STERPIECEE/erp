@@ -14,6 +14,7 @@ import com.erp.erp.domain.model.Absence;
 import com.erp.erp.domain.model.Employee;
 import com.erp.erp.domain.port.in.absence.GetAbsenceUseCase;
 import com.erp.erp.domain.port.in.employee.GetEmployeeByEmailUseCase;
+import com.erp.erp.infrastructure.security.AuthenticatedUserProvider;
 import com.erp.erp.infrastructure.security.JwtTokenProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,6 +37,7 @@ class AbsenceControllerTest {
         private MockMvc mockMvc;
         private AbsenceController absenceController;
         private AbsenceWebMapper absenceWebMapper;
+        private AuthenticatedUserProvider authenticatedUserProvider;
 
         @MockitoBean
         private GetAbsenceUseCase getAbsenceUseCase;
@@ -48,8 +50,9 @@ class AbsenceControllerTest {
         @BeforeEach
         void setUp() {
                 absenceWebMapper = a -> new AbsenceResult(a.getId(), a.getDate(), a.getMotif(), a.isJustifiee());
-                absenceController = new AbsenceController(getAbsenceUseCase, getEmployeeByEmailUseCase,
-                                jwtTokenProvider, absenceWebMapper);
+                authenticatedUserProvider = new AuthenticatedUserProvider(jwtTokenProvider, getEmployeeByEmailUseCase);
+                absenceController = new AbsenceController(getAbsenceUseCase, absenceWebMapper,
+                                authenticatedUserProvider);
                 mockMvc = MockMvcBuilders.standaloneSetup(absenceController)
                                 .setControllerAdvice(new GlobalExceptionHandler())
                                 .addPlaceholderValue("version.path", "v1").build();

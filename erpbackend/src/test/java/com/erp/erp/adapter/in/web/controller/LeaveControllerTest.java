@@ -20,6 +20,7 @@ import com.erp.erp.domain.port.in.leave.GetLeaveUseCase;
 import com.erp.erp.domain.port.in.leave.RejectLeaveUseCase;
 import com.erp.erp.domain.port.in.leave.RequestLeaveUseCase;
 import com.erp.erp.domain.port.in.employee.GetEmployeeByEmailUseCase;
+import com.erp.erp.infrastructure.security.AuthenticatedUserProvider;
 import com.erp.erp.infrastructure.security.JwtTokenProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -45,6 +46,7 @@ class LeaveControllerTest {
     private MockMvc mockMvc;
     private LeaveController leaveController;
     private LeaveWebMapper leaveWebMapper;
+    private AuthenticatedUserProvider authenticatedUserProvider;
     private final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
     @MockitoBean private RequestLeaveUseCase requestLeaveUseCase;
@@ -62,10 +64,11 @@ class LeaveControllerTest {
                 l.getId(), l.getType().name(), l.getDateDebut(), l.getDateFin(),
                 l.getNombreJours(), l.getStatut().name(), l.getMotif(),
                 l.getCreatedAt() != null ? l.getCreatedAt().toLocalDate() : null);
+        authenticatedUserProvider = new AuthenticatedUserProvider(jwtTokenProvider, getEmployeeByEmailUseCase);
         leaveController = new LeaveController(
                 requestLeaveUseCase, getLeaveUseCase, approveLeaveUseCase,
-                rejectLeaveUseCase, getEmployeeByEmailUseCase, jwtTokenProvider,
-                leaveWebMapper
+                rejectLeaveUseCase, leaveWebMapper,
+                authenticatedUserProvider
         );
         mockMvc = MockMvcBuilders.standaloneSetup(leaveController)
                 .setControllerAdvice(new GlobalExceptionHandler())
