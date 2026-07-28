@@ -49,8 +49,7 @@ public class LeaveController {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<LeaveResult>> myLeaves() {
         Employee employee = authenticatedUserProvider.getAuthenticatedEmployee();
-        List<LeaveResult> results = getLeaveUseCase.listEmployeeLeaves(employee.getId())
-                .stream().map(leaveWebMapper::toResult).toList();
+        List<LeaveResult> results = getLeaveUseCase.listEmployeeLeaves(employee.getId()).stream().map(leaveWebMapper::toResult).toList();
         return ResponseEntity.ok(results);
     }
 
@@ -58,12 +57,7 @@ public class LeaveController {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<LeaveResult> requestLeave(@RequestBody RequestLeaveRequest request) {
         Employee employee = authenticatedUserProvider.getAuthenticatedEmployee();
-        Leave leave = requestLeaveUseCase.requestLeave(
-                employee.getId(),
-                request.type(),
-                request.dateDebut(),
-                request.dateFin(),
-                request.motif());
+        Leave leave = requestLeaveUseCase.requestLeave(employee.getId(), request.type(), request.dateDebut(), request.dateFin(), request.motif());
         return ResponseEntity.status(HttpStatus.CREATED).body(leaveWebMapper.toResult(leave));
     }
 
