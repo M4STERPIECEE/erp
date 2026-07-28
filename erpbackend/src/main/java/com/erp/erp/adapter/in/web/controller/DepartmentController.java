@@ -22,10 +22,7 @@ public class DepartmentController {
     private final UpdateDepartmentUseCase updateDepartmentUseCase;
     private final DepartmentWebMapper departmentWebMapper;
 
-    public DepartmentController(GetDepartmentUseCase getDepartmentUseCase,
-            CreateDepartmentUseCase createDepartmentUseCase,
-            UpdateDepartmentUseCase updateDepartmentUseCase,
-            DepartmentWebMapper departmentWebMapper) {
+    public DepartmentController(GetDepartmentUseCase getDepartmentUseCase, CreateDepartmentUseCase createDepartmentUseCase, UpdateDepartmentUseCase updateDepartmentUseCase, DepartmentWebMapper departmentWebMapper) {
         this.getDepartmentUseCase = getDepartmentUseCase;
         this.createDepartmentUseCase = createDepartmentUseCase;
         this.updateDepartmentUseCase = updateDepartmentUseCase;
@@ -36,9 +33,7 @@ public class DepartmentController {
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<List<DepartmentResponse>> list() {
         List<Department> departements = getDepartmentUseCase.listAll();
-        List<DepartmentResponse> response = departements.stream()
-                .map(departmentWebMapper::toResponse)
-                .toList();
+        List<DepartmentResponse> response = departements.stream().map(departmentWebMapper::toResponse).toList();
         return ResponseEntity.ok(response);
     }
 
@@ -59,10 +54,8 @@ public class DepartmentController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('admin')")
-    public ResponseEntity<DepartmentResponse> update(@PathVariable Long id,
-            @RequestBody CreateDepartementRequest request) {
-        Department updated = updateDepartmentUseCase.update(id, request.nom(), request.description(),
-                request.responsableId());
+    public ResponseEntity<DepartmentResponse> update(@PathVariable Long id, @RequestBody CreateDepartementRequest request) {
+        Department updated = updateDepartmentUseCase.update(id, request.nom(), request.description(), request.responsableId());
         return ResponseEntity.ok(departmentWebMapper.toResponse(updated));
     }
 
