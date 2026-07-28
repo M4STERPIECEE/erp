@@ -1,12 +1,12 @@
 package com.erp.erp.adapter.in.web.controller;
 
 import com.erp.erp.application.result.AbsenceResult;
-import com.erp.erp.domain.model.Absence;
 import com.erp.erp.domain.model.Employee;
 import com.erp.erp.domain.port.in.absence.GetAbsenceUseCase;
 import com.erp.erp.domain.port.in.employee.GetEmployeeByEmailUseCase;
 import com.erp.erp.domain.exception.EmployeeNotFoundException;
 import com.erp.erp.domain.exception.UnauthorizedException;
+import com.erp.erp.adapter.in.web.mapper.AbsenceWebMapper;
 import com.erp.erp.infrastructure.security.JwtTokenProvider;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,13 +21,16 @@ public class AbsenceController {
     private final GetAbsenceUseCase getAbsenceUseCase;
     private final GetEmployeeByEmailUseCase getEmployeeByEmailUseCase;
     private final JwtTokenProvider jwtTokenProvider;
+    private final AbsenceWebMapper mapper;
 
     public AbsenceController(GetAbsenceUseCase getAbsenceUseCase,
             GetEmployeeByEmailUseCase getEmployeeByEmailUseCase,
-            JwtTokenProvider jwtTokenProvider) {
+            JwtTokenProvider jwtTokenProvider,
+            AbsenceWebMapper mapper) {
         this.getAbsenceUseCase = getAbsenceUseCase;
         this.getEmployeeByEmailUseCase = getEmployeeByEmailUseCase;
         this.jwtTokenProvider = jwtTokenProvider;
+        this.mapper = mapper;
     }
 
     @GetMapping("/my-absences")
@@ -41,7 +44,7 @@ public class AbsenceController {
         int a = annee != null ? annee : LocalDate.now().getYear();
 
         List<AbsenceResult> results = getAbsenceUseCase.listEmployeeAbsences(employee.getId(), m, a)
-                .stream().map(this::toResult).toList();
+                .stream().map(mapper::toResult).toList();
         return ResponseEntity.ok(results);
     }
 
@@ -50,9 +53,5 @@ public class AbsenceController {
                 .orElseThrow(() -> new UnauthorizedException("Utilisateur non authentifié"));
         return getEmployeeByEmailUseCase.findByEmail(email)
                 .orElseThrow(() -> new EmployeeNotFoundException("Profil employé introuvable"));
-    }
-
-    private AbsenceResult toResult(Absence a) {
-        return new AbsenceResult(a.getId(), a.getDate(), a.getMotif(), a.isJustifiee());
     }
 }

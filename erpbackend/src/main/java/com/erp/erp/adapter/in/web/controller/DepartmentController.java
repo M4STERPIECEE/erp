@@ -2,6 +2,7 @@ package com.erp.erp.adapter.in.web.controller;
 
 import com.erp.erp.adapter.in.web.dto.request.CreateDepartementRequest;
 import com.erp.erp.adapter.in.web.dto.response.DepartmentResponse;
+import com.erp.erp.adapter.in.web.mapper.DepartmentWebMapper;
 import com.erp.erp.domain.model.Department;
 import com.erp.erp.domain.port.in.department.CreateDepartmentUseCase;
 import com.erp.erp.domain.port.in.department.GetDepartmentUseCase;
@@ -20,13 +21,16 @@ public class DepartmentController {
     private final GetDepartmentUseCase getDepartmentUseCase;
     private final CreateDepartmentUseCase createDepartmentUseCase;
     private final UpdateDepartmentUseCase updateDepartmentUseCase;
+    private final DepartmentWebMapper mapper;
 
     public DepartmentController(GetDepartmentUseCase getDepartmentUseCase,
                                 CreateDepartmentUseCase createDepartmentUseCase,
-                                UpdateDepartmentUseCase updateDepartmentUseCase) {
+                                UpdateDepartmentUseCase updateDepartmentUseCase,
+                                DepartmentWebMapper mapper) {
         this.getDepartmentUseCase = getDepartmentUseCase;
         this.createDepartmentUseCase = createDepartmentUseCase;
         this.updateDepartmentUseCase = updateDepartmentUseCase;
+        this.mapper = mapper;
     }
 
     @GetMapping
@@ -34,7 +38,7 @@ public class DepartmentController {
     public ResponseEntity<List<DepartmentResponse>> list() {
         List<Department> departements = getDepartmentUseCase.listAll();
         List<DepartmentResponse> response = departements.stream()
-                .map(this::toResponse)
+                .map(mapper::toResponse)
                 .toList();
         return ResponseEntity.ok(response);
     }
@@ -43,7 +47,7 @@ public class DepartmentController {
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<DepartmentResponse> findById(@PathVariable Long id) {
         return getDepartmentUseCase.findById(id)
-                .map(d -> ResponseEntity.ok(toResponse(d)))
+                .map(d -> ResponseEntity.ok(mapper.toResponse(d)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
@@ -55,7 +59,7 @@ public class DepartmentController {
         dept.setDescription(request.description());
         dept.setResponsableId(request.responsableId());
         Department saved = createDepartmentUseCase.create(dept);
-        return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(saved));
+        return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toResponse(saved));
     }
 
     @PutMapping("/{id}")
@@ -63,7 +67,7 @@ public class DepartmentController {
     public ResponseEntity<DepartmentResponse> update(@PathVariable Long id,
                                                        @RequestBody CreateDepartementRequest request) {
         Department updated = updateDepartmentUseCase.update(id, request.nom(), request.description(), request.responsableId());
-        return ResponseEntity.ok(toResponse(updated));
+        return ResponseEntity.ok(mapper.toResponse(updated));
     }
 
     @DeleteMapping("/{id}")
@@ -73,12 +77,4 @@ public class DepartmentController {
         return ResponseEntity.noContent().build();
     }
 
-    private DepartmentResponse toResponse(Department d) {
-        return new DepartmentResponse(
-                d.getId(), d.getNom(), d.getDescription(),
-                d.getResponsableId(), d.getResponsableNom(),
-                d.getNombreEmployes()
-        );
     }
-
-}

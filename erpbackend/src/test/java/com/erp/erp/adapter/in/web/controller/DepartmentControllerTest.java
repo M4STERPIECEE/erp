@@ -6,7 +6,9 @@ import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import com.erp.erp.adapter.in.web.dto.request.CreateDepartementRequest;
+import com.erp.erp.adapter.in.web.dto.response.DepartmentResponse;
 import com.erp.erp.adapter.in.web.exception.GlobalExceptionHandler;
+import com.erp.erp.adapter.in.web.mapper.DepartmentWebMapper;
 import com.erp.erp.domain.model.Department;
 import com.erp.erp.domain.port.in.department.CreateDepartmentUseCase;
 import com.erp.erp.domain.port.in.department.GetDepartmentUseCase;
@@ -36,10 +38,14 @@ class DepartmentControllerTest {
     @MockitoBean private GetDepartmentUseCase getDepartmentUseCase;
     @MockitoBean private CreateDepartmentUseCase createDepartmentUseCase;
     @MockitoBean private UpdateDepartmentUseCase updateDepartmentUseCase;
+    private DepartmentWebMapper departmentWebMapper;
 
     @BeforeEach
     void setUp() {
-        departmentController = new DepartmentController(getDepartmentUseCase, createDepartmentUseCase, updateDepartmentUseCase);
+        departmentWebMapper = d -> new DepartmentResponse(
+                d.getId(), d.getNom(), d.getDescription(),
+                d.getResponsableId(), d.getResponsableNom(), d.getNombreEmployes());
+        departmentController = new DepartmentController(getDepartmentUseCase, createDepartmentUseCase, updateDepartmentUseCase, departmentWebMapper);
         mockMvc = MockMvcBuilders.standaloneSetup(departmentController)
                 .setControllerAdvice(new GlobalExceptionHandler())
                 .addPlaceholderValue("version.path", "v1")

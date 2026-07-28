@@ -1,5 +1,7 @@
 package com.erp.erp.adapter.in.web.controller;
 
+import com.erp.erp.adapter.in.web.dto.request.RequestLeaveRequest;
+import com.erp.erp.adapter.in.web.mapper.LeaveWebMapper;
 import com.erp.erp.application.result.AdminLeaveResult;
 import com.erp.erp.application.result.LeaveResult;
 import com.erp.erp.domain.model.Employee;
@@ -31,19 +33,22 @@ public class LeaveController {
     private final RejectLeaveUseCase rejectLeaveUseCase;
     private final GetEmployeeByEmailUseCase getEmployeeByEmailUseCase;
     private final JwtTokenProvider jwtTokenProvider;
+    private final LeaveWebMapper mapper;
 
     public LeaveController(RequestLeaveUseCase requestLeaveUseCase,
             GetLeaveUseCase getLeaveUseCase,
             ApproveLeaveUseCase approveLeaveUseCase,
             RejectLeaveUseCase rejectLeaveUseCase,
             GetEmployeeByEmailUseCase getEmployeeByEmailUseCase,
-            JwtTokenProvider jwtTokenProvider) {
+            JwtTokenProvider jwtTokenProvider,
+            LeaveWebMapper mapper) {
         this.requestLeaveUseCase = requestLeaveUseCase;
         this.getLeaveUseCase = getLeaveUseCase;
         this.approveLeaveUseCase = approveLeaveUseCase;
         this.rejectLeaveUseCase = rejectLeaveUseCase;
         this.getEmployeeByEmailUseCase = getEmployeeByEmailUseCase;
         this.jwtTokenProvider = jwtTokenProvider;
+        this.mapper = mapper;
     }
 
     @GetMapping("/my-leaves")
@@ -51,7 +56,7 @@ public class LeaveController {
     public ResponseEntity<List<LeaveResult>> myLeaves() {
         Employee employee = getAuthenticatedEmployee();
         List<LeaveResult> results = getLeaveUseCase.listEmployeeLeaves(employee.getId())
-                .stream().map(this::toResult).toList();
+                .stream().map(mapper::toResult).toList();
         return ResponseEntity.ok(results);
     }
 
@@ -65,7 +70,7 @@ public class LeaveController {
                 request.dateDebut(),
                 request.dateFin(),
                 request.motif());
-        return ResponseEntity.status(HttpStatus.CREATED).body(toResult(leave));
+        return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toResult(leave));
     }
 
     @DeleteMapping("/{id}")
@@ -119,7 +124,7 @@ public class LeaveController {
     public ResponseEntity<LeaveResult> approveLeave(@PathVariable Long id) {
         Long approbateurId = findAuthenticatedEmployeeId();
         Leave leave = approveLeaveUseCase.approveLeave(id, approbateurId);
-        return ResponseEntity.ok(toResult(leave));
+        return ResponseEntity.ok(mapper.toResult(leave));
     }
 
     @PutMapping("/{id}/reject")
@@ -127,7 +132,7 @@ public class LeaveController {
     public ResponseEntity<LeaveResult> rejectLeave(@PathVariable Long id) {
         Long approbateurId = findAuthenticatedEmployeeId();
         Leave leave = rejectLeaveUseCase.rejectLeave(id, approbateurId);
-        return ResponseEntity.ok(toResult(leave));
+        return ResponseEntity.ok(mapper.toResult(leave));
     }
 
     private Employee getAuthenticatedEmployee() {
@@ -144,15 +149,5 @@ public class LeaveController {
         return getEmployeeByEmailUseCase.findByEmail(email)
                 .map(Employee::getId)
                 .orElse(null);
-    }
-
-    private LeaveResult toResult(Leave c) {
-        return new LeaveResult(
-                c.getId(), c.getType().name(), c.getDateDebut(), c.getDateFin(),
-                c.getNombreJours(), c.getStatut().name(), c.getMotif(),
-                c.getCreatedAt() != null ? c.getCreatedAt().toLocalDate() : null);
-    }
-
-    public record RequestLeaveRequest(String type, LocalDate dateDebut, LocalDate dateFin, String motif) {
     }
 }
