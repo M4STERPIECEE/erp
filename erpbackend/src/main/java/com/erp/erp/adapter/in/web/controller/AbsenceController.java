@@ -1,13 +1,10 @@
 package com.erp.erp.adapter.in.web.controller;
 
 import com.erp.erp.application.result.AbsenceResult;
-import com.erp.erp.domain.model.Absence;
 import com.erp.erp.domain.model.Employee;
 import com.erp.erp.domain.port.in.absence.GetAbsenceUseCase;
-import com.erp.erp.domain.port.in.employee.GetEmployeeByEmailUseCase;
-import com.erp.erp.domain.exception.EmployeeNotFoundException;
-import com.erp.erp.domain.exception.UnauthorizedException;
-import com.erp.erp.infrastructure.security.JwtTokenProvider;
+import com.erp.erp.adapter.in.web.mapper.AbsenceWebMapper;
+import com.erp.erp.infrastructure.security.AuthenticatedUserProvider;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -19,15 +16,15 @@ import java.util.List;
 public class AbsenceController {
 
     private final GetAbsenceUseCase getAbsenceUseCase;
-    private final GetEmployeeByEmailUseCase getEmployeeByEmailUseCase;
-    private final JwtTokenProvider jwtTokenProvider;
+    private final AbsenceWebMapper mapper;
+    private final AuthenticatedUserProvider authenticatedUserProvider;
 
     public AbsenceController(GetAbsenceUseCase getAbsenceUseCase,
-            GetEmployeeByEmailUseCase getEmployeeByEmailUseCase,
-            JwtTokenProvider jwtTokenProvider) {
+            AbsenceWebMapper mapper,
+            AuthenticatedUserProvider authenticatedUserProvider) {
         this.getAbsenceUseCase = getAbsenceUseCase;
-        this.getEmployeeByEmailUseCase = getEmployeeByEmailUseCase;
-        this.jwtTokenProvider = jwtTokenProvider;
+        this.mapper = mapper;
+        this.authenticatedUserProvider = authenticatedUserProvider;
     }
 
     @GetMapping("/my-absences")
@@ -35,24 +32,13 @@ public class AbsenceController {
     public ResponseEntity<List<AbsenceResult>> myAbsences(
             @RequestParam(required = false) Integer mois,
             @RequestParam(required = false) Integer annee) {
-        Employee employee = getAuthenticatedEmployee();
+        Employee employee = authenticatedUserProvider.getAuthenticatedEmployee();
 
         int m = mois != null ? mois : LocalDate.now().getMonthValue();
         int a = annee != null ? annee : LocalDate.now().getYear();
 
         List<AbsenceResult> results = getAbsenceUseCase.listEmployeeAbsences(employee.getId(), m, a)
-                .stream().map(this::toResult).toList();
+                .stream().map(mapper::toResult).toList();
         return ResponseEntity.ok(results);
-    }
-
-    private Employee getAuthenticatedEmployee() {
-        String email = jwtTokenProvider.getCurrentEmail()
-                .orElseThrow(() -> new UnauthorizedException("Utilisateur non authentifié"));
-        return getEmployeeByEmailUseCase.findByEmail(email)
-                .orElseThrow(() -> new EmployeeNotFoundException("Profil employé introuvable"));
-    }
-
-    private AbsenceResult toResult(Absence a) {
-        return new AbsenceResult(a.getId(), a.getDate(), a.getMotif(), a.isJustifiee());
     }
 }

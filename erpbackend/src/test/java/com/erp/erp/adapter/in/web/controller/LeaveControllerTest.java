@@ -7,7 +7,10 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import com.erp.erp.adapter.in.web.dto.request.RequestLeaveRequest;
 import com.erp.erp.adapter.in.web.exception.GlobalExceptionHandler;
+import com.erp.erp.adapter.in.web.mapper.LeaveWebMapper;
+import com.erp.erp.application.result.LeaveResult;
 import com.erp.erp.domain.model.Employee;
 import com.erp.erp.domain.model.Leave;
 import com.erp.erp.domain.model.enums.LeaveStatus;
@@ -17,6 +20,7 @@ import com.erp.erp.domain.port.in.leave.GetLeaveUseCase;
 import com.erp.erp.domain.port.in.leave.RejectLeaveUseCase;
 import com.erp.erp.domain.port.in.leave.RequestLeaveUseCase;
 import com.erp.erp.domain.port.in.employee.GetEmployeeByEmailUseCase;
+import com.erp.erp.infrastructure.security.AuthenticatedUserProvider;
 import com.erp.erp.infrastructure.security.JwtTokenProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -41,6 +45,8 @@ class LeaveControllerTest {
 
     private MockMvc mockMvc;
     private LeaveController leaveController;
+    private LeaveWebMapper leaveWebMapper;
+    private AuthenticatedUserProvider authenticatedUserProvider;
     private final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
     @MockitoBean private RequestLeaveUseCase requestLeaveUseCase;
@@ -54,9 +60,15 @@ class LeaveControllerTest {
 
     @BeforeEach
     void setUp() {
+        leaveWebMapper = l -> new LeaveResult(
+                l.getId(), l.getType().name(), l.getDateDebut(), l.getDateFin(),
+                l.getNombreJours(), l.getStatut().name(), l.getMotif(),
+                l.getCreatedAt() != null ? l.getCreatedAt().toLocalDate() : null);
+        authenticatedUserProvider = new AuthenticatedUserProvider(jwtTokenProvider, getEmployeeByEmailUseCase);
         leaveController = new LeaveController(
                 requestLeaveUseCase, getLeaveUseCase, approveLeaveUseCase,
-                rejectLeaveUseCase, getEmployeeByEmailUseCase, jwtTokenProvider
+                rejectLeaveUseCase, leaveWebMapper,
+                authenticatedUserProvider
         );
         mockMvc = MockMvcBuilders.standaloneSetup(leaveController)
                 .setControllerAdvice(new GlobalExceptionHandler())
@@ -89,7 +101,7 @@ class LeaveControllerTest {
     @Test
     void should_request_leave_and_return_201() throws Exception {
         //given
-        LeaveController.RequestLeaveRequest request = new LeaveController.RequestLeaveRequest(
+        RequestLeaveRequest request = new RequestLeaveRequest(
                 "ANNUEL", LocalDate.now().plusDays(1), LocalDate.now().plusDays(5), "Vacances"
         );
 

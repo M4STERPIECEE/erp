@@ -3,10 +3,13 @@ package com.erp.erp.adapter.in.web.controller;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import com.erp.erp.adapter.in.web.dto.request.CreateDepartementRequest;
+import com.erp.erp.adapter.in.web.dto.response.DepartmentResponse;
 import com.erp.erp.adapter.in.web.exception.GlobalExceptionHandler;
+import com.erp.erp.adapter.in.web.mapper.DepartmentWebMapper;
 import com.erp.erp.domain.model.Department;
 import com.erp.erp.domain.port.in.department.CreateDepartmentUseCase;
 import com.erp.erp.domain.port.in.department.GetDepartmentUseCase;
@@ -36,10 +39,26 @@ class DepartmentControllerTest {
     @MockitoBean private GetDepartmentUseCase getDepartmentUseCase;
     @MockitoBean private CreateDepartmentUseCase createDepartmentUseCase;
     @MockitoBean private UpdateDepartmentUseCase updateDepartmentUseCase;
+    private DepartmentWebMapper departmentWebMapper;
 
     @BeforeEach
     void setUp() {
-        departmentController = new DepartmentController(getDepartmentUseCase, createDepartmentUseCase, updateDepartmentUseCase);
+        departmentWebMapper = mock(DepartmentWebMapper.class);
+        given(departmentWebMapper.toResponse(any())).willAnswer(invocation -> {
+            Department d = invocation.getArgument(0);
+            return new DepartmentResponse(
+                    d.getId(), d.getNom(), d.getDescription(),
+                    d.getResponsableId(), d.getResponsableNom(), d.getNombreEmployes());
+        });
+        given(departmentWebMapper.toEntity(any())).willAnswer(invocation -> {
+            CreateDepartementRequest req = invocation.getArgument(0);
+            Department d = new Department();
+            d.setNom(req.nom());
+            d.setDescription(req.description());
+            d.setResponsableId(req.responsableId());
+            return d;
+        });
+        departmentController = new DepartmentController(getDepartmentUseCase, createDepartmentUseCase, updateDepartmentUseCase, departmentWebMapper);
         mockMvc = MockMvcBuilders.standaloneSetup(departmentController)
                 .setControllerAdvice(new GlobalExceptionHandler())
                 .addPlaceholderValue("version.path", "v1")

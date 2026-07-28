@@ -2,6 +2,7 @@ package com.erp.erp.adapter.in.web.controller;
 
 import com.erp.erp.adapter.in.web.dto.request.CreateDepartementRequest;
 import com.erp.erp.adapter.in.web.dto.response.DepartmentResponse;
+import com.erp.erp.adapter.in.web.mapper.DepartmentWebMapper;
 import com.erp.erp.domain.model.Department;
 import com.erp.erp.domain.port.in.department.CreateDepartmentUseCase;
 import com.erp.erp.domain.port.in.department.GetDepartmentUseCase;
@@ -10,7 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
@@ -20,13 +20,16 @@ public class DepartmentController {
     private final GetDepartmentUseCase getDepartmentUseCase;
     private final CreateDepartmentUseCase createDepartmentUseCase;
     private final UpdateDepartmentUseCase updateDepartmentUseCase;
+    private final DepartmentWebMapper departmentWebMapper;
 
     public DepartmentController(GetDepartmentUseCase getDepartmentUseCase,
-                                CreateDepartmentUseCase createDepartmentUseCase,
-                                UpdateDepartmentUseCase updateDepartmentUseCase) {
+            CreateDepartmentUseCase createDepartmentUseCase,
+            UpdateDepartmentUseCase updateDepartmentUseCase,
+            DepartmentWebMapper departmentWebMapper) {
         this.getDepartmentUseCase = getDepartmentUseCase;
         this.createDepartmentUseCase = createDepartmentUseCase;
         this.updateDepartmentUseCase = updateDepartmentUseCase;
+        this.departmentWebMapper = departmentWebMapper;
     }
 
     @GetMapping
@@ -34,7 +37,7 @@ public class DepartmentController {
     public ResponseEntity<List<DepartmentResponse>> list() {
         List<Department> departements = getDepartmentUseCase.listAll();
         List<DepartmentResponse> response = departements.stream()
-                .map(this::toResponse)
+                .map(departmentWebMapper::toResponse)
                 .toList();
         return ResponseEntity.ok(response);
     }
@@ -43,27 +46,24 @@ public class DepartmentController {
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<DepartmentResponse> findById(@PathVariable Long id) {
         return getDepartmentUseCase.findById(id)
-                .map(d -> ResponseEntity.ok(toResponse(d)))
+                .map(d -> ResponseEntity.ok(departmentWebMapper.toResponse(d)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<DepartmentResponse> create(@RequestBody CreateDepartementRequest request) {
-        Department dept = new Department();
-        dept.setNom(request.nom());
-        dept.setDescription(request.description());
-        dept.setResponsableId(request.responsableId());
-        Department saved = createDepartmentUseCase.create(dept);
-        return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(saved));
+        Department saved = createDepartmentUseCase.create(departmentWebMapper.toEntity(request));
+        return ResponseEntity.status(HttpStatus.CREATED).body(departmentWebMapper.toResponse(saved));
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<DepartmentResponse> update(@PathVariable Long id,
-                                                       @RequestBody CreateDepartementRequest request) {
-        Department updated = updateDepartmentUseCase.update(id, request.nom(), request.description(), request.responsableId());
-        return ResponseEntity.ok(toResponse(updated));
+            @RequestBody CreateDepartementRequest request) {
+        Department updated = updateDepartmentUseCase.update(id, request.nom(), request.description(),
+                request.responsableId());
+        return ResponseEntity.ok(departmentWebMapper.toResponse(updated));
     }
 
     @DeleteMapping("/{id}")
@@ -71,14 +71,6 @@ public class DepartmentController {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         updateDepartmentUseCase.delete(id);
         return ResponseEntity.noContent().build();
-    }
-
-    private DepartmentResponse toResponse(Department d) {
-        return new DepartmentResponse(
-                d.getId(), d.getNom(), d.getDescription(),
-                d.getResponsableId(), d.getResponsableNom(),
-                d.getNombreEmployes()
-        );
     }
 
 }

@@ -1,18 +1,16 @@
 package com.erp.erp.adapter.in.web.controller;
 
+import com.erp.erp.adapter.in.web.mapper.PayrollWebMapper;
 import com.erp.erp.application.result.PayslipResult;
 import com.erp.erp.domain.model.Employee;
 import com.erp.erp.domain.model.Payslip;
-import com.erp.erp.domain.port.in.employee.GetEmployeeByEmailUseCase;
 import com.erp.erp.domain.service.PayrollService;
-import com.erp.erp.domain.exception.EmployeeNotFoundException;
 import com.erp.erp.domain.exception.PayslipNotFoundException;
 import com.erp.erp.domain.exception.UnauthorizedException;
-import com.erp.erp.infrastructure.security.JwtTokenProvider;
+import com.erp.erp.infrastructure.security.AuthenticatedUserProvider;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
@@ -20,30 +18,30 @@ import java.util.List;
 public class PayrollController {
 
         private final PayrollService payrollService;
-        private final GetEmployeeByEmailUseCase getEmployeeByEmailUseCase;
-        private final JwtTokenProvider jwtTokenProvider;
+        private final PayrollWebMapper payrollWebMapper;
+        private final AuthenticatedUserProvider authenticatedUserProvider;
 
         public PayrollController(PayrollService payrollService,
-                        GetEmployeeByEmailUseCase getEmployeeByEmailUseCase,
-                        JwtTokenProvider jwtTokenProvider) {
+                        PayrollWebMapper payrollWebMapper,
+                        AuthenticatedUserProvider authenticatedUserProvider) {
                 this.payrollService = payrollService;
-                this.getEmployeeByEmailUseCase = getEmployeeByEmailUseCase;
-                this.jwtTokenProvider = jwtTokenProvider;
+                this.payrollWebMapper = payrollWebMapper;
+                this.authenticatedUserProvider = authenticatedUserProvider;
         }
 
         @GetMapping("/my-payslips")
         @PreAuthorize("isAuthenticated()")
         public ResponseEntity<List<PayslipResult>> myPayslips() {
-                Employee employee = getAuthenticatedEmployee();
+                Employee employee = authenticatedUserProvider.getAuthenticatedEmployee();
                 List<PayslipResult> results = payrollService.listEmployeePayslips(employee.getId())
-                                .stream().map(this::toResult).toList();
+                                .stream().map(payrollWebMapper::toResult).toList();
                 return ResponseEntity.ok(results);
         }
 
         @GetMapping("/{id}/pdf")
         @PreAuthorize("isAuthenticated()")
         public ResponseEntity<byte[]> downloadPdf(@PathVariable Long id) {
-                Employee employee = getAuthenticatedEmployee();
+                Employee employee = authenticatedUserProvider.getAuthenticatedEmployee();
                 Payslip fiche = payrollService.findById(id)
                                 .orElseThrow(() -> new PayslipNotFoundException("Fiche de paie introuvable"));
 
@@ -62,20 +60,5 @@ public class PayrollController {
                                                 "attachment; filename=fiche_" + fiche.getMois() + "_" + fiche.getAnnee()
                                                                 + ".pdf")
                                 .body(content.getBytes());
-        }
-
-        private Employee getAuthenticatedEmployee() {
-                String email = jwtTokenProvider.getCurrentEmail()
-                                .orElseThrow(() -> new UnauthorizedException("Utilisateur non authentifié"));
-                return getEmployeeByEmailUseCase.findByEmail(email)
-                                .orElseThrow(() -> new EmployeeNotFoundException("Profil employé introuvable"));
-        }
-
-        private PayslipResult toResult(Payslip f) {
-                return new PayslipResult(
-                                f.getId(), f.getMois(), f.getAnnee(), f.getSalaireBase(),
-                                f.getDeductionAbsences(), f.getPrimePresence(),
-                                f.getCotisationsTotal(), f.getSalaireNet(),
-                                f.getStatut().name());
         }
 }
