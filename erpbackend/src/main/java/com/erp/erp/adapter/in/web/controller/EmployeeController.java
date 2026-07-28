@@ -3,7 +3,6 @@ package com.erp.erp.adapter.in.web.controller;
 import com.erp.erp.adapter.in.web.dto.request.CreateEmployeeRequest;
 import com.erp.erp.adapter.in.web.dto.request.UpdateEmployeeRequest;
 import com.erp.erp.domain.model.enums.ContractType;
-import com.erp.erp.domain.model.enums.EmployeeStatus;
 import com.erp.erp.domain.exception.EmployeeNotFoundException;
 import com.erp.erp.domain.exception.UnauthorizedException;
 import com.erp.erp.adapter.in.web.dto.response.EmployeeResponse;
@@ -135,16 +134,7 @@ public class EmployeeController {
             @Valid @RequestBody UpdateEmployeeRequest request) {
         Employee employee = getEmployeeByIdUseCase.findById(id)
                 .orElseThrow(() -> new EmployeeNotFoundException("Employ\u00e9 introuvable : id=" + id));
-        employee.setNom(request.nom());
-        employee.setPrenom(request.prenom());
-        employee.setTelephone(request.telephone());
-        employee.setDateNaissance(request.dateNaissance());
-        employee.setDateEmbauche(request.dateEmbauche());
-        employee.setPoste(request.poste());
-        if (request.statut() != null) {
-            employee.setStatut(EmployeeStatus.valueOf(request.statut()));
-        }
-        employee.setDepartementId(request.departementId());
+        employeeWebMapper.updateEmployee(employee, request);
         Employee saved = employeeRepositoryPort.save(employee);
         if (request.contractType() != null && request.salaireBase() != null) {
             ContractType contractType = ContractType.valueOf(request.contractType());
