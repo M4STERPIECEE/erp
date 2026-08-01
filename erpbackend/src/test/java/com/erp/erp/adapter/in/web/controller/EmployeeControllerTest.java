@@ -48,13 +48,14 @@ class EmployeeControllerTest {
     @MockitoBean private GetEmployeeContractUseCase getEmployeeContractUseCase;
     @MockitoBean private GetEmployeeStatsUseCase getEmployeeStatsUseCase;
     @MockitoBean private EmployeeWebMapper employeeWebMapper;
+    @MockitoBean private com.erp.erp.application.mapper.EmployeeServiceMapper employeeServiceMapper;
     @MockitoBean private EmployeeRepositoryPort employeeRepositoryPort;
     @MockitoBean private DepartmentService departmentService;
     @MockitoBean private JwtTokenProvider jwtTokenProvider;
 
     @BeforeEach
     void setUp() {
-        employeeController = new EmployeeController(createEmployeeUseCase, listEmployeesUseCase, getEmployeeByEmailUseCase, getEmployeeByIdUseCase, getEmployeeContractUseCase, getEmployeeStatsUseCase, employeeWebMapper, employeeRepositoryPort, departmentService, jwtTokenProvider);
+        employeeController = new EmployeeController(createEmployeeUseCase, listEmployeesUseCase, getEmployeeByEmailUseCase, getEmployeeByIdUseCase, getEmployeeContractUseCase, getEmployeeStatsUseCase, employeeWebMapper, employeeServiceMapper, employeeRepositoryPort, departmentService, jwtTokenProvider);
         mockMvc = MockMvcBuilders.standaloneSetup(employeeController)
                 .setControllerAdvice(new GlobalExceptionHandler())
                 .addPlaceholderValue("version.path", "v1")
@@ -117,7 +118,7 @@ class EmployeeControllerTest {
 
         given(getEmployeeByIdUseCase.findById(employeeId)).willReturn(Optional.of(employee));
         given(getEmployeeContractUseCase.findContractByEmployeeId(employeeId)).willReturn(Optional.empty());
-        given(employeeWebMapper.toEmployeeResponse(any(), any())).willReturn(responseDto);
+        given(employeeWebMapper.toResponseFromList(any())).willReturn(responseDto);
 
         // when
         MockHttpServletResponse response = mockMvc

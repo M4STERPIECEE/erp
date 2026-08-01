@@ -27,9 +27,9 @@ public class EmployeeService implements ListEmployeesUseCase,
     private final EmployeeRepositoryPort employeeRepositoryPort;
     private final EmployeeServiceMapper mapper;
 
-    public EmployeeService(EmployeeRepositoryPort employeeRepositoryPort) {
+    public EmployeeService(EmployeeRepositoryPort employeeRepositoryPort, EmployeeServiceMapper mapper) {
         this.employeeRepositoryPort = employeeRepositoryPort;
-        this.mapper = new EmployeeServiceMapper();
+        this.mapper = mapper;
     }
 
     public EmployeeResult create(CreateEmployeeCommand command) {

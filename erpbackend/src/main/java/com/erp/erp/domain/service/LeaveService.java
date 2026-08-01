@@ -12,7 +12,6 @@ import com.erp.erp.domain.port.in.leave.RejectLeaveUseCase;
 import com.erp.erp.domain.port.in.leave.RequestLeaveUseCase;
 import com.erp.erp.domain.port.out.EmployeeRepositoryPort;
 import com.erp.erp.domain.port.out.LeaveRepositoryPort;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -26,10 +25,11 @@ public class LeaveService implements RequestLeaveUseCase, GetLeaveUseCase, Appro
     private final EmployeeRepositoryPort employeeRepositoryPort;
     private final LeaveServiceMapper mapper;
 
-    public LeaveService(LeaveRepositoryPort congeRepository, EmployeeRepositoryPort employeeRepositoryPort) {
+    public LeaveService(LeaveRepositoryPort congeRepository, EmployeeRepositoryPort employeeRepositoryPort,
+            LeaveServiceMapper mapper) {
         this.congeRepository = congeRepository;
         this.employeeRepositoryPort = employeeRepositoryPort;
-        this.mapper = new LeaveServiceMapper();
+        this.mapper = mapper;
     }
 
     @Override

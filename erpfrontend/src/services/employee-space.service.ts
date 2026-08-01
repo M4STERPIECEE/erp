@@ -9,7 +9,7 @@ import type {
 } from "../types/employee-space.types";
 
 export async function getMyProfile(): Promise<MyProfileResponse> {
-  const { data } = await api.get<MyProfileResponse>("/employees/me");
+  const { data } = await api.get<MyProfileResponse>("/employees/profile");
   return data;
 }
 
