@@ -133,8 +133,7 @@ jobs:
           tag_name: ${{ github.ref_name }}
           name: "Release ${{ github.ref_name }}"
           body_path: changelog.md
-          draft: false
           prerelease: ${{ contains(github.ref_name, '-rc') || contains(github.ref_name, '-beta') || contains(github.ref_name, '-alpha') }}
           files: |
-            dist/backend/*.jar
+            dist/backend/erpbackend/build/libs/*.jar
             frontend-dist-${{ github.ref_name }}.zip
