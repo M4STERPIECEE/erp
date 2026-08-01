@@ -112,7 +112,7 @@ jobs:
 
       - name: Archive frontend dist
         run: |
-          cd dist/frontend
+          cd dist/frontend/erpfrontend/dist
           zip -r ../../frontend-dist-${{ github.ref_name }}.zip .
 
       - name: Generate changelog from commits
