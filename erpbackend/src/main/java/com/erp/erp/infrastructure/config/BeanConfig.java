@@ -23,6 +23,8 @@ import com.erp.erp.domain.service.LeaveService;
 import com.erp.erp.domain.service.DepartmentService;
 import com.erp.erp.domain.service.EmployeeService;
 import com.erp.erp.domain.service.PayrollService;
+import com.erp.erp.application.mapper.EmployeeServiceMapper;
+import com.erp.erp.application.mapper.LeaveServiceMapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -38,8 +40,8 @@ public class BeanConfig {
     }
 
     @Bean
-    public EmployeeService employeeService(EmployeeRepositoryPort employeeRepositoryPort) {
-        return new EmployeeService(employeeRepositoryPort);
+    public EmployeeService employeeService(EmployeeRepositoryPort employeeRepositoryPort, EmployeeServiceMapper employeeServiceMapper) {
+        return new EmployeeService(employeeRepositoryPort, employeeServiceMapper);
     }
 
     @Bean
@@ -89,8 +91,8 @@ public class BeanConfig {
 
     @Bean
     public LeaveService leaveService(LeaveRepositoryPort leaveRepositoryPort,
-            EmployeeRepositoryPort employeeRepositoryPort) {
-        return new LeaveService(leaveRepositoryPort, employeeRepositoryPort);
+            EmployeeRepositoryPort employeeRepositoryPort, LeaveServiceMapper leaveServiceMapper) {
+        return new LeaveService(leaveRepositoryPort, employeeRepositoryPort, leaveServiceMapper);
     }
 
     @Bean

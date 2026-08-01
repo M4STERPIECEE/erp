@@ -45,15 +45,6 @@ public interface EmployeeWebMapper {
     @Mapping(target = "dateFinContrat", expression = "java(contract != null ? contract.dateFin() : null)")
     ProfileResponse toProfileResponse(Employee employee, ContractInfo contract, String departementNom);
 
-    @Mapping(target = "statut", expression = "java(employee.getStatut() != null ? employee.getStatut().name() : null)")
-    @Mapping(target = "contractType", expression = "java(contract != null ? contract.type() : null)")
-    @Mapping(target = "salaireBase", expression = "java(contract != null ? contract.salaireBase() : null)")
-    EmployeeListResult toEmployeeListResult(Employee employee, ContractInfo contract);
-
-    default EmployeeResponse toEmployeeResponse(Employee employee, ContractInfo contract) {
-        return toResponseFromList(toEmployeeListResult(employee, contract));
-    }
-
     default EmployeeStatsResponse toStatsResponse(long total, Map<ContractType, Long> distribution) {
         Map<String, Long> converted = distribution.entrySet().stream()
                 .collect(Collectors.toMap(e -> e.getKey().name(), Map.Entry::getValue));

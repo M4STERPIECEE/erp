@@ -42,19 +42,46 @@ npm run dev
 
 App available at **http://localhost:5173**.
 
+## Architecture
+
+Hexagonal architecture (Ports & Adapters) with clear separation of concerns. Dependencies point inward: adapters depend on the domain, never the reverse.
+
+All object mapping between layers is handled by **MapStruct** mappers — no manual `get`/`set` mapping in controllers or services.
+
 ## Project structure
 
 ```
-erpbackend/          # Spring Boot — hexagonal architecture (Ports & Adapters)
-├── adapter/in/web   # REST controllers + DTOs
-├── adapter/out/persistence  # JPA repositories + MapStruct mappers
-├── domain/          # Domain models, services, ports, exceptions
-└── infrastructure/  # Security, config, Flyway migrations
+erpbackend/
+├── adapter/in/web/
+│   ├── controller/         # REST controllers (7 controllers)
+│   ├── dto/request/        # Request DTOs (7 records)
+│   ├── dto/response/       # Response DTOs (9 records)
+│   ├── exception/          # Global exception handler
+│   └── mapper/             # Web layer MapStruct mappers (5 mappers)
+├── adapter/out/
+│   ├── persistence/        # JPA entities, repositories, adapters, mappers
+│   ├── notification/       # Email notification (placeholder)
+│   └── pdf/                # PDF generation (placeholder)
+├── application/
+│   ├── command/            # Use case commands
+│   ├── result/             # Use case result records
+│   └── mapper/             # Application layer mappers (manual, no framework)
+├── domain/
+│   ├── model/              # Domain models + enums
+│   ├── port/in/            # Input ports (use case interfaces)
+│   ├── port/out/           # Output ports (repository/SPI interfaces)
+│   ├── service/            # Domain service implementations
+│   └── exception/          # Domain exceptions
+└── infrastructure/
+    ├── security/           # JWT, Spring Security config, AuthenticatedUserProvider
+    ├── config/             # Application configuration
+    └── exception/          # Infrastructure exceptions
 
-erpfrontend/         # React / Vite
-├── components/      # Shared UI components
-├── pages/           # Page modules grouped by feature
-├── hooks/           # Custom React hooks
-├── services/        # API client functions
-└── types/           # TypeScript types
+erpfrontend/
+├── components/             # Shared UI components
+├── pages/                  # Page modules grouped by feature (dashboard, employees,
+│                           #   departments, leaves, login)
+├── hooks/                  # Custom React hooks
+├── services/               # API client functions (axios)
+└── types/                  # TypeScript types
 ```

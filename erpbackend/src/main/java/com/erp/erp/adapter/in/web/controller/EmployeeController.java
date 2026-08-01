@@ -7,6 +7,7 @@ import com.erp.erp.adapter.in.web.dto.response.EmployeeStatsResponse;
 import com.erp.erp.adapter.in.web.dto.response.PagedEmployeeResponse;
 import com.erp.erp.adapter.in.web.dto.response.ProfileResponse;
 import com.erp.erp.adapter.in.web.mapper.EmployeeWebMapper;
+import com.erp.erp.application.mapper.EmployeeServiceMapper;
 import com.erp.erp.application.command.CreateEmployeeCommand;
 import com.erp.erp.application.result.EmployeeListResult;
 import com.erp.erp.application.result.EmployeeResult;
@@ -39,6 +40,7 @@ public class EmployeeController {
     private final GetEmployeeContractUseCase getEmployeeContractUseCase;
     private final GetEmployeeStatsUseCase getEmployeeStatsUseCase;
     private final EmployeeWebMapper employeeWebMapper;
+    private final EmployeeServiceMapper employeeServiceMapper;
     private final EmployeeRepositoryPort employeeRepositoryPort;
     private final DepartmentService departmentService;
     private final JwtTokenProvider jwtTokenProvider;
@@ -50,6 +52,7 @@ public class EmployeeController {
             GetEmployeeContractUseCase getEmployeeContractUseCase,
             GetEmployeeStatsUseCase getEmployeeStatsUseCase,
             EmployeeWebMapper employeeWebMapper,
+            EmployeeServiceMapper employeeServiceMapper,
             EmployeeRepositoryPort employeeRepositoryPort,
             DepartmentService departmentService,
             JwtTokenProvider jwtTokenProvider) {
@@ -60,12 +63,13 @@ public class EmployeeController {
         this.getEmployeeContractUseCase = getEmployeeContractUseCase;
         this.getEmployeeStatsUseCase = getEmployeeStatsUseCase;
         this.employeeWebMapper = employeeWebMapper;
+        this.employeeServiceMapper = employeeServiceMapper;
         this.employeeRepositoryPort = employeeRepositoryPort;
         this.departmentService = departmentService;
         this.jwtTokenProvider = jwtTokenProvider;
     }
 
-    @GetMapping("/me")
+    @GetMapping("/profile")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ProfileResponse> myProfile() {
         String email = jwtTokenProvider.getCurrentEmail()
@@ -85,7 +89,9 @@ public class EmployeeController {
 
     @GetMapping
     @PreAuthorize("hasRole('admin')")
-    public ResponseEntity<PagedEmployeeResponse> list(@RequestParam(defaultValue = "") String search, @RequestParam(required = false) Long department, @RequestParam(defaultValue = "") String statut, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+    public ResponseEntity<PagedEmployeeResponse> list(@RequestParam(defaultValue = "") String search,
+            @RequestParam(required = false) Long department, @RequestParam(defaultValue = "") String statut,
+            @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
         PageResult<EmployeeListResult> result = listEmployeesUseCase.list(search, department, statut, page, size);
         PagedEmployeeResponse response = employeeWebMapper.toPagedResponse(result);
         return ResponseEntity.ok(response);
@@ -103,9 +109,11 @@ public class EmployeeController {
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<EmployeeResponse> getById(@PathVariable Long id) {
-        Employee employee = getEmployeeByIdUseCase.findById(id).orElseThrow(() -> new EmployeeNotFoundException("Employ\u00e9 introuvable : id=" + id));
+        Employee employee = getEmployeeByIdUseCase.findById(id)
+                .orElseThrow(() -> new EmployeeNotFoundException("Employé introuvable : id=" + id));
         ContractInfo contract = getEmployeeContractUseCase.findContractByEmployeeId(id).orElse(null);
-        return ResponseEntity.ok(employeeWebMapper.toEmployeeResponse(employee, contract));
+        return ResponseEntity
+                .ok(employeeWebMapper.toResponseFromList(employeeServiceMapper.toListResult(employee, contract)));
     }
 
     @GetMapping("/stats")
@@ -118,8 +126,10 @@ public class EmployeeController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('admin')")
-    public ResponseEntity<EmployeeResponse> update(@PathVariable Long id, @Valid @RequestBody UpdateEmployeeRequest request) {
-        Employee employee = getEmployeeByIdUseCase.findById(id).orElseThrow(() -> new EmployeeNotFoundException("Employ\u00e9 introuvable : id=" + id));
+    public ResponseEntity<EmployeeResponse> update(@PathVariable Long id,
+            @Valid @RequestBody UpdateEmployeeRequest request) {
+        Employee employee = getEmployeeByIdUseCase.findById(id)
+                .orElseThrow(() -> new EmployeeNotFoundException("Employé introuvable : id=" + id));
         employeeWebMapper.updateEmployee(employee, request);
         Employee saved = employeeRepositoryPort.save(employee);
         if (request.contractType() != null && request.salaireBase() != null) {
@@ -128,6 +138,7 @@ public class EmployeeController {
             employeeRepositoryPort.updateContract(id, contractType, request.salaireBase(), dateFin);
         }
         ContractInfo contract = getEmployeeContractUseCase.findContractByEmployeeId(id).orElse(null);
-        return ResponseEntity.ok(employeeWebMapper.toEmployeeResponse(saved, contract));
+        return ResponseEntity
+                .ok(employeeWebMapper.toResponseFromList(employeeServiceMapper.toListResult(saved, contract)));
     }
 }
