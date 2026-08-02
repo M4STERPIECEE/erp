@@ -21,12 +21,7 @@ public class ErrorResponseFactory {
     }
 
     public ApiErrorResponse build(HttpStatus status, String message) {
-        return new ApiErrorResponse(
-                LocalDateTime.now().toString(),
-                status.value(),
-                status.getReasonPhrase(),
-                message
-        );
+        return new ApiErrorResponse(LocalDateTime.now().toString(), status.value(), status.getReasonPhrase(), message);
     }
 
     public void write(HttpServletResponse response, HttpStatus status, String message) throws IOException {
