@@ -15,8 +15,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.Map;
-
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -33,49 +31,49 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(EmployeeNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleEmployeeNotFound(EmployeeNotFoundException ex) {
+    public ResponseEntity<ApiErrorResponse> handleEmployeeNotFound(EmployeeNotFoundException ex) {
         log.warn("Employee not found: {}", ex.getMessage());
         return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
     @ExceptionHandler(LeaveNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleLeaveNotFound(LeaveNotFoundException ex) {
+    public ResponseEntity<ApiErrorResponse> handleLeaveNotFound(LeaveNotFoundException ex) {
         log.warn("Leave not found: {}", ex.getMessage());
         return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
     @ExceptionHandler(PayslipNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handlePayslipNotFound(PayslipNotFoundException ex) {
+    public ResponseEntity<ApiErrorResponse> handlePayslipNotFound(PayslipNotFoundException ex) {
         log.warn("Payslip not found: {}", ex.getMessage());
         return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
     @ExceptionHandler(LeaveConflictException.class)
-    public ResponseEntity<Map<String, Object>> handleLeaveConflict(LeaveConflictException ex) {
+    public ResponseEntity<ApiErrorResponse> handleLeaveConflict(LeaveConflictException ex) {
         log.warn("Leave conflict: {}", ex.getMessage());
         return buildResponse(HttpStatus.CONFLICT, ex.getMessage());
     }
 
     @ExceptionHandler(UnauthorizedException.class)
-    public ResponseEntity<Map<String, Object>> handleUnauthorized(UnauthorizedException ex) {
+    public ResponseEntity<ApiErrorResponse> handleUnauthorized(UnauthorizedException ex) {
         log.warn("Non authentifié: {}", ex.getMessage());
         return buildResponse(HttpStatus.UNAUTHORIZED, ex.getMessage());
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Map<String, Object>> handleIllegalArgument(IllegalArgumentException ex) {
+    public ResponseEntity<ApiErrorResponse> handleIllegalArgument(IllegalArgumentException ex) {
         log.warn("Requête invalide: {}", ex.getMessage());
         return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<Map<String, Object>> handleAccessDenied(AccessDeniedException ex) {
+    public ResponseEntity<ApiErrorResponse> handleAccessDenied(AccessDeniedException ex) {
         log.warn("Accès refusé: {}", ex.getMessage());
         return buildResponse(HttpStatus.FORBIDDEN, "Accès refusé");
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleValidation(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ApiErrorResponse> handleValidation(MethodArgumentNotValidException ex) {
         String message = ex.getBindingResult().getFieldErrors().stream()
                 .map(e -> e.getField() + ": " + e.getDefaultMessage())
                 .reduce((a, b) -> a + "; " + b)
@@ -85,18 +83,18 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<Map<String, Object>> handleAuthentication(AuthenticationException ex) {
+    public ResponseEntity<ApiErrorResponse> handleAuthentication(AuthenticationException ex) {
         log.warn("Échec d'authentification: {}", ex.getMessage());
         return buildResponse(HttpStatus.UNAUTHORIZED, "Email ou mot de passe incorrect");
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleGeneral(Exception ex) {
+    public ResponseEntity<ApiErrorResponse> handleGeneral(Exception ex) {
         log.error("Erreur interne du serveur", ex);
         return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Erreur interne du serveur: " + ex.getMessage());
     }
 
-    private ResponseEntity<Map<String, Object>> buildResponse(HttpStatus status, String message) {
+    private ResponseEntity<ApiErrorResponse> buildResponse(HttpStatus status, String message) {
         return ResponseEntity.status(status).body(errorResponseFactory.build(status, message));
     }
 }
